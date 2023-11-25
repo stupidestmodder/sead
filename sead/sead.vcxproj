@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{83400ca8-871e-4ff7-9dee-a78bfa08f885}</ProjectGuid>
+    <RootNamespace>sead</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\out\</OutDir>
+    <IntDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\int\</IntDir>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\out\</OutDir>
+    <IntDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\int\</IntDir>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\out\</OutDir>
+    <IntDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\int\</IntDir>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\out\</OutDir>
+    <IntDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\int\</IntDir>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SEAD_PLATFORM_WINDOWS;SEAD_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SEAD_PLATFORM_WINDOWS;SEAD_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SEAD_PLATFORM_WINDOWS;SEAD_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SEAD_PLATFORM_WINDOWS;SEAD_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\basis\seadAssert.h" />
+    <ClInclude Include="include\basis\seadNew.h" />
+    <ClInclude Include="include\basis\seadRawPrint.h" />
+    <ClInclude Include="include\basis\seadTypes.h" />
+    <ClInclude Include="include\basis\seadWarning.h" />
+    <ClInclude Include="include\container\seadBuffer.h" />
+    <ClInclude Include="include\container\seadListImpl.h" />
+    <ClInclude Include="include\container\seadOffsetList.h" />
+    <ClInclude Include="include\container\seadPtrArray.h" />
+    <ClInclude Include="include\container\seadRingBuffer.h" />
+    <ClInclude Include="include\container\seadTList.h" />
+    <ClInclude Include="include\devenv\seadAssertConfig.h" />
+    <ClInclude Include="include\devenv\seadPrintConfig.h" />
+    <ClInclude Include="include\framework\seadFramework.h" />
+    <ClInclude Include="include\framework\seadTaskBase.h" />
+    <ClInclude Include="include\gfx\seadFrameBuffer.h" />
+    <ClInclude Include="include\heap\seadArena.h" />
+    <ClInclude Include="include\heap\seadDisposer.h" />
+    <ClInclude Include="include\heap\seadHeap.h" />
+    <ClInclude Include="include\heap\seadHeapMgr.h" />
+    <ClInclude Include="include\heap\seadMemBlock.h" />
+    <ClInclude Include="include\math\seadMathCalcCommon.h" />
+    <ClInclude Include="include\math\seadMathCalcCommon.hpp" />
+    <ClInclude Include="include\prim\seadBitFlag.h" />
+    <ClInclude Include="include\prim\seadDelegate.h" />
+    <ClInclude Include="include\prim\seadDelegateEventSlot.h" />
+    <ClInclude Include="include\prim\seadEndian.h" />
+    <ClInclude Include="include\prim\seadMemUtil.h" />
+    <ClInclude Include="include\prim\seadNamable.h" />
+    <ClInclude Include="include\prim\seadPtrUtil.h" />
+    <ClInclude Include="include\prim\seadSafeString.h" />
+    <ClInclude Include="include\prim\seadScopedLock.h" />
+    <ClInclude Include="include\prim\seadStringUtil.h" />
+    <ClInclude Include="include\prim\win\seadMemUtilWin.hpp" />
+    <ClInclude Include="include\random\seadRandom.h" />
+    <ClInclude Include="include\sead\test.h" />
+    <ClInclude Include="include\thread\seadAtomic.h" />
+    <ClInclude Include="include\thread\seadCriticalSection.h" />
+    <ClInclude Include="include\thread\seadEvent.h" />
+    <ClInclude Include="include\thread\seadMessageQueue.h" />
+    <ClInclude Include="include\thread\seadThread.h" />
+    <ClInclude Include="include\thread\seadThreadLocalStorage.h" />
+    <ClInclude Include="include\thread\win\seadAtomicWin.hpp" />
+    <ClInclude Include="include\thread\win\seadThreadLocalStorageWin.hpp" />
+    <ClInclude Include="include\time\seadTickSpan.h" />
+    <ClInclude Include="include\time\seadTickTime.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\basis\seadAssert.cpp" />
+    <ClCompile Include="src\basis\seadNew.cpp" />
+    <ClCompile Include="src\basis\seadRawPrint.cpp" />
+    <ClCompile Include="src\basis\seadWarning.cpp" />
+    <ClCompile Include="src\basis\win\seadAssertWin.cpp" />
+    <ClCompile Include="src\basis\win\seadRawPrintWin.cpp" />
+    <ClCompile Include="src\container\seadListImpl.cpp" />
+    <ClCompile Include="src\container\seadPtrArray.cpp" />
+    <ClCompile Include="src\devenv\seadAssertConfig.cpp" />
+    <ClCompile Include="src\devenv\seadPrintConfig.cpp" />
+    <ClCompile Include="src\heap\seadDisposer.cpp" />
+    <ClCompile Include="src\heap\seadHeap.cpp" />
+    <ClCompile Include="src\heap\seadHeapMgr.cpp" />
+    <ClCompile Include="src\heap\win\seadArenaWin.cpp" />
+    <ClCompile Include="src\prim\seadBitFlag.cpp" />
+    <ClCompile Include="src\prim\seadEndian.cpp" />
+    <ClCompile Include="src\prim\seadMemUtil.cpp" />
+    <ClCompile Include="src\prim\seadSafeString.cpp" />
+    <ClCompile Include="src\prim\seadStringUtil.cpp" />
+    <ClCompile Include="src\prim\win\seadMemUtilWin.cpp" />
+    <ClCompile Include="src\random\seadRandom.cpp" />
+    <ClCompile Include="src\thread\seadThread.cpp" />
+    <ClCompile Include="src\thread\win\seadCriticalSectionWin.cpp" />
+    <ClCompile Include="src\thread\win\seadEventWin.cpp" />
+    <ClCompile Include="src\thread\win\seadMessageQueueWin.cpp" />
+    <ClCompile Include="src\thread\win\seadThreadWin.cpp" />
+    <ClCompile Include="src\time\seadTickSpan.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
