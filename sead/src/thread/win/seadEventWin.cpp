@@ -81,7 +81,7 @@ void Event::wait(TickSpan timeout)
     SEAD_ASSERT_MSG(mIsInitialized, "Event is not initialized.");
 #endif // SEAD_DEBUG
 
-    WaitForSingleObject(mEventInner, timeout.toMilliSeconds());
+    WaitForSingleObject(mEventInner, static_cast<DWORD>(timeout.toMilliSeconds()));
 }
 
 void Event::setSignal()

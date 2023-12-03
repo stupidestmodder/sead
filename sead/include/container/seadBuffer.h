@@ -169,10 +169,10 @@ public:
         return &mBuffer[idx];
     }
 
-    T& front() { return mBuffer[0]; }
-    const T& front() const { return mBuffer[0]; }
-    T& back() { return mBuffer[mSize - 1]; }
-    const T& back() const { return mBuffer[mSize - 1]; }
+    T& front() { return get(0) }
+    const T& front() const { return get(0); }
+    T& back() { return get(mSize - 1); }
+    const T& back() const { return get(mSize - 1); }
 
     s32 size() const { return mSize; }
     s32 getSize() const { return mSize; }

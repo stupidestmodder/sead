@@ -19,15 +19,86 @@ using ThreadListNode = TListNode<Thread*>;
 // TODO
 class Thread : public IDisposer, public INamable
 {
+    SEAD_NO_COPY(Thread);
+
 public:
     // TODO
     enum class State
     {
     };
 
+    static const s32 cDefaultSeadPriority;
+    static const s32 cDefaultPriority;
+
 public:
-    ThreadListNode* getThreadListNode() { return &mListNode; }
+    Thread(const SafeString& name, Heap* heap, s32, MessageQueue::BlockType, MessageQueue::Element, s32, s32);
+
+protected:
+#ifdef SEAD_PLATFORM_WINDOWS
+    // TODO
+    Thread(Heap* heap);
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM_WINDOWS
+
+public:
+    ~Thread() override;
+
+    virtual void destroy();
+    virtual bool sendMessage(MessageQueue::Element, MessageQueue::BlockType);
+    virtual MessageQueue::Element recvMessage(MessageQueue::BlockType);
+    virtual const MessageQueue& getMessageQueue() const;
+    virtual bool start();
+    virtual void quit(bool);
+
+    bool isDone() const;
+
+    virtual void waitDone();
+    virtual void quitAndDestroySingleThread(bool);
+    virtual void quitAndWaitDoneSingleThread(bool);
+
+    static void sleep(TickSpan span);
+    static void yield();
+
+    u32 getID() const;
     Heap* getCurrentHeap() const { return mCurrentHeap; }
+
+    virtual void setPriority(s32);
+    virtual s32 getPriority() const;
+    virtual MessageQueue::BlockType getBlockType() const;
+    virtual s32 getStackSize() const;
+    virtual s32 calcStackUsedSizePeak() const;
+    void checkStackOverFlow(const char*, s32) const;
+    void checkStackEndCorruption(const char*, s32) const;
+    void checkStackPointerOverFlow(const char*, s32) const;
+
+    bool isQuitting() const;
+    void setStackOverflowExceptionEnable(bool);
+
+protected:
+    ThreadListNode* getListNode() { return &mListNode; }
+    void setCurrentHeap_(Heap* heap) { mCurrentHeap = heap; }
+    FindContainHeapCache* getFindContainHeapCache() { return &mFindContainHeapCache; }
+    const FindContainHeapCache* getFindContainHeapCache() const { return &mFindContainHeapCache; }
+
+    void run_();
+    virtual void calc_(MessageQueue::Element);
+
+    void initStackCheck_();
+    void initStackCheckWithCurrentStackPointer_();
+    virtual u32* getStackCheckStartAddress_() const;
+
+#ifdef SEAD_PLATFORM_WINDOWS
+    static void* winThreadFunc_(void*);
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM_WINDOWS
+
+    friend class ThreadMgr;
+    friend class HeapMgr;
+
+public:
+    uintptr_t getStackBase() const;
 
 protected:
     MessageQueue mMessageQueue;
@@ -72,13 +143,13 @@ protected:
     void addThread_(Thread* thread)
     {
         ScopedLock<CriticalSection> lock(&mIterateLockCS);
-        mList.pushBack(thread->getThreadListNode());
+        mList.pushBack(thread->getListNode());
     }
 
     void removeThread_(Thread* thread)
     {
         ScopedLock<CriticalSection> lock(&mIterateLockCS);
-        mList.erase(thread->getThreadListNode());
+        mList.erase(thread->getListNode());
     }
 
     void initMainThread_(Heap* heap);

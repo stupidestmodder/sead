@@ -23,7 +23,7 @@ inline void AllocFailAssert(Heap*, size_t, s32)
 #ifdef SEAD_COMPILER_MSVC
 #pragma warning(push)
 #pragma warning(disable : 28251)
-#endif
+#endif // SEAD_COMPILER_MSVC
 
 void* operator new(size_t size);
 void* operator new[](size_t size);
@@ -32,7 +32,7 @@ void* operator new[](size_t size, const std::nothrow_t&) noexcept;
 
 #ifdef SEAD_COMPILER_MSVC
 #pragma warning(pop)
-#endif
+#endif // SEAD_COMPILER_MSVC
 
 void* operator new(size_t size, sead::Heap* heap);
 void* operator new[](size_t size, sead::Heap* heap);

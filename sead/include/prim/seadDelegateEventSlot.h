@@ -133,7 +133,7 @@ public:
 
     void fire(TArg arg)
     {
-        for (auto& slot : mList)
+        for (Slot*& slot : mList)
             slot->invoke_(arg);
     }
 

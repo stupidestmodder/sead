@@ -4,6 +4,7 @@
 #include <heap/seadDisposer.h>
 #include <prim/seadBitFlag.h>
 #include <prim/seadNamable.h>
+#include <prim/seadRuntimeTypeInfo.h>
 #include <thread/seadCriticalSection.h>
 
 namespace sead {
@@ -13,6 +14,8 @@ class WriteStream;
 
 class Heap : public IDisposer, public INamable
 {
+    SEAD_RTTI_BASE(Heap);
+
 public:
     enum HeapDirection
     {
@@ -71,6 +74,7 @@ public:
     virtual bool isFreeable() const = 0;
     virtual bool isResizable() const = 0;
     virtual bool isAdjustable() const = 0;
+    virtual void dump() const { }
 
     Heap* getParent() const { return mParent; }
     HeapDirection getDirection() const { return mDirection; }
@@ -112,18 +116,20 @@ public:
     DisposerList::constIterator disposerBegin() const { return mDisposerList.constBegin(); }
     DisposerList::constIterator disposerEnd() const { return mDisposerList.constEnd(); }
 
+    virtual void pushBackChild_(Heap* child);
+
 protected:
     Heap* findContainHeap_(const void* ptr);
-    bool hasNoChild_() const;
+    bool hasNoChild_() const { return mChildren.size() == 0; }
     void destruct_();
     void dispose_(const void* begin, const void* end);
     void appendDisposer_(IDisposer* disposer);
     void removeDisposer_(IDisposer* disposer);
-    void pushBackChild_(Heap* child);
     void eraseChild_(Heap* child);
     void checkAccessThread_() const;
 
     friend class IDisposer;
+    friend class HeapMgr;
 
 protected:
     void* mStart;

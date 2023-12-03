@@ -44,7 +44,7 @@ Heap* Heap::findContainHeap_(const void* ptr)
     if (!isInclude(ptr))
         return nullptr;
 
-    for (auto& heap : mChildren)
+    for (Heap& heap : mChildren)
     {
         if (heap.isInclude(ptr))
             return heap.findContainHeap_(ptr);

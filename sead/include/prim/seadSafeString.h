@@ -38,6 +38,18 @@ public:
         return mStringTop;
     }
 
+    bool isEqual(const SafeStringBase& rhs) const;
+
+    friend bool operator==(const SafeStringBase& lhs, const SafeStringBase& rhs)
+    {
+        return lhs.isEqual(rhs);
+    }
+
+    friend bool operator!=(const SafeStringBase& lhs, const SafeStringBase& rhs)
+    {
+        return !lhs.isEqual(rhs);
+    }
+
 protected:
     virtual void assureTerminationImpl_() const
     {

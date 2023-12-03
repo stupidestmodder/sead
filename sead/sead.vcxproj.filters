@@ -150,7 +150,13 @@
     <ClInclude Include="include\heap\seadMemBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\thread\win\seadAtomicWin.hpp">
+    <ClInclude Include="include\heap\seadExpHeap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prim\seadRuntimeTypeInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\random\seadGlobalRandom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -234,6 +240,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\thread\win\seadThreadWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\random\seadGlobalRandom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

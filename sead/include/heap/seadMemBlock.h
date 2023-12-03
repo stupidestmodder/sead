@@ -47,9 +47,9 @@ protected:
 
         if (mOffset != 0)
         {
-            uintptr_t* offsetTail = memory() - cPtrSize;
-            SEAD_ASSERT(!PtrUtil::isInclude(offsetTail, this, PtrUtil::addOffset(this, sizeof(MemBlock))));
-            *offsetTail = PtrUtil::addOffset(this, 1);
+            //uintptr_t* offsetTail = memory() - cPtrSize;
+            //SEAD_ASSERT(!PtrUtil::isInclude(offsetTail, this, PtrUtil::addOffset(this, sizeof(MemBlock))));
+            //*offsetTail = PtrUtil::addOffset(this, 1);
         }
     }
 
