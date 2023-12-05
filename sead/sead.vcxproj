@@ -112,7 +112,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SEAD_PLATFORM_WINDOWS;SEAD_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SEAD_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExceptionHandling>false</ExceptionHandling>
@@ -148,7 +148,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SEAD_PLATFORM_WINDOWS;SEAD_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SEAD_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExceptionHandling>false</ExceptionHandling>
@@ -191,6 +191,7 @@
     <ClInclude Include="include\prim\seadDelegate.h" />
     <ClInclude Include="include\prim\seadDelegateEventSlot.h" />
     <ClInclude Include="include\prim\seadEndian.h" />
+    <ClInclude Include="include\prim\seadEnum.h" />
     <ClInclude Include="include\prim\seadMemUtil.h" />
     <ClInclude Include="include\prim\seadNamable.h" />
     <ClInclude Include="include\prim\seadPtrUtil.h" />
@@ -202,6 +203,9 @@
     <ClInclude Include="include\random\seadGlobalRandom.h" />
     <ClInclude Include="include\random\seadRandom.h" />
     <ClInclude Include="include\sead\test.h" />
+    <ClInclude Include="include\stream\seadStream.h" />
+    <ClInclude Include="include\stream\seadStreamFormat.h" />
+    <ClInclude Include="include\stream\seadStreamSrc.h" />
     <ClInclude Include="include\thread\seadAtomic.h" />
     <ClInclude Include="include\thread\seadCriticalSection.h" />
     <ClInclude Include="include\thread\seadEvent.h" />

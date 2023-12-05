@@ -159,6 +159,18 @@
     <ClInclude Include="include\random\seadGlobalRandom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\prim\seadEnum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stream\seadStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stream\seadStreamFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stream\seadStreamSrc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\basis\seadNew.cpp">

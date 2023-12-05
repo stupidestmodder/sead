@@ -86,7 +86,8 @@ public:
 
     static Heap* getRootHeap(s32 idx) { return sRootHeaps.at(idx); }
     static s32 getRootHeapNum() { return sRootHeaps.size(); }
-    static void addRootHeap(Heap* heap);
+    static void addRootHeap(Heap* heap) { sRootHeaps.pushBack(heap); }
+    static void removeRootHeap(Heap* heap);
     static const Arena* getArena() { return sArena; }
     static IndependentHeaps* getIndependentHeaps() { return &sIndependentHeaps; }
     static bool isContainedInAnyHeap(const void* addr);
@@ -165,6 +166,11 @@ public:
     static CriticalSection* getHeapTreeLockCS_() { return &sHeapTreeLockCS; }
 
     static void removeFromFindContainHeapCache_(Heap* heap);
+
+#ifdef SEAD_DEBUG
+    static void dumpFindContainHeapCacheStatistics();
+    static void clearFindContainHeapCacheStatistics();
+#endif // SEAD_DEBUG
 
 protected:
     Heap* setCurrentHeap_(Heap* heap);

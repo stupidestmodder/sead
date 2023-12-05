@@ -44,10 +44,20 @@ HeapMgr::~HeapMgr()
 {
 }
 
+void HeapMgr::initialize(size_t size)
+{
+    ScopedLock<CriticalSection> lock(getHeapTreeLockCS_());
+
+    sArena = &sDefaultArena;
+    sArena->initialize(size);
+
+    HeapMgr::initializeImpl_();
+}
+
 void HeapMgr::initialize(Arena* arena)
 {
     sArena = arena;
-    initializeImpl_();
+    HeapMgr::initializeImpl_();
 }
 
 void HeapMgr::destroy()
@@ -215,6 +225,15 @@ Heap* HeapMgr::getCurrentHeap() const
     return currentThread->getCurrentHeap();
 }
 
+void HeapMgr::removeRootHeap(Heap* heap)
+{
+    s32 idx = sRootHeaps.indexOf(heap);
+    if (idx == -1)
+        return;
+
+    sRootHeaps.erase(idx);
+}
+
 bool HeapMgr::isContainedInAnyHeap(const void* addr)
 {
     // TODO: Sead does not lock sHeapTreeLockCS here, should we ?
@@ -248,6 +267,45 @@ void HeapMgr::dumpTreeYAML(WriteStream& stream)
         heap.dumpTreeYAML(stream, 0);
     }
 }
+
+#ifdef SEAD_DEBUG
+HeapMgr::IAllocCallback* HeapMgr::setAllocCallback(IAllocCallback* callback)
+{
+    IAllocCallback* prev = mAllocCallback;
+    mAllocCallback = callback;
+    return prev;
+}
+#endif // SEAD_DEBUG
+
+HeapMgr::IAllocFailedCallback* HeapMgr::setAllocFailedCallback(IAllocFailedCallback* callback)
+{
+    IAllocFailedCallback* prev = mAllocFailedCallback;
+    mAllocFailedCallback = callback;
+    return prev;
+}
+
+#ifdef SEAD_DEBUG
+HeapMgr::IFreeCallback* HeapMgr::setFreeCallback(IFreeCallback* callback)
+{
+    IFreeCallback* prev = mFreeCallback;
+    mFreeCallback = callback;
+    return prev;
+}
+
+HeapMgr::ICreateCallback* HeapMgr::setCreateCallback(ICreateCallback* callback)
+{
+    ICreateCallback* prev = mCreateCallback;
+    mCreateCallback = callback;
+    return prev;
+}
+
+HeapMgr::IDestroyCallback* HeapMgr::setDestroyCallback(IDestroyCallback* callback)
+{
+    IDestroyCallback* prev = mDestroyCallback;
+    mDestroyCallback = callback;
+    return prev;
+}
+#endif // SEAD_DEBUG
 
 // TODO: Refactor
 void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
@@ -303,6 +361,58 @@ void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
         Thread::sleep(TickSpan::makeFromMicroSeconds(10));
     } while (true);
 }
+
+#ifdef SEAD_DEBUG
+void HeapMgr::dumpFindContainHeapCacheStatistics()
+{
+    ThreadMgr* threadMgr = ThreadMgr::instance();
+    if (!threadMgr)
+        return;
+
+    SEAD_PRINT("FindContainHeapCache Statistics: \n");
+
+    Thread* mainThread = threadMgr->getMainThread();
+    if (mainThread)
+    {
+        SEAD_PRINT("  [%16s] ", mainThread->getName().cstr());
+
+        FindContainHeapCache* cache = mainThread->getFindContainHeapCache();
+        cache->dumpStatistics();
+    }
+
+    ScopedLock<CriticalSection> lock(threadMgr->getIterateLockCS());
+
+    for (auto it = threadMgr->constBegin(); it != threadMgr->constEnd(); ++it)
+    {
+        SEAD_PRINT("  [%16s] ", (*it)->getName().cstr());
+
+        FindContainHeapCache* cache = (*it)->getFindContainHeapCache();
+        cache->dumpStatistics();
+    }
+}
+
+void HeapMgr::clearFindContainHeapCacheStatistics()
+{
+    ThreadMgr* threadMgr = ThreadMgr::instance();
+    if (!threadMgr)
+        return;
+
+    Thread* mainThread = threadMgr->getMainThread();
+    if (mainThread)
+    {
+        FindContainHeapCache* cache = mainThread->getFindContainHeapCache();
+        cache->clearStatistics();
+    }
+
+    ScopedLock<CriticalSection> lock(threadMgr->getIterateLockCS());
+
+    for (auto it = threadMgr->constBegin(); it != threadMgr->constEnd(); ++it)
+    {
+        FindContainHeapCache* cache = (*it)->getFindContainHeapCache();
+        cache->clearStatistics();
+    }
+}
+#endif // SEAD_DEBUG
 
 Heap* HeapMgr::setCurrentHeap_(Heap* heap)
 {

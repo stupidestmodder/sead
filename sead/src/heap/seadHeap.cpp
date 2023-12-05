@@ -39,6 +39,36 @@ Heap::~Heap()
 {
 }
 
+void Heap::dumpTreeYAML(WriteStream& stream, s32 indent) const
+{
+    // TODO
+    SEAD_UNUSED(stream);
+    SEAD_UNUSED(indent);
+    SEAD_ASSERT(false);
+/*
+    dumpYAML(stream, indent);
+
+    FixedSafeString<128> str("");
+    str.append(' ', indent);
+    str.appendWithFormat("  children:\n");
+
+    stream.writeDecorationText(str);
+
+    for (Heap& child : mChildren)
+    {
+        child.dumpTreeYAML(stream, indent + 4);
+    }
+*/
+}
+
+void Heap::dumpYAML(WriteStream& stream, s32 indent) const
+{
+    // TODO
+    SEAD_UNUSED(stream);
+    SEAD_UNUSED(indent);
+    SEAD_ASSERT(false);
+}
+
 Heap* Heap::findContainHeap_(const void* ptr)
 {
     if (!isInclude(ptr))
@@ -63,6 +93,8 @@ void Heap::destruct_()
 
     if (mParent)
         mParent->eraseChild_(this);
+    else
+        HeapMgr::removeRootHeap(this);
 }
 
 void Heap::dispose_(const void* begin, const void* end)
@@ -123,12 +155,29 @@ void Heap::checkAccessThread_() const
         return;
 
     Thread* currentThread = ThreadMgr::instance()->getCurrentThread();
-    if (mAccessThread != currentThread)
+    if (currentThread != mAccessThread)
     {
         SEAD_ASSERT_MSG(false, "Current thread is %s(0x%p). This heap can access from %s(0x%p) only.",
                         currentThread->getName().cstr(), currentThread, mAccessThread->getName().cstr(), mAccessThread);
     }
 #endif // SEAD_DEBUG
 }
+
+#ifdef SEAD_DEBUG
+bool Heap::isEnableDebugFillAlloc_() const
+{
+    return HeapMgr::instance()->isEnableDebugFillAlloc() && mFlag.isOnAll((1 << Flag::cEnableDebugFillSystem) | (1 << Flag::cEnableDebugFillUser));
+}
+
+bool Heap::isEnableDebugFillFree_() const
+{
+    return HeapMgr::instance()->isEnableDebugFillFree() && mFlag.isOnAll((1 << Flag::cEnableDebugFillSystem) | (1 << Flag::cEnableDebugFillUser));
+}
+
+bool Heap::isEnableDebugFillHeapDestroy_() const
+{
+    return HeapMgr::instance()->isEnableDebugFillHeapDestroy() && mFlag.isOn(1 << Flag::cEnableDebugFillUser);
+}
+#endif // SEAD_DEBUG
 
 } // namespace sead

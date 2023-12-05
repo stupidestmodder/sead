@@ -16,6 +16,37 @@ class Heap : public IDisposer, public INamable
 {
     SEAD_RTTI_BASE(Heap);
 
+#ifdef SEAD_DEBUG
+protected:
+    class ScopedDebugFillSystemDisabler
+    {
+    public:
+        ScopedDebugFillSystemDisabler(Heap* heap)
+            : mHeap(heap)
+        {
+            SEAD_ASSERT(mHeap);
+
+            if (mHeap->isEnableLock())
+                mHeap->mCS.lock();
+
+            SEAD_ASSERT(Heap::isEnableDebugFillSystem_(mHeap));
+
+            Heap::setEnableDebugFillSystem_(mHeap, false);
+        }
+
+        ~ScopedDebugFillSystemDisabler()
+        {
+            Heap::setEnableDebugFillSystem_(mHeap, true);
+
+            if (mHeap->isEnableLock())
+                mHeap->mCS.unlock();
+        }
+
+    private:
+        Heap* mHeap;
+    };
+#endif // SEAD_DEBUG
+
 public:
     enum HeapDirection
     {
@@ -60,9 +91,24 @@ public:
     virtual void* resizeFront(void* ptr, size_t newSize) = 0;
     virtual void* resizeBack(void* ptr, size_t newSize) = 0;
 
-    void* realloc(void* ptr, size_t newSize, s32 alignment);
+    void* realloc(void* ptr, size_t newSize, s32 alignment)
+    {
+        void* ret = tryRealloc(ptr, newSize, alignment);
+        SEAD_ASSERT_MSG(newSize == 0 || ret, "realloc failed. size: %zu, allocatable size: %zu, alignment: %d, heap: %s",
+                        newSize, getMaxAllocatableSize(alignment), alignment, getName().cstr());
+        return ret;
+    }
 
-    virtual void* tryRealloc(void* ptr, size_t newSize, s32 alignment);
+    virtual void* tryRealloc(void* ptr, size_t newSize, s32 alignment)
+    {
+        SEAD_UNUSED(ptr);
+        SEAD_UNUSED(newSize);
+        SEAD_UNUSED(alignment);
+
+        SEAD_ASSERT_MSG(false, "tryRealloc is not implement.");
+        return nullptr;
+    }
+
     virtual void freeAll() = 0;
     virtual const void* getStartAddress() const = 0;
     virtual const void* getEndAddress() const = 0;
@@ -74,6 +120,7 @@ public:
     virtual bool isFreeable() const = 0;
     virtual bool isResizable() const = 0;
     virtual bool isAdjustable() const = 0;
+
     virtual void dump() const { }
 
     Heap* getParent() const { return mParent; }
@@ -128,6 +175,22 @@ protected:
     void eraseChild_(Heap* child);
     void checkAccessThread_() const;
 
+#ifdef SEAD_DEBUG
+    bool isEnableDebugFillAlloc_() const;
+    bool isEnableDebugFillFree_() const;
+    bool isEnableDebugFillHeapDestroy_() const;
+
+    static void setEnableDebugFillSystem_(Heap* heap, bool enable)
+    {
+        heap->mFlag.changeBit(Flag::cEnableDebugFillSystem, enable);
+    }
+
+    static bool isEnableDebugFillSystem_(Heap* heap)
+    {
+        return heap->mFlag.isOnBit(Flag::cEnableDebugFillSystem);
+    }
+#endif // SEAD_DEBUG
+
     friend class IDisposer;
     friend class HeapMgr;
 
@@ -146,11 +209,5 @@ protected:
     Thread* mAccessThread;
 #endif // SEAD_DEBUG
 };
-
-inline void* Heap::tryRealloc(void*, size_t, s32)
-{
-    SEAD_ASSERT_MSG(false, "tryRealloc is not implement.");
-    return nullptr;
-}
 
 } // namespace sead

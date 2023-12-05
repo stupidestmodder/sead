@@ -22,21 +22,26 @@ class Thread : public IDisposer, public INamable
     SEAD_NO_COPY(Thread);
 
 public:
-    // TODO
+    // TODO: SEAD_ENUM(State)
     enum class State
     {
+        eInitialized = 0,
+        eRunning,
+        eQuitting,
+        eTerminated,
+        eReleased
     };
 
     static const s32 cDefaultSeadPriority;
     static const s32 cDefaultPriority;
 
 public:
-    Thread(const SafeString& name, Heap* heap, s32, MessageQueue::BlockType, MessageQueue::Element, s32, s32);
+    Thread(const SafeString& name, Heap* heap, s32 platformPriority, MessageQueue::BlockType blockType,
+           MessageQueue::Element quitMsg, s32 stackSize, s32 msgQueueSize);
 
 protected:
 #ifdef SEAD_PLATFORM_WINDOWS
-    // TODO
-    Thread(Heap* heap);
+    Thread(Heap* heap, HANDLE handle, u32 id);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -44,18 +49,18 @@ protected:
 public:
     ~Thread() override;
 
-    virtual void destroy();
-    virtual bool sendMessage(MessageQueue::Element, MessageQueue::BlockType);
-    virtual MessageQueue::Element recvMessage(MessageQueue::BlockType);
-    virtual const MessageQueue& getMessageQueue() const;
+    virtual void destroy() { waitDone(); }
+    virtual bool sendMessage(MessageQueue::Element msg, MessageQueue::BlockType blockType);
+    virtual MessageQueue::Element recvMessage(MessageQueue::BlockType blockType);
+    virtual const MessageQueue& getMessageQueue() const { return mMessageQueue; }
     virtual bool start();
-    virtual void quit(bool);
+    virtual void quit(bool isJam);
 
-    bool isDone() const;
+    bool isDone() const { return mState == State::eTerminated || mState == State::eReleased; }
 
     virtual void waitDone();
-    virtual void quitAndDestroySingleThread(bool);
-    virtual void quitAndWaitDoneSingleThread(bool);
+    virtual void quitAndDestroySingleThread(bool isJam) { quitAndWaitDoneSingleThread(isJam); }
+    virtual void quitAndWaitDoneSingleThread(bool isJam);
 
     static void sleep(TickSpan span);
     static void yield();
@@ -63,11 +68,12 @@ public:
     u32 getID() const;
     Heap* getCurrentHeap() const { return mCurrentHeap; }
 
-    virtual void setPriority(s32);
+    virtual void setPriority(s32 platformPriority);
     virtual s32 getPriority() const;
-    virtual MessageQueue::BlockType getBlockType() const;
-    virtual s32 getStackSize() const;
+    virtual MessageQueue::BlockType getBlockType() const { return mBlockType; }
+    virtual s32 getStackSize() const { return mStackSize; }
     virtual s32 calcStackUsedSizePeak() const;
+
     void checkStackOverFlow(const char*, s32) const;
     void checkStackEndCorruption(const char*, s32) const;
     void checkStackPointerOverFlow(const char*, s32) const;
@@ -82,14 +88,14 @@ protected:
     const FindContainHeapCache* getFindContainHeapCache() const { return &mFindContainHeapCache; }
 
     void run_();
-    virtual void calc_(MessageQueue::Element);
+    virtual void calc_(MessageQueue::Element) = 0;
 
     void initStackCheck_();
     void initStackCheckWithCurrentStackPointer_();
     virtual u32* getStackCheckStartAddress_() const;
 
 #ifdef SEAD_PLATFORM_WINDOWS
-    static void* winThreadFunc_(void*);
+    static u32 winThreadFunc_(void* arg);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -110,8 +116,9 @@ protected:
     MessageQueue::Element mQuitMsg;
     u32 mID;
     State mState;
+    // Affinity
 #ifdef SEAD_PLATFORM_WINDOWS
-
+    HANDLE mHandle;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -151,6 +158,8 @@ protected:
         ScopedLock<CriticalSection> lock(&mIterateLockCS);
         mList.erase(thread->getListNode());
     }
+
+    friend class Thread;
 
     void initMainThread_(Heap* heap);
     void destroyMainThread_();
