@@ -25,7 +25,7 @@ PrintFormatter::PrintFormatter(const char* formatStr, PrintOutput* output)
     , mIsFormatRestAll(false)
 {
     if (mFormatStr)
-        mFormatStrLength = std::strlen(mFormatStr);
+        mFormatStrLength = static_cast<s32>(std::strlen(mFormatStr));
 }
 
 void PrintFormatter::flush()
@@ -57,7 +57,7 @@ PrintFormatter& PrintFormatter::operator<<(const char* str)
     if (!mFormatStr)
     {
         mFormatStr = str;
-        mFormatStrLength = std::strlen(str);
+        mFormatStrLength = static_cast<s32>(std::strlen(str));
     }
     else
     {

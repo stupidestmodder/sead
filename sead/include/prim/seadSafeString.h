@@ -10,7 +10,6 @@ namespace sead {
 template <typename CharType>
 class BufferedSafeStringBase;
 
-// TODO
 template <typename CharType>
 class SafeStringBase
 {
@@ -36,13 +35,13 @@ public:
         {
         }
 
-        iterator& operator++()
+        inline iterator& operator++()
         {
             ++mIndex;
             return *this;
         }
 
-        iterator& operator--()
+        inline iterator& operator--()
         {
             --mIndex;
             return *this;
@@ -94,11 +93,11 @@ public:
         {
         }
 
-        token_iterator& operator++();
-        token_iterator& operator--();
+        inline token_iterator& operator++();
+        inline token_iterator& operator--();
 
-        s32 get(BufferedSafeStringBase<CharType>* out) const;
-        s32 getAndForward(BufferedSafeStringBase<CharType>* out);
+        inline s32 get(BufferedSafeStringBase<CharType>* out) const;
+        inline s32 getAndForward(BufferedSafeStringBase<CharType>* out);
 
     private:
         SafeStringBase mDelimiter;
@@ -121,7 +120,7 @@ public:
     {
     }
 
-    virtual SafeStringBase& operator=(const SafeStringBase&);
+    virtual SafeStringBase& operator=(const SafeStringBase& rhs);
 
     iterator begin() const
     {
@@ -158,31 +157,12 @@ public:
 
     inline s32 calcLength() const;
 
-    const SafeStringBase getPart(s32 at) const
-    {
-        s32 len = calcLength();
-        if (at < 0 || at > len)
-        {
-            SEAD_ASSERT_MSG("index(%d) out of range[0, %d]", at, len);
-            return cEmptyString;
-        }
-
-        return SafeStringBase(mStringTop + at);
-    }
-
-    const SafeStringBase getPart(const iterator& it) const
-    {
-        return getPart(it.getIndex());
-    }
-
-    const SafeStringBase getPart(const token_iterator& it) const;
+    inline const SafeStringBase getPart(s32 at) const;
+    inline const SafeStringBase getPart(const iterator& it) const;
+    inline const SafeStringBase getPart(const token_iterator& it) const;
 
     inline bool include(const CharType& c) const;
-
-    inline bool include(const SafeStringBase& str) const
-    {
-        return findIndex(str) != -1;
-    }
+    inline bool include(const SafeStringBase& str) const;
 
     inline bool isEqual(const SafeStringBase& rhs) const;
 
@@ -197,11 +177,7 @@ public:
     }
 
     inline s32 comparen(const SafeStringBase& rhs, s32 n) const;
-
-    inline s32 compare(const SafeStringBase& rhs) const
-    {
-        return comparen(rhs, cMaximumLength);
-    }
+    inline s32 compare(const SafeStringBase& rhs) const;
 
     friend bool operator>(const SafeStringBase& lhs, const SafeStringBase& rhs)
     {
@@ -214,13 +190,11 @@ public:
     }
 
     inline iterator findIterator(const SafeStringBase& token) const;
-    inline iterator findIterator(const SafeStringBase&, const iterator&) const;
-
+    inline iterator findIterator(const SafeStringBase&, const iterator& startIt) const;
     s32 findIndex(const SafeStringBase& token) const;
-    s32 findIndex(const SafeStringBase&, s32) const;
+    s32 findIndex(const SafeStringBase& token, s32 startPos) const;
 
     inline iterator rfindIterator(const SafeStringBase& token) const;
-
     s32 rfindIndex(const SafeStringBase& token) const;
 
     bool isEmpty() const
@@ -228,8 +202,8 @@ public:
         return unsafeAt_(0) == cNullChar;
     }
 
-    bool startsWith(const SafeStringBase&) const;
-    bool endsWith(const SafeStringBase&) const;
+    bool startsWith(const SafeStringBase& token) const;
+    bool endsWith(const SafeStringBase& token) const;
 
 private:
     const CharType& unsafeAt_(s32 idx) const
