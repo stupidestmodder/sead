@@ -1,7 +1,9 @@
 #include <heap/seadHeap.h>
 
 #include <heap/seadHeapMgr.h>
+#include <prim/seadFormatPrint.h>
 #include <prim/seadScopedLock.h>
+#include <stream/seadStream.h>
 #include <thread/seadThread.h>
 
 namespace sead {
@@ -18,7 +20,7 @@ Heap::Heap(const SafeString& name, Heap* parent, void* start, size_t size, HeapD
     , mDirection(direction)
     , mCS(parent)
 #ifdef SEAD_DEBUG
-    , mFlag(1 << Flag::eEnableWarning | 1 << Flag::cEnableDebugFillSystem | 1 << Flag::cEnableDebugFillUser)
+    , mFlag((1 << Flag::eEnableWarning) | (1 << Flag::eEnableDebugFillSystem) | (1 << Flag::eEnableDebugFillUser))
 #else
     , mFlag(1 << Flag::eEnableWarning)
 #endif // SEAD_DEBUG
@@ -51,7 +53,6 @@ void Heap::dumpTreeYAML(WriteStream& stream, s32 indent) const
     FixedSafeString<128> str("");
     str.append(' ', indent);
     str.appendWithFormat("  children:\n");
-
     stream.writeDecorationText(str);
 
     for (Heap& child : mChildren)
@@ -67,6 +68,65 @@ void Heap::dumpYAML(WriteStream& stream, s32 indent) const
     SEAD_UNUSED(stream);
     SEAD_UNUSED(indent);
     SEAD_ASSERT(false);
+/*
+    ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
+
+    FixedSafeString<128> str("");
+    str.append(' ', indent);
+    str.appendWithFormat("- name: \"%s\"\n", getName().cstr());
+    stream.writeDecorationText(str);
+
+    str.clear();
+    str.append(' ', indent);
+    str.appendWithFormat("  start_address: 0x%p\n", getStartAddress());
+    stream.writeDecorationText(str);
+
+    str.clear();
+    str.append(' ', indent);
+    str.appendWithFormat("  end_address: 0x%p\n", getEndAddress());
+    stream.writeDecorationText(str);
+
+    str.clear();
+    str.append(' ', indent);
+
+    const char* parent;
+
+    if (getParent())
+        parent = getParent()->getName().cstr();
+    else
+        parent = "--";
+
+    str.appendWithFormat("  parent: %s\n", parent);
+    stream.writeDecorationText(str);
+
+    str.clear();
+    str.append(' ', indent);
+
+    const char* direction;
+
+    if (getDirection() == HeapDirection::eForward)
+        direction = "Forward";
+    else
+        direction = "Reverse";
+
+    str.appendWithFormat("  direction: %s\n", direction);
+    stream.writeDecorationText(str);
+
+    str.clear();
+    str.append(' ', indent);
+    str.appendWithFormat("  size: %zu\n", getSize());
+    stream.writeDecorationText(str);
+
+    str.clear();
+    str.append(' ', indent);
+    str.appendWithFormat("  free_size: %zu\n", getFreeSize());
+    stream.writeDecorationText(str);
+
+    str.clear();
+    str.append(' ', indent);
+    str.appendWithFormat("  max_allocatable_size: %zu\n", getMaxAllocatableSize());
+    stream.writeDecorationText(str);
+*/
 }
 
 Heap* Heap::findContainHeap_(const void* ptr)
@@ -103,7 +163,7 @@ void Heap::dispose_(const void* begin, const void* end)
 
     for (auto it = mDisposerList.begin(); it != mDisposerList.end(); )
     {
-        if (!it->mDisposerHeap || (begin || end) && !PtrUtil::isInclude(&*it, begin, end))
+        if (!it->mDisposerHeap || (begin || end) && !PtrUtil::isInclude(&(*it), begin, end))
         {
             ++it;
             continue;
@@ -166,18 +226,28 @@ void Heap::checkAccessThread_() const
 #ifdef SEAD_DEBUG
 bool Heap::isEnableDebugFillAlloc_() const
 {
-    return HeapMgr::instance()->isEnableDebugFillAlloc() && mFlag.isOnAll((1 << Flag::cEnableDebugFillSystem) | (1 << Flag::cEnableDebugFillUser));
+    return HeapMgr::instance()->isEnableDebugFillAlloc() && mFlag.isOnAll((1 << Flag::eEnableDebugFillSystem) | (1 << Flag::eEnableDebugFillUser));
 }
 
 bool Heap::isEnableDebugFillFree_() const
 {
-    return HeapMgr::instance()->isEnableDebugFillFree() && mFlag.isOnAll((1 << Flag::cEnableDebugFillSystem) | (1 << Flag::cEnableDebugFillUser));
+    return HeapMgr::instance()->isEnableDebugFillFree() && mFlag.isOnAll((1 << Flag::eEnableDebugFillSystem) | (1 << Flag::eEnableDebugFillUser));
 }
 
 bool Heap::isEnableDebugFillHeapDestroy_() const
 {
-    return HeapMgr::instance()->isEnableDebugFillHeapDestroy() && mFlag.isOn(1 << Flag::cEnableDebugFillUser);
+    return HeapMgr::instance()->isEnableDebugFillHeapDestroy() && mFlag.isOn(1 << Flag::eEnableDebugFillUser);
 }
 #endif // SEAD_DEBUG
+
+template <>
+void PrintFormatter::out<Heap>(const Heap& obj, const char* option, PrintOutput* output)
+{
+    // TODO
+    SEAD_UNUSED(obj);
+    SEAD_UNUSED(option);
+    SEAD_UNUSED(output);
+    SEAD_ASSERT(false);
+}
 
 } // namespace sead

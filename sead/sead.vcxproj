@@ -192,11 +192,14 @@
     <ClInclude Include="include\prim\seadDelegateEventSlot.h" />
     <ClInclude Include="include\prim\seadEndian.h" />
     <ClInclude Include="include\prim\seadEnum.h" />
+    <ClInclude Include="include\prim\seadFormatPrint.h" />
+    <ClInclude Include="include\prim\seadFormatPrint.hpp" />
     <ClInclude Include="include\prim\seadMemUtil.h" />
     <ClInclude Include="include\prim\seadNamable.h" />
     <ClInclude Include="include\prim\seadPtrUtil.h" />
     <ClInclude Include="include\prim\seadRuntimeTypeInfo.h" />
     <ClInclude Include="include\prim\seadSafeString.h" />
+    <ClInclude Include="include\prim\seadSafeString.hpp" />
     <ClInclude Include="include\prim\seadScopedLock.h" />
     <ClInclude Include="include\prim\seadStringUtil.h" />
     <ClInclude Include="include\prim\win\seadMemUtilWin.hpp" />
@@ -233,6 +236,7 @@
     <ClCompile Include="src\heap\win\seadArenaWin.cpp" />
     <ClCompile Include="src\prim\seadBitFlag.cpp" />
     <ClCompile Include="src\prim\seadEndian.cpp" />
+    <ClCompile Include="src\prim\seadFormatPrint.cpp" />
     <ClCompile Include="src\prim\seadMemUtil.cpp" />
     <ClCompile Include="src\prim\seadSafeString.cpp" />
     <ClCompile Include="src\prim\seadStringUtil.cpp" />

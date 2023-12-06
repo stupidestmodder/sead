@@ -171,6 +171,15 @@
     <ClInclude Include="include\stream\seadStreamSrc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\prim\seadFormatPrint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prim\seadSafeString.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prim\seadFormatPrint.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\basis\seadNew.cpp">
@@ -255,6 +264,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\random\seadGlobalRandom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prim\seadFormatPrint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -61,8 +61,8 @@ public:
         eDisposing,
         eEnableWarning,
 #ifdef SEAD_DEBUG
-        cEnableDebugFillSystem,
-        cEnableDebugFillUser
+        eEnableDebugFillSystem,
+        eEnableDebugFillUser
 #endif // SEAD_DEBUG
     };
 
@@ -150,10 +150,23 @@ public:
     void setEnableWarning(bool enable) { mFlag.changeBit(Flag::eEnableWarning, enable); }
     bool isEnableWarning() const { return mFlag.isOnBit(Flag::eEnableWarning); }
 
-    void setEnableDebugFill(bool enable);
-    bool isEnableDebugFill();
+    void setEnableDebugFill(bool enable)
+    {
+#ifdef SEAD_DEBUG
+        mFlag.changeBit(Flag::eEnableDebugFillUser, enable);
+#else
+        SEAD_UNUSED(enable);
+#endif // SEAD_DEBUG
+    }
 
-    void unsafeSetDisposingFlag(bool);
+    bool isEnableDebugFill()
+    {
+#ifdef SEAD_DEBUG
+        return mFlag.isOnBit(Flag::eEnableDebugFillUser);
+#endif // SEAD_DEBUG
+    }
+
+    void unsafeSetDisposingFlag(bool enable) { mFlag.changeBit(Flag::eDisposing, enable); }
 
     void dumpTreeYAML(WriteStream& stream, s32 indent) const;
     virtual void dumpYAML(WriteStream& stream, s32 indent) const;
@@ -182,12 +195,12 @@ protected:
 
     static void setEnableDebugFillSystem_(Heap* heap, bool enable)
     {
-        heap->mFlag.changeBit(Flag::cEnableDebugFillSystem, enable);
+        heap->mFlag.changeBit(Flag::eEnableDebugFillSystem, enable);
     }
 
     static bool isEnableDebugFillSystem_(Heap* heap)
     {
-        return heap->mFlag.isOnBit(Flag::cEnableDebugFillSystem);
+        return heap->mFlag.isOnBit(Flag::eEnableDebugFillSystem);
     }
 #endif // SEAD_DEBUG
 
@@ -202,7 +215,7 @@ protected:
     ListNode mListNode;
     DisposerList mDisposerList;
     HeapDirection mDirection;
-    CriticalSection mCS;
+    mutable CriticalSection mCS;
     BitFlag16 mFlag;
     u16 mHeapCheckTag;
 #ifdef SEAD_DEBUG
