@@ -1,17 +1,18 @@
 #include <prim/seadStringUtil.h>
 
 #include <cstdio>
+#include <cwchar>
 
 namespace sead { namespace StringUtil {
 
 s32 snprintf(char* dst, size_t dstSize, const char* format, ...)
 {
-    std::va_list args;
-    va_start(args, format);
+    std::va_list vargs;
+    va_start(vargs, format);
 
-    s32 result = vsnprintf(dst, dstSize, format, args);
+    s32 result = vsnprintf(dst, dstSize, format, vargs);
 
-    va_end(args);
+    va_end(vargs);
     return result;
 }
 
@@ -28,6 +29,28 @@ s32 vsnprintf(char* dst, size_t dstSize, const char* format, std::va_list args)
         result = static_cast<s32>(dstSize) - 1;
 
     return result;
+}
+
+s32 sw16printf(char16* dst, size_t dstLen, const char16* format, ...)
+{
+    std::va_list vargs;
+    va_start(vargs, format);
+
+    s32 result = vsw16printf(dst, dstLen, format, vargs);
+
+    va_end(vargs);
+    return result;
+}
+
+s32 vsw16printf(char16* dst, size_t dstLen, const char16* format, std::va_list args)
+{
+    if (dstLen == 0)
+        return -1;
+
+    //* Nintendo made their own implementation here
+    // TODO: Implement this
+
+    return std::vswprintf(dst, dstLen, format, args);
 }
 
 } } // namespace sead::StringUtil

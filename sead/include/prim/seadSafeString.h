@@ -1,6 +1,7 @@
 #pragma once
 
 #include <basis/seadAssert.h>
+#include <basis/seadNew.h>
 #include <basis/seadTypes.h>
 
 #include <cstdarg>
@@ -17,7 +18,7 @@ public:
     static const CharType cNullChar;
     static const CharType cLineBreakChar;
     static const SafeStringBase cEmptyString;
-    static const s32 cMaximumLength = 256*1024;
+    static const s32 cMaximumLength = 512*1024;
 
 public:
     class iterator
@@ -220,7 +221,6 @@ protected:
     const CharType* mStringTop;
 };
 
-// TODO
 template <typename CharType>
 class BufferedSafeStringBase : public SafeStringBase<CharType>
 {
@@ -264,15 +264,18 @@ public:
         assureTerminationImpl_();
     }
 
-private:
-    BufferedSafeStringBase(const BufferedSafeStringBase&);
+    BufferedSafeStringBase(const BufferedSafeStringBase&) = delete;
 
-public:
     ~BufferedSafeStringBase() override
     {
     }
 
-    BufferedSafeStringBase& operator=(const BufferedSafeStringBase& rhs);
+    BufferedSafeStringBase& operator=(const BufferedSafeStringBase& rhs)
+    {
+        copy(rhs);
+        return *this;
+    }
+
     BufferedSafeStringBase& operator=(const SafeStringBase<CharType>& rhs) override;
 
     inline const CharType& operator[](s32 idx) const;
@@ -291,9 +294,9 @@ public:
     inline s32 copy(const SafeStringBase<CharType>& rhs, s32 size = -1);
     inline s32 copyAt(s32 at, const SafeStringBase<CharType>& src, s32 cpyLength = -1);
 
-    inline s32 cutOffCopy(const SafeStringBase<CharType>&, s32);
-    inline s32 cutOffCopyAt(s32, const SafeStringBase<CharType>&, s32);
-    inline s32 copyAtWithTerminate(s32, const SafeStringBase<CharType>&, s32);
+    inline s32 cutOffCopy(const SafeStringBase<CharType>& rhs, s32 size = -1);
+    inline s32 cutOffCopyAt(s32 at, const SafeStringBase<CharType>& src, s32 cpyLength = -1);
+    inline s32 copyAtWithTerminate(s32 at, const SafeStringBase<CharType>& src, s32 cpyLength = -1);
 
     s32 format(const CharType* formatString, ...);
     s32 formatV(const CharType* formatString, std::va_list varg);
@@ -303,7 +306,7 @@ public:
 
     inline s32 append(const SafeStringBase<CharType>& src, s32 appendLength = -1);
     inline s32 append(CharType srcChr);
-    inline s32 append(CharType, s32);
+    inline s32 append(CharType srcChr, s32 num);
 
     inline s32 chop(s32 chopNum = 1);
     inline s32 chopMatchedChar(CharType chopChar);
@@ -322,13 +325,19 @@ public:
     inline s32 trim(s32 trimLength);
     inline s32 trimMatchedString(const SafeStringBase<CharType>& trimString);
 
+    // TODO
     s32 replaceChar(CharType, CharType);
+    // TODO
     s32 replaceCharList(const SafeStringBase<CharType>&, const SafeStringBase<CharType>&);
 
+    // TODO
     s32 setReplaceString(const SafeStringBase<CharType>&, const SafeStringBase<CharType>&, const SafeStringBase<CharType>&);
+    // TODO
     s32 replaceString(const SafeStringBase<CharType>&, const SafeStringBase<CharType>&);
 
+    // TODO
     s32 cutOffSetReplaceString(const SafeStringBase<CharType>&, const SafeStringBase<CharType>&, const SafeStringBase<CharType>&);
+    // TODO
     s32 cutOffReplaceString(const SafeStringBase<CharType>&, const SafeStringBase<CharType>&);
 
     inline void clear()
@@ -360,12 +369,7 @@ private:
     static s32 formatImpl_(CharType* dst, s32 dstSize, const CharType* formatString, std::va_list varg);
 
 protected:
-    void assureTerminationImpl_() const override
-    {
-        BufferedSafeStringBase* mutablePtr = const_cast<BufferedSafeStringBase*>(this);
-        CharType* mutableStringTop = mutablePtr->getMutableStringTop_();
-        mutableStringTop[getBufferSize() - 1] = SafeStringBase<CharType>::cNullChar;
-    }
+    void assureTerminationImpl_() const override;
 
 private:
     s32 mBufferSize;
@@ -413,11 +417,37 @@ private:
     CharType mBuffer[N];
 };
 
+template <typename CharType>
+class HeapSafeStringBase : public BufferedSafeStringBase<CharType>
+{
+public:
+    HeapSafeStringBase(Heap* heap, const SafeStringBase<CharType>& string, s32 alignment = alignof(void*))
+        : BufferedSafeStringBase<CharType>(new(heap, alignment) CharType[string.calcLength() + 1](),
+                                           string.calcLength() + 1)
+    {
+        this->copy(string);
+    }
+
+    HeapSafeStringBase(const HeapSafeStringBase&) = delete;
+    HeapSafeStringBase& operator=(const HeapSafeStringBase&) = delete;
+
+    ~HeapSafeStringBase() override
+    {
+        if (this->mStringTop)
+            delete[] this->mStringTop;
+    }
+
+    HeapSafeStringBase& operator=(const SafeStringBase<CharType>& rhs) override;
+};
+
 using SafeString = SafeStringBase<char>;
 using WSafeString = SafeStringBase<char16>;
 
 using BufferedSafeString = BufferedSafeStringBase<char>;
 using WBufferedSafeString = BufferedSafeStringBase<char16>;
+
+using HeapSafeString = HeapSafeStringBase<char>;
+using WHeapSafeString = HeapSafeStringBase<char16>;
 
 template <s32 N>
 class FixedSafeString : public FixedSafeStringBase<char, N>
@@ -480,6 +510,84 @@ public:
     {
         this->copy(rhs);
         return *this;
+    }
+};
+
+template <s32 N>
+class FormatFixedSafeString : public FixedSafeString<N>
+{
+public:
+    explicit FormatFixedSafeString(const char* formatString, ...)
+        : FixedSafeString<N>()
+    {
+        std::va_list args;
+        va_start(args, formatString);
+        this->formatV(formatString, args);
+        va_end(args);
+    }
+
+    FormatFixedSafeString(const FormatFixedSafeString&) = delete;
+    FormatFixedSafeString& operator=(const FormatFixedSafeString&) = delete;
+
+    ~FormatFixedSafeString() override
+    {
+    }
+};
+
+template <s32 N>
+class WFormatFixedSafeString : public WFixedSafeString<N>
+{
+public:
+    explicit WFormatFixedSafeString(const char16* formatString, ...)
+        : WFixedSafeString<N>()
+    {
+        std::va_list args;
+        va_start(args, formatString);
+        this->formatV(formatString, args);
+        va_end(args);
+    }
+
+    WFormatFixedSafeString(const WFormatFixedSafeString&) = delete;
+    WFormatFixedSafeString& operator=(const WFormatFixedSafeString&) = delete;
+
+    ~WFormatFixedSafeString() override
+    {
+    }
+};
+
+template <s32 N>
+class FormatVFixedSafeString : public FixedSafeString<N>
+{
+public:
+    FormatVFixedSafeString(const char* formatString, std::va_list args)
+        : FixedSafeString<N>()
+    {
+        this->formatV(formatString, args);
+    }
+
+    FormatVFixedSafeString(const FormatVFixedSafeString&) = delete;
+    FormatVFixedSafeString& operator=(const FormatVFixedSafeString&) = delete;
+
+    ~FormatVFixedSafeString() override
+    {
+    }
+};
+
+template <s32 N>
+class WFormatVFixedSafeString : public WFixedSafeString<N>
+{
+public:
+    WFormatVFixedSafeString(const char* formatString, std::va_list args)
+        : WFixedSafeString<N>()
+    {
+        this->formatV(formatString, args);
+    }
+
+    WFormatVFixedSafeString(const WFormatVFixedSafeString&) = delete;
+    WFormatVFixedSafeString& operator=(const WFormatVFixedSafeString&) = delete;
+
+    ~WFormatVFixedSafeString() override
+    {
     }
 };
 

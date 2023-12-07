@@ -35,7 +35,7 @@ using s64 = std::int64_t;
 using f32 = float;
 using f64 = double;
 
-using char16 = char16_t;
+using char16 = wchar_t;
 using size_t = std::size_t;
 
 static_assert(sizeof(u8) == 1, "u8 must be 1 byte");
