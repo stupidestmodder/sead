@@ -18,7 +18,7 @@ inline void AllocFailAssert(Heap*, size_t, s32)
 
 } // namespace sead
 
-//? So MSVC won't complain
+//* So MSVC won't complain
 
 #ifdef SEAD_COMPILER_MSVC
 #pragma warning(push)

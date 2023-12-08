@@ -3,6 +3,7 @@
 #include <basis/seadWarning.h>
 
 #include <process.h>
+#include <timeapi.h>
 
 namespace sead {
 

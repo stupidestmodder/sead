@@ -3,6 +3,8 @@
 #include <prim/seadScopedLock.h>
 #include <thread/seadCriticalSection.h>
 
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include <cstdio>
