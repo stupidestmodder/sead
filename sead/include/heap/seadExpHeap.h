@@ -40,7 +40,7 @@ public:
     static ExpHeap* tryCreate(size_t size, const SafeString& name, Heap* parent, HeapDirection direction = HeapDirection::eForward, bool enableLock = false);
     static ExpHeap* tryCreate(void* start, size_t size, const SafeString& name, bool enableLock = false);
 
-    static size_t getManagementAreaSize(s32);
+    static size_t getManagementAreaSize(s32 alignment);
 
 protected:
     ExpHeap(const SafeString& name, Heap* parent, void* start, size_t size, HeapDirection direction, bool enableLock);
@@ -66,19 +66,28 @@ public:
     bool isResizable() const override;
     bool isAdjustable() const override;
 
-    virtual void setAllocMode(AllocMode);
-    virtual AllocMode getAllocMode() const;
+    virtual void setAllocMode(AllocMode mode)
+    {
+        mAllocMode = mode;
+    }
+
+    virtual AllocMode getAllocMode() const
+    {
+        return mAllocMode;
+    }
 
     void dump() const override;
     void dumpFreeList() const;
     void dumpUseList() const;
+
     void checkFreeList() const;
     bool tryCheckFreeList() const;
     void checkUseList() const;
     bool tryCheckUseList() const;
+
     size_t getFreeListSize() const;
     size_t getUseListSize() const;
-    size_t getAllocatedSize(void*);
+    size_t getAllocatedSize(void* ptr);
 
     void dumpYAML(WriteStream& stream, s32 indent) const override;
 
@@ -88,30 +97,30 @@ public:
     constIterator constEndUseList() const;
 
 protected:
-    static void doCreate(ExpHeap*, Heap*);
-    static void createMaxSizeFreeMemBlock_(ExpHeap*);
+    static void doCreate(ExpHeap* heap, Heap* parent);
+    static void createMaxSizeFreeMemBlock_(ExpHeap* heap);
 
-    MemBlock* findFreeMemBlockFromHead_(size_t, FindMode) const;
-    MemBlock* findFreeMemBlockFromHead_(size_t, s32, FindMode) const;
-    MemBlock* findFreeMemBlockFromTail_(size_t, FindMode) const;
-    MemBlock* findFreeMemBlockFromTail_(size_t, s32, FindMode) const;
+    MemBlock* findFreeMemBlockFromHead_(size_t size, FindMode mode) const;
+    MemBlock* findFreeMemBlockFromHead_(size_t size, s32 alignment, FindMode mode) const;
+    MemBlock* findFreeMemBlockFromTail_(size_t size, FindMode mode) const;
+    MemBlock* findFreeMemBlockFromTail_(size_t size, s32 alignment, FindMode mode) const;
     MemBlock* findLastMemBlockIfFree_();
     MemBlock* findFirstMemBlockIfFree_();
 
-    void pushToUseList_(MemBlock*);
-    void pushToFreeList_(MemBlock*);
+    void pushToUseList_(MemBlock* memBlock);
+    void pushToFreeList_(MemBlock* memBlock);
 
-    static s32 compareMemBlockAddr_(const MemBlock*, const MemBlock*);
+    static s32 compareMemBlockAddr_(const MemBlock* a, const MemBlock* b);
 
-    MemBlock* allocFromHead_(size_t);
-    MemBlock* allocFromHead_(size_t, s32);
-    MemBlock* allocFromTail_(size_t);
-    MemBlock* allocFromTail_(size_t, s32);
+    MemBlock* allocFromHead_(size_t size);
+    MemBlock* allocFromHead_(size_t size, s32 alignment);
+    MemBlock* allocFromTail_(size_t size);
+    MemBlock* allocFromTail_(size_t size, s32 alignment);
 
     size_t adjustBack_();
     size_t adjustFront_();
 
-    void* realloc_(void*, u8*, size_t, size_t, s32);
+    void* realloc_(void* ptr, u8* oldMem, size_t copySize, size_t newSize, s32 alignment);
 
 protected:
     AllocMode mAllocMode;

@@ -91,6 +91,8 @@ public:
 
     static const u32 cPtrSize = sizeof(void*);
 
+    friend class ExpHeap;
+
 protected:
     ListNode mListNode;
     u16 mHeapCheckTag;

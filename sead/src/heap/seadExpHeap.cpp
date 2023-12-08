@@ -1,6 +1,7 @@
 #include <heap/seadExpHeap.h>
 
 #include <heap/seadHeapMgr.h>
+#include <prim/seadScopedLock.h>
 
 namespace sead {
 
@@ -24,6 +25,23 @@ ExpHeap* ExpHeap::create(size_t size, const SafeString& name, Heap* parent, Heap
     }
 
     return heap;
+}
+
+ExpHeap::ExpHeap(const SafeString& name, Heap* parent, void* start, size_t size, HeapDirection direction, bool enableLock)
+    : Heap(name, parent, start, size, direction, enableLock)
+    , mAllocMode(AllocMode::eFirstFit)
+    , mFreeList()
+    , mUseList()
+{
+    ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
+
+    mFreeList.initOffset(offsetof(MemBlock, mListNode));
+    mUseList.initOffset(offsetof(MemBlock, mListNode));
+}
+
+ExpHeap::~ExpHeap()
+{
+    destruct_();
 }
 
 } // namespace sead
