@@ -35,7 +35,7 @@ void PrintFormatter::flush()
 
     mIsFormatRestAll = false;
 
-    char option[32];
+    char option[cOptionBufSize];
 
     while (mPos < mFormatStrLength)
     {
@@ -61,7 +61,7 @@ PrintFormatter& PrintFormatter::operator<<(const char* str)
     }
     else
     {
-        char option[32];
+        char option[cOptionBufSize];
 
         bool end = proceedToFormatMark_(option);
         if (end)
@@ -82,7 +82,7 @@ PrintFormatter& PrintFormatter::operator<<(const char* str)
 
 void PrintFormatter::outputPtr_(const char* option, PrintOutput* output, uintptr_t ptr)
 {
-    FixedSafeString<32> str;
+    FixedSafeString<cOptionBufSize> str;
 
     if (!option)
         option = "0x%p";

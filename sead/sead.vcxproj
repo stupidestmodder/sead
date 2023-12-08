@@ -206,9 +206,12 @@
     <ClInclude Include="include\random\seadGlobalRandom.h" />
     <ClInclude Include="include\random\seadRandom.h" />
     <ClInclude Include="include\sead\test.h" />
+    <ClInclude Include="include\stream\seadBinaryStreamFormat.h" />
+    <ClInclude Include="include\stream\seadRamStream.h" />
     <ClInclude Include="include\stream\seadStream.h" />
     <ClInclude Include="include\stream\seadStreamFormat.h" />
     <ClInclude Include="include\stream\seadStreamSrc.h" />
+    <ClInclude Include="include\stream\seadTextStreamFormat.h" />
     <ClInclude Include="include\thread\seadAtomic.h" />
     <ClInclude Include="include\thread\seadCriticalSection.h" />
     <ClInclude Include="include\thread\seadEvent.h" />
@@ -231,6 +234,7 @@
     <ClCompile Include="src\devenv\seadAssertConfig.cpp" />
     <ClCompile Include="src\devenv\seadPrintConfig.cpp" />
     <ClCompile Include="src\heap\seadDisposer.cpp" />
+    <ClCompile Include="src\heap\seadExpHeap.cpp" />
     <ClCompile Include="src\heap\seadHeap.cpp" />
     <ClCompile Include="src\heap\seadHeapMgr.cpp" />
     <ClCompile Include="src\heap\win\seadArenaWin.cpp" />
@@ -243,6 +247,8 @@
     <ClCompile Include="src\prim\win\seadMemUtilWin.cpp" />
     <ClCompile Include="src\random\seadGlobalRandom.cpp" />
     <ClCompile Include="src\random\seadRandom.cpp" />
+    <ClCompile Include="src\stream\seadBinaryStreamFormat.cpp" />
+    <ClCompile Include="src\stream\seadStream.cpp" />
     <ClCompile Include="src\thread\seadThread.cpp" />
     <ClCompile Include="src\thread\win\seadCriticalSectionWin.cpp" />
     <ClCompile Include="src\thread\win\seadEventWin.cpp" />

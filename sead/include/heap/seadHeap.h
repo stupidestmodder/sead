@@ -206,6 +206,7 @@ protected:
 
     friend class IDisposer;
     friend class HeapMgr;
+    friend class PrintFormatter;
 
 protected:
     void* mStart;

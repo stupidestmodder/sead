@@ -43,11 +43,6 @@ Heap::~Heap()
 
 void Heap::dumpTreeYAML(WriteStream& stream, s32 indent) const
 {
-    // TODO
-    SEAD_UNUSED(stream);
-    SEAD_UNUSED(indent);
-    SEAD_ASSERT(false);
-/*
     dumpYAML(stream, indent);
 
     FixedSafeString<128> str("");
@@ -59,16 +54,10 @@ void Heap::dumpTreeYAML(WriteStream& stream, s32 indent) const
     {
         child.dumpTreeYAML(stream, indent + 4);
     }
-*/
 }
 
 void Heap::dumpYAML(WriteStream& stream, s32 indent) const
 {
-    // TODO
-    SEAD_UNUSED(stream);
-    SEAD_UNUSED(indent);
-    SEAD_ASSERT(false);
-/*
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
     FixedSafeString<128> str("");
@@ -126,7 +115,6 @@ void Heap::dumpYAML(WriteStream& stream, s32 indent) const
     str.append(' ', indent);
     str.appendWithFormat("  max_allocatable_size: %zu\n", getMaxAllocatableSize());
     stream.writeDecorationText(str);
-*/
 }
 
 Heap* Heap::findContainHeap_(const void* ptr)
@@ -241,13 +229,51 @@ bool Heap::isEnableDebugFillHeapDestroy_() const
 #endif // SEAD_DEBUG
 
 template <>
-void PrintFormatter::out<Heap>(const Heap& obj, const char* option, PrintOutput* output)
+void PrintFormatter::out<Heap>(const Heap& obj, const char*, PrintOutput* output)
 {
-    // TODO
-    SEAD_UNUSED(obj);
-    SEAD_UNUSED(option);
-    SEAD_UNUSED(output);
-    SEAD_ASSERT(false);
+    ConditionalScopedLock<CriticalSection> lock(&obj.mCS, obj.isEnableLock());
+
+    FixedSafeString<128> str;
+
+    PrintFormatter::out(SafeString("\n"), nullptr, output);
+    PrintFormatter::out(SafeString("==================================================\n"), nullptr, output);
+
+    str.format("              Name: %s\n", obj.getName().cstr());
+    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+
+    str.format("             Range: [0x%p - 0x%p)\n", obj.getStartAddress(), obj.getEndAddress());
+    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+
+    const char* parent;
+
+    if (obj.getParent())
+        parent = obj.getParent()->getName().cstr();
+    else
+        parent = "--";
+
+    str.format("            Parent: %s (0x%p)\n", parent, obj.getParent());
+    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+
+    const char* direction;
+
+    if (obj.getDirection() == Heap::HeapDirection::eForward)
+        direction = "Forward";
+    else
+        direction = "Reverse";
+
+    str.format("         Direction: %s\n", direction);
+    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+
+    str.format("              Size: %zu\n", obj.getSize());
+    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+
+    str.format("          FreeSize: %zu\n", obj.getFreeSize());
+    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+
+    str.format("MaxAllocatableSize: %zu\n", obj.getMaxAllocatableSize());
+    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+
+    PrintFormatter::out(SafeString("--------------------------------------------------\n"), nullptr, output);
 }
 
 } // namespace sead

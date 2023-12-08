@@ -64,14 +64,11 @@ public:
     template <typename T, template <typename> typename TClass>
     static void out(const TClass<T>& obj, const char* option, PrintOutput* output)
     {
-        OutImpl::out(obj, option, output);
+        OutImpl<T, TClass>::out(obj, option, output);
     }
 
-    enum
-    {
-        cOptionLengthMax = 31,
-        cOptionBufSize
-    };
+    static const u32 cOptionLengthMax = 31;
+    static const u32 cOptionBufSize = cOptionLengthMax + 1;
 
 protected:
     bool proceedToFormatMark_(char* option);
