@@ -5,7 +5,6 @@
 
 namespace sead {
 
-// TODO: Implement all functions
 class PtrUtil
 {
 public:
@@ -14,14 +13,16 @@ public:
         return reinterpret_cast<void*>(uintptr_t(ptr) + uintptr_t(alignment - 1) & ~uintptr_t(alignment - 1));
     }
 
-    //static void* roundUpN(const void*, u32);
+    // TODO
+    static void* roundUpN(const void*, u32);
 
     static void* roundDownPow2(const void* ptr, u32 alignment)
     {
         return reinterpret_cast<void*>(uintptr_t(ptr) & ~uintptr_t(alignment - 1));
     }
 
-    //static void* roundDownN(const void*, u32);
+    // TODO
+    static void* roundDownN(const void*, u32);
 
     static void* addOffset(const void* ptr, intptr_t offset)
     {
@@ -49,7 +50,8 @@ public:
         return (uintptr_t(ptr) & uintptr_t(alignment - 1)) == 0;
     }
 
-    //static bool isAlignedN(const void*, s32);
+    // TODO
+    static bool isAlignedN(const void*, s32);
 };
 
 } // namespace sead
