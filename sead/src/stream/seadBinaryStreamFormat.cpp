@@ -110,7 +110,7 @@ void BinaryStreamFormat::readBit(StreamSrc* src, void* data, u32 bitnum)
 void BinaryStreamFormat::readString(StreamSrc* src, BufferedSafeString* dst, u32 size)
 {
     u32 remainSize = 0;
-    if (dst->getBufferSize() < size)
+    if (dst->getBufferSize() < static_cast<s32>(size))
     {
         remainSize = size - dst->getBufferSize();
         size = dst->getBufferSize();
@@ -120,7 +120,7 @@ void BinaryStreamFormat::readString(StreamSrc* src, BufferedSafeString* dst, u32
     u32 rb = src->read(dst->getBuffer(), size);
     SEAD_ASSERT(rb == size);
 
-    if (dst->getBufferSize() > size + 1)
+    if (dst->getBufferSize() > static_cast<s32>(size) + 1)
         dst->trim(size);
     else
         dst->trim(dst->getBufferSize() - 1);
