@@ -32,9 +32,9 @@ bool MemUtil::isHeap(const void* addr)
 
 void MemUtil::dumpMemoryBinary(const void* addr, const u32 sizeFront, const u32 sizeBack, const bool isAlign)
 {
-    const u32 cBytesPerRow = 16;
-    const u32 cIndentSpaces = 2;
-    const u32 cAddressPrintWidth = sizeof(void*) * 2;
+    const s32 cBytesPerRow = 16;
+    const s32 cIndentSpaces = 2;
+    const s32 cAddressPrintWidth = sizeof(void*) * 2;
 
     SEAD_ASSERT(static_cast<u64>(sizeFront) + static_cast<u64>(sizeBack) < UINT_MAX - cBytesPerRow);
 
@@ -46,15 +46,17 @@ void MemUtil::dumpMemoryBinary(const void* addr, const u32 sizeFront, const u32 
     SEAD_PRINT("   %s   00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F   0123456789ABCDEF\n", indent.cstr());
 
     const void* alignedAddr = isAlign ? PtrUtil::roundDownPow2(addr, cBytesPerRow) : addr;
-    intptr_t addrDiff = PtrUtil::diff(addr, alignedAddr);
+    u32 addrDiff = static_cast<u32>(PtrUtil::diff(addr, alignedAddr));
 
-    u32 offset = addrDiff < sizeFront ? (sizeFront - addrDiff - 1) / cBytesPerRow + 1 : 0;
-    u32 numChunks = sizeBack + addrDiff < cBytesPerRow ? 0 : (sizeBack + addrDiff) / cBytesPerRow;
+    u32 numRowsFront = addrDiff < sizeFront ? (sizeFront - addrDiff - 1) / cBytesPerRow + 1 : 0;
+    u32 numRowsBack = sizeBack + addrDiff < cBytesPerRow ? 0 : (sizeBack + addrDiff) / cBytesPerRow;
 
-    u8* data = static_cast<u8*>(PtrUtil::addOffset(alignedAddr, offset * -cBytesPerRow));
-    for (u32 i = 0; i < numChunks + offset + 1; i++)
+    u32 numRowsTotal = numRowsFront + numRowsBack + 1;
+
+    u8* data = static_cast<u8*>(PtrUtil::addOffset(alignedAddr, numRowsFront * -cBytesPerRow));
+    for (u32 i = 0; i < numRowsTotal; i++)
     {
-        const char* lineMarker = i == offset ? "*" : " ";
+        const char* lineMarker = i == numRowsFront ? "*" : " ";
 
         SEAD_PRINT(" %s 0x%p   %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X   %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
                     lineMarker, data,
@@ -65,7 +67,7 @@ void MemUtil::dumpMemoryBinary(const void* addr, const u32 sizeFront, const u32 
                     toPrintable(data[8]),  toPrintable(data[9]),  toPrintable(data[10]), toPrintable(data[11]),
                     toPrintable(data[12]), toPrintable(data[13]), toPrintable(data[14]), toPrintable(data[15]));
 
-        data += 16;
+        data += cBytesPerRow;
     }
 }
 
