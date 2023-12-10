@@ -230,6 +230,7 @@
     <ClInclude Include="include\thread\seadMessageQueue.h" />
     <ClInclude Include="include\thread\seadThread.h" />
     <ClInclude Include="include\thread\seadThreadLocalStorage.h" />
+    <ClInclude Include="include\thread\seadThreadUtil.h" />
     <ClInclude Include="include\thread\win\seadThreadLocalStorageWin.hpp" />
     <ClInclude Include="include\time\seadTickSpan.h" />
     <ClInclude Include="include\time\seadTickTime.h" />
@@ -262,6 +263,7 @@
     <ClCompile Include="src\stream\seadBinaryStreamFormat.cpp" />
     <ClCompile Include="src\stream\seadStream.cpp" />
     <ClCompile Include="src\thread\seadThread.cpp" />
+    <ClCompile Include="src\thread\seadThreadUtil.cpp" />
     <ClCompile Include="src\thread\win\seadCriticalSectionWin.cpp" />
     <ClCompile Include="src\thread\win\seadEventWin.cpp" />
     <ClCompile Include="src\thread\win\seadMessageQueueWin.cpp" />
