@@ -68,9 +68,9 @@ public:
     void setUserFormat(StreamFormat* format);
 
 protected:
-    void setSrcStream_(StreamSrc* src)
+    void setSrcStream_(StreamSrc* stream)
     {
-        mSrcStream = src;
+        mSrcStream = stream;
     }
 
 private:
@@ -82,15 +82,27 @@ protected:
     Endian::Types mSrcEndian;
 };
 
-// TODO
 class ReadStream : public Stream
 {
 public:
-    ReadStream();
-    ReadStream(StreamSrc* src, Modes mode);
-    ReadStream(StreamSrc* src, StreamFormat* format);
+    ReadStream()
+        : Stream()
+    {
+    }
 
-    ~ReadStream() override;
+    ReadStream(StreamSrc* src, Modes mode)
+        : Stream(src, mode)
+    {
+    }
+
+    ReadStream(StreamSrc* src, StreamFormat* format)
+        : Stream(src, format)
+    {
+    }
+
+    ~ReadStream() override
+    {
+    }
 
     u8 readU8();
     void readU8(u8& dst);
