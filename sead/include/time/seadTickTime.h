@@ -21,10 +21,10 @@ public:
 #ifdef SEAD_PLATFORM_WINDOWS
     void setNow()
     {
-        LARGE_INTEGER li;
-        QueryPerformanceCounter(&li);
+        LARGE_INTEGER now;
+        QueryPerformanceCounter(&now);
 
-        mTick = li.QuadPart;
+        mTick = now.QuadPart;
     }
 #else
 #error "Unsupported platform"
@@ -60,5 +60,24 @@ public:
 private:
     u64 mTick;
 };
+
+TickSpan operator-(TickTime lhs, TickTime rhs)
+{
+    return lhs.diff(rhs);
+}
+
+TickTime operator+(TickTime time, TickSpan span)
+{
+    TickTime t = time;
+    t += span;
+    return t;
+}
+
+TickTime operator-(TickTime time, TickSpan span)
+{
+    TickTime t = time;
+    t -= span;
+    return t;
+}
 
 } // namespace sead
