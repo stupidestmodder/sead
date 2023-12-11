@@ -138,6 +138,8 @@ using Mathu = MathCalcCommon<u32>;
 using Mathf = MathCalcCommon<f32>;
 using Mathd = MathCalcCommon<f64>;
 
+using MathSizeT = MathCalcCommon<size_t>;
+
 } // namespace sead
 
 #include <math/seadMathCalcCommon.hpp>
