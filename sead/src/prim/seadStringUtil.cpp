@@ -22,10 +22,10 @@ s32 vsnprintf(char* dst, size_t dstSize, const char* format, std::va_list args)
         return -1;
 
     s32 result = std::vsnprintf(dst, dstSize, format, args);
-    if (result < 0 || result >= dstSize)
+    if (result < 0 || result >= static_cast<s32>(dstSize))
         dst[dstSize - 1] = SafeString::cNullChar;
 
-    if (result >= dstSize)
+    if (result >= static_cast<s32>(dstSize))
         result = static_cast<s32>(dstSize) - 1;
 
     return result;
