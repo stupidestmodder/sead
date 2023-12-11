@@ -96,25 +96,25 @@ void HeapMgr::destroy()
 
 Heap* HeapMgr::findContainHeap(const void* memBlock) const
 {
-    FindContainHeapCache* findContainHeapCache = nullptr;
+    FindContainHeapCache* heapCache = nullptr;
 
     ThreadMgr* threadMgr = ThreadMgr::instance();
     if (threadMgr)
     {
         Thread* currentThread = threadMgr->getCurrentThread();
         if (currentThread)
-            findContainHeapCache = currentThread->getFindContainHeapCache();
+            heapCache = currentThread->getFindContainHeapCache();
     }
 
-    if (findContainHeapCache)
+    if (heapCache)
     {
-        FindContainHeapCacheAccessor heapAccessor(&findContainHeapCache->heap);
+        FindContainHeapCacheAccessor heapAccessor(&heapCache->heap);
 
         Heap* heap = heapAccessor.getHeap();
         if (heap && heap->hasNoChild_() && heap->isInclude(memBlock))
         {
 #ifdef SEAD_DEBUG
-            findContainHeapCache->nolockhit++;
+            heapCache->nolockhit++;
 #endif // SEAD_DEBUG
             return heap;
         }
@@ -122,13 +122,13 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
 
     ScopedLock<CriticalSection> lock(&sHeapTreeLockCS);
 
-    if (findContainHeapCache)
+    if (heapCache)
     {
 #ifdef SEAD_DEBUG
-        findContainHeapCache->call++;
+        heapCache->call++;
 #endif // SEAD_DEBUG
 
-        Heap* heap = findContainHeapCache->getHeap();
+        Heap* heap = heapCache->getHeap();
         if (heap)
         {
             Heap* containHeap = heap->findContainHeap_(memBlock);
@@ -137,15 +137,15 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
                 if (containHeap == heap)
                 {
 #ifdef SEAD_DEBUG
-                    findContainHeapCache->hit++;
+                    heapCache->hit++;
 #endif // SEAD_DEBUG
                 }
                 else
                 {
 #ifdef SEAD_DEBUG
-                    findContainHeapCache->miss++;
+                    heapCache->miss++;
 #endif // SEAD_DEBUG
-                    findContainHeapCache->setHeap(containHeap);
+                    heapCache->setHeap(containHeap);
                 }
 
                 return containHeap;
@@ -158,12 +158,12 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         Heap* containHeap = heap.findContainHeap_(memBlock);
         if (containHeap)
         {
-            if (findContainHeapCache)
+            if (heapCache)
             {
 #ifdef SEAD_DEBUG
-                findContainHeapCache->miss++;
+                heapCache->miss++;
 #endif // SEAD_DEBUG
-                findContainHeapCache->setHeap(containHeap);
+                heapCache->setHeap(containHeap);
             }
 
             return containHeap;
@@ -175,12 +175,12 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         Heap* containHeap = heap.findContainHeap_(memBlock);
         if (containHeap)
         {
-            if (findContainHeapCache)
+            if (heapCache)
             {
 #ifdef SEAD_DEBUG
-                findContainHeapCache->miss++;
+                heapCache->miss++;
 #endif // SEAD_DEBUG
-                findContainHeapCache->setHeap(containHeap);
+                heapCache->setHeap(containHeap);
             }
 
             return containHeap;
@@ -188,8 +188,8 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
     }
 
 #ifdef SEAD_DEBUG
-    if (findContainHeapCache)
-        findContainHeapCache->notfound++;
+    if (heapCache)
+        heapCache->notfound++;
 #endif // SEAD_DEBUG
 
     return nullptr;
@@ -307,7 +307,6 @@ HeapMgr::IDestroyCallback* HeapMgr::setDestroyCallback(IDestroyCallback* callbac
 }
 #endif // SEAD_DEBUG
 
-// TODO: Refactor
 void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
 {
     ThreadMgr* threadMgr = ThreadMgr::instance();
@@ -319,47 +318,48 @@ void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
     {
         while (true)
         {
-            FindContainHeapCache* findContainHeapCache = mainThread->getFindContainHeapCache();
-            bool success = findContainHeapCache->tryRemoveHeap(heap);
+            FindContainHeapCache* heapCache = mainThread->getFindContainHeapCache();
+            bool success = heapCache->tryRemoveHeap(heap);
             if (success)
                 break;
 
 #ifdef SEAD_DEBUG
-            findContainHeapCache->sleep++;
+            heapCache->sleep++;
 #endif // SEAD_DEBUG
 
             Thread::sleep(TickSpan::makeFromMicroSeconds(10));
         }
     }
 
-    bool failed;
-
-    do
+    while (true)
     {
-        failed = false;
+        bool operationFailed = false;
 
         {
             ScopedLock<CriticalSection> lock(threadMgr->getIterateLockCS());
 
             for (ThreadList::constIterator it = threadMgr->constBegin(); it != threadMgr->constEnd(); ++it)
             {
-                FindContainHeapCache* findContainHeapCache = (*it)->getFindContainHeapCache();
-                if (!findContainHeapCache->tryRemoveHeap(heap))
+                FindContainHeapCache* heapCache = (*it)->getFindContainHeapCache();
+
+                bool success = heapCache->tryRemoveHeap(heap);
+                if (!success)
                 {
 #ifdef SEAD_DEBUG
-                    findContainHeapCache->sleep++;
+                    heapCache->sleep++;
 #endif // SEAD_DEBUG
-                    failed = true;
+
+                    operationFailed = true;
                     break;
                 }
             }
 
-            if (!failed)
+            if (!operationFailed)
                 return;
         }
 
         Thread::sleep(TickSpan::makeFromMicroSeconds(10));
-    } while (true);
+    }
 }
 
 #ifdef SEAD_DEBUG
