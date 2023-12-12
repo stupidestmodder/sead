@@ -138,7 +138,6 @@ private:
     f64 readF64BitImpl_(u32 intBitnum, u32 fracBitnum);
 };
 
-// TODO
 class WriteStream : public ReadStream
 {
 public:
