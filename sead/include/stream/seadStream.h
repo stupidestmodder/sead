@@ -142,11 +142,26 @@ private:
 class WriteStream : public ReadStream
 {
 public:
-    WriteStream();
-    WriteStream(StreamSrc* src, Modes mode);
-    WriteStream(StreamSrc* src, StreamFormat* format);
+    WriteStream()
+        : ReadStream()
+    {
+    }
 
-    ~WriteStream() override;
+    WriteStream(StreamSrc* src, Modes mode)
+        : ReadStream(src, mode)
+    {
+    }
+
+    WriteStream(StreamSrc* src, StreamFormat* format)
+        : ReadStream(src, format)
+    {
+    }
+
+    ~WriteStream() override
+    {
+        if (mSrcStream)
+            flush();
+    }
 
     void writeU8(u8 value);
     void writeU16(u16 value);

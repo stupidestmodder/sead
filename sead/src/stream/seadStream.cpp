@@ -256,4 +256,151 @@ f64 ReadStream::readF64BitImpl_(u32 intBitnum, u32 fracBitnum)
     return static_cast<f64>(ret) / static_cast<f64>(1 << (fracBitnum & 0xFF));
 }
 
+void WriteStream::writeU8(u8 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeU8(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeU16(u16 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeU16(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeU32(u32 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeU32(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeU64(u64 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeU64(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeS8(s8 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeS8(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeS16(s16 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeS16(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeS32(s32 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeS32(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeS64(s64 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeS64(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeF32(f32 value)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeF32(mSrcStream, mSrcEndian, value);
+}
+
+void WriteStream::writeBit(const void* src, u32 bitnum)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeBit(mSrcStream, src, bitnum);
+}
+
+void WriteStream::writeString(const SafeString& src, u32 size)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    SEAD_ASSERT(static_cast<u32>(src.calcLength()) <= size);
+    mFormat->writeString(mSrcStream, src, size);
+}
+
+void WriteStream::writeMemBlock(const void* src, u32 size)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeMemBlock(mSrcStream, src, size);
+}
+
+void WriteStream::writeComment(const SafeString& comment)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeDecorationText(mSrcStream, "/* ");
+    mFormat->writeDecorationText(mSrcStream, comment);
+    mFormat->writeDecorationText(mSrcStream, " */");
+}
+
+void WriteStream::writeLineComment(const SafeString& comment)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeDecorationText(mSrcStream, "// ");
+    mFormat->writeDecorationText(mSrcStream, comment);
+    mFormat->writeDecorationText(mSrcStream, "\n");
+}
+
+void WriteStream::writeDecorationText(const SafeString& text)
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeDecorationText(mSrcStream, text);
+}
+
+void WriteStream::writeNullChar()
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->writeNullChar(mSrcStream);
+}
+
+void WriteStream::flush()
+{
+    SEAD_ASSERT(mFormat);
+    SEAD_ASSERT(mSrcStream);
+    mFormat->flush(mSrcStream);
+    mSrcStream->flush();
+}
+
+// TODO: Idk if this is correct
+void WriteStream::writeF32BitImpl_(f32 value, u32 intBitnum, u32 fracBitnum)
+{
+    SEAD_ASSERT(value >= 0.0f);
+
+    u32 uValue = static_cast<u32>(value * static_cast<f32>(1 << (fracBitnum & 0xFF)) + 0.5f);
+    uValue = Endian::fromHostU32(Endian::Types::eLittle, uValue);
+
+    writeBit(&uValue, intBitnum + fracBitnum);
+}
+
+// TODO: Idk if this is correct
+void WriteStream::writeF64BitImpl_(f64 value, u32 intBitnum, u32 fracBitnum)
+{
+    SEAD_ASSERT(value >= 0.0);
+
+    u64 uValue = static_cast<u64>(value * static_cast<f64>(1 << (fracBitnum & 0xFF)) + 0.5);
+    uValue = Endian::fromHostU64(Endian::Types::eLittle, uValue);
+
+    writeBit(&uValue, intBitnum + fracBitnum);
+}
+
 } // namespace sead
