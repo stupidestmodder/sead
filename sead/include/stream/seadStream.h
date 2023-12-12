@@ -129,6 +129,7 @@ public:
     void readString(BufferedSafeString* dst, u32 size);
     u32 readMemBlock(void* dst, u32 size);
 
+    // TODO
     ReadStream& operator>>(Text);
     ReadStream& operator>>(FloatRangeBitImpl<f32>);
     ReadStream& operator>>(FloatRangeBitImpl<f64>);
@@ -187,6 +188,7 @@ private:
     void writeF32BitImpl_(f32 value, u32 intBitnum, u32 fracBitnum);
     void writeF64BitImpl_(f64 value, u32 intBitnum, u32 fracBitnum);
 
+    // TODO
     WriteStream& writeFloatRangeBitImpl(const FloatRangeBitImpl<f32>&);
     WriteStream& writeDoubleRangeBitImpl(const FloatRangeBitImpl<f64>&);
 };

@@ -7,9 +7,11 @@
 
 namespace sead {
 
-// TODO
 class MemBlock
 {
+public:
+    static const u32 cPtrSize = sizeof(void*);
+
 protected:
     MemBlock()
         : mListNode()
@@ -47,9 +49,11 @@ protected:
 
         if (mOffset != 0)
         {
-            //uintptr_t* offsetTail = memory() - cPtrSize;
-            //SEAD_ASSERT(!PtrUtil::isInclude(offsetTail, this, PtrUtil::addOffset(this, sizeof(MemBlock))));
-            //*offsetTail = PtrUtil::addOffset(this, 1);
+            intptr_t* offsetTail = reinterpret_cast<intptr_t*>(memory() - cPtrSize);
+            SEAD_ASSERT(!PtrUtil::isInclude(offsetTail, this, PtrUtil::addOffset(this, sizeof(MemBlock))));
+
+            //? Huh
+            *offsetTail = reinterpret_cast<intptr_t>(this) + 1;
         }
     }
 
@@ -58,7 +62,10 @@ protected:
         MemUtil::fill(memory(), val, mSize);
     }
 
+    // TODO
     bool isInclude(const void*) const;
+
+    friend class ExpHeap;
 
 public:
     size_t getSize() const
@@ -76,7 +83,42 @@ public:
         return mOffset;
     }
 
-    bool isValid(const void* heapStart, size_t heapSize) const;
+    bool isValid(const void* heapStart, size_t heapSize) const
+    {
+        if (mSize == 0)
+            return false;
+
+        const u8* heapStartU8 = reinterpret_cast<const u8*>(heapStart);
+        const u8* memBlock = reinterpret_cast<const u8*>(this);
+
+        if (memBlock < heapStartU8 || heapStartU8 + heapSize < memBlock + getSizeWithManage())
+        {
+            SEAD_PRINT("Invalid address: 0x%p\n", memBlock);
+            return false;
+        }
+
+        u8* next = reinterpret_cast<u8*>(mListNode.next());
+        if (next < heapStartU8 || heapStartU8 + heapSize < next + sizeof(MemBlock))
+        {
+            SEAD_PRINT("Invalid next address: 0x%p\n", next);
+            return false;
+        }
+
+        u8* prev = reinterpret_cast<u8*>(mListNode.prev());
+        if (prev < heapStartU8 || heapStartU8 + heapSize < prev + sizeof(MemBlock))
+        {
+            SEAD_PRINT("Invalid prev address: 0x%p\n", prev);
+            return false;
+        }
+
+        if (mListNode.prev()->next() != &mListNode || mListNode.next()->prev() != &mListNode)
+        {
+            SEAD_PRINT("Invalid bidirectional link\n");
+            return false;
+        }
+
+        return true;
+    }
 
     void dump() const
     {
@@ -87,11 +129,35 @@ public:
         SEAD_PRINT("next: 0x%p\n", mListNode.next());
     }
 
-    static MemBlock* FindManageArea(void* ptr);
+    static MemBlock* FindManageArea(void* ptr)
+    {
+        MemBlock* memBlock;
 
-    static const u32 cPtrSize = sizeof(void*);
+        uintptr_t blockHeaderAddr = *reinterpret_cast<uintptr_t*>(reinterpret_cast<intptr_t>(ptr) - cPtrSize);
+        if ((blockHeaderAddr & 1) == 0)
+        {
+            memBlock = reinterpret_cast<MemBlock*>(reinterpret_cast<intptr_t>(ptr) - sizeof(MemBlock));
+            if (memBlock->getOffset() != 0)
+            {
+                SEAD_PRINT("===================================\n");
+                SEAD_PRINT("Invalid pointer: 0x%p\n", ptr);
+                SEAD_PRINT("[ block (0x%p) ]\n", memBlock);
+                MemUtil::dumpMemoryBinary(memBlock, 16 * 0, 16 * 2, true);
+                SEAD_PRINT("\n");
+                SEAD_PRINT("[ ptr (0x%p) ]\n", ptr);
+                MemUtil::dumpMemoryBinary(ptr, 16 * 2, 16 * 2, true);
+                SEAD_PRINT("===================================\n");
 
-    friend class ExpHeap;
+                SEAD_ASSERT_MSG(false, "Invalid pointer: 0x%p\n", ptr);
+            }
+        }
+        else
+        {
+            memBlock = reinterpret_cast<MemBlock*>(blockHeaderAddr - 1);
+        }
+
+        return memBlock;
+    }
 
 protected:
     ListNode mListNode;
