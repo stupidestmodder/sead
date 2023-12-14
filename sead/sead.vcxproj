@@ -219,6 +219,7 @@
     <ClInclude Include="include\random\seadRandom.h" />
     <ClInclude Include="include\sead\test.h" />
     <ClInclude Include="include\stream\seadBinaryStreamFormat.h" />
+    <ClInclude Include="include\stream\seadBufferStream.h" />
     <ClInclude Include="include\stream\seadRamStream.h" />
     <ClInclude Include="include\stream\seadStream.h" />
     <ClInclude Include="include\stream\seadStreamFormat.h" />

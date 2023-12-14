@@ -192,6 +192,9 @@
     <ClInclude Include="include\thread\seadThreadUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\stream\seadBufferStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\basis\seadNew.cpp">

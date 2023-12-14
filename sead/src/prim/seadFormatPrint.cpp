@@ -65,16 +65,7 @@ PrintFormatter& PrintFormatter::operator<<(const char* str)
 
         bool end = proceedToFormatMark_(option);
         if (end)
-        {
-            const char* optionStr;
-
-            if (option[0] != '\0')
-                optionStr = option;
-            else
-                optionStr = nullptr;
-
-            PrintFormatter::outputString_(optionStr, mPrintOutput, str, -1);
-        }
+            PrintFormatter::outputString_(option[0] != '\0' ? option : nullptr, mPrintOutput, str, -1);
     }
 
     return *this;

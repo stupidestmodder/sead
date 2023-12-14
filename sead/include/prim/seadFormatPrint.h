@@ -1,6 +1,7 @@
 #pragma once
 
 #include <basis/seadTypes.h>
+#include <stream/seadBufferStream.h>
 
 namespace sead {
 
@@ -17,6 +18,19 @@ public:
     void writeLineBreak();
 
     PrintFormatter& operator<<(PrintFormatter& f);
+};
+
+// TODO
+class BufferingPrintOutput : public PrintOutput
+{
+public:
+    BufferingPrintOutput(char*, u32);
+    ~BufferingPrintOutput() override;
+
+    void write(const char* str, s32 len) override;
+
+protected:
+    BufferMultiByteNullTerminatedTextWriteStreamSrc mStreamSrc;
 };
 
 // TODO
@@ -48,15 +62,30 @@ public:
     PrintFormatter& operator,(const s32);
     PrintFormatter& operator,(const u32);
 
-    //template <typename T>
-    //PrintFormatter& operator,(const T&);
+    template <typename T>
+    PrintFormatter& operator,(const T& obj)
+    {
+        return operator<<(obj);
+    }
 
     PrintFormatter& operator<<(char* str)
     {
-        operator<<(const_cast<const char*>(str));
+        return operator<<(const_cast<const char*>(str));
     }
 
     PrintFormatter& operator<<(const char* str);
+
+    template <typename T>
+    PrintFormatter& operator<<(const T& obj)
+    {
+        char option[cOptionBufSize];
+
+        bool end = proceedToFormatMark_(option);
+        if (end)
+            PrintFormatter::out<T>(obj, option[0] != '\0' ? option : nullptr, mPrintOutput);
+
+        return *this;
+    }
 
     template <typename T>
     static void out(const T& obj, const char* option, PrintOutput* output);
@@ -83,6 +112,18 @@ protected:
     s32 mPos;
     s32 mFormatStrLength;
     bool mIsFormatRestAll;
+};
+
+// TODO
+class BufferingPrintFormatter : public PrintFormatter
+{
+public:
+    BufferingPrintFormatter();
+    explicit BufferingPrintFormatter(const char*);
+
+protected:
+    BufferingPrintOutput mOutput;
+    char mBuffer[128];
 };
 
 }

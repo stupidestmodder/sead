@@ -175,6 +175,7 @@ public:
 protected:
     Heap* setCurrentHeap_(Heap* heap);
 
+    friend class ExpHeap;
     friend class CurrentHeapSetter;
 
     static void createRootHeap_();

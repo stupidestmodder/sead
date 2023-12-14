@@ -5,7 +5,6 @@
 
 namespace sead {
 
-// TODO
 class ExpHeap : public Heap
 {
     SEAD_RTTI_OVERRIDE(ExpHeap, Heap);
@@ -80,21 +79,23 @@ public:
     void dumpFreeList() const;
     void dumpUseList() const;
 
+    // TODO
     void checkFreeList() const;
     bool tryCheckFreeList() const;
+    // TODO
     void checkUseList() const;
     bool tryCheckUseList() const;
 
-    size_t getFreeListSize() const;
-    size_t getUseListSize() const;
+    size_t getFreeListSize() const { return mFreeList.size(); }
+    size_t getUseListSize() const { return mUseList.size(); }
     size_t getAllocatedSize(void* ptr);
 
     void dumpYAML(WriteStream& stream, s32 indent) const override;
 
-    constIterator constBeginFreeList() const;
-    constIterator constEndFreeList() const;
-    constIterator constBeginUseList() const;
-    constIterator constEndUseList() const;
+    constIterator constBeginFreeList() const { return mFreeList.constBegin(); }
+    constIterator constEndFreeList() const { return mFreeList.constEnd(); }
+    constIterator constBeginUseList() const { return mUseList.constBegin(); }
+    constIterator constEndUseList() const { return mUseList.constEnd(); }
 
 protected:
     static void doCreate(ExpHeap* heap, Heap* parent);
@@ -121,6 +122,10 @@ protected:
     size_t adjustFront_();
 
     void* realloc_(void* ptr, u8* oldMem, size_t copySize, size_t newSize, s32 alignment);
+
+#ifdef SEAD_DEBUG
+    void fillMemBlockDebugFillFree_(void* addr);
+#endif // SEAD_DEBUG
 
 protected:
     AllocMode mAllocMode;
