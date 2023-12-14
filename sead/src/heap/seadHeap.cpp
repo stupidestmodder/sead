@@ -233,16 +233,16 @@ void PrintFormatter::out<Heap>(const Heap& obj, const char*, PrintOutput* output
 {
     ConditionalScopedLock<CriticalSection> lock(&obj.mCS, obj.isEnableLock());
 
-    FixedSafeString<128> str;
+    FixedSafeString<128> buf;
 
     PrintFormatter::out(SafeString("\n"), nullptr, output);
     PrintFormatter::out(SafeString("==================================================\n"), nullptr, output);
 
-    str.format("              Name: %s\n", obj.getName().cstr());
-    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+    buf.format("              Name: %s\n", obj.getName().cstr());
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
 
-    str.format("             Range: [0x%p - 0x%p)\n", obj.getStartAddress(), obj.getEndAddress());
-    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+    buf.format("             Range: [0x%p - 0x%p)\n", obj.getStartAddress(), obj.getEndAddress());
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
 
     const char* parent;
 
@@ -251,8 +251,8 @@ void PrintFormatter::out<Heap>(const Heap& obj, const char*, PrintOutput* output
     else
         parent = "--";
 
-    str.format("            Parent: %s (0x%p)\n", parent, obj.getParent());
-    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+    buf.format("            Parent: %s (0x%p)\n", parent, obj.getParent());
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
 
     const char* direction;
 
@@ -261,17 +261,17 @@ void PrintFormatter::out<Heap>(const Heap& obj, const char*, PrintOutput* output
     else
         direction = "Reverse";
 
-    str.format("         Direction: %s\n", direction);
-    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+    buf.format("         Direction: %s\n", direction);
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
 
-    str.format("              Size: %zu\n", obj.getSize());
-    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+    buf.format("              Size: %zu\n", obj.getSize());
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
 
-    str.format("          FreeSize: %zu\n", obj.getFreeSize());
-    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+    buf.format("          FreeSize: %zu\n", obj.getFreeSize());
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
 
-    str.format("MaxAllocatableSize: %zu\n", obj.getMaxAllocatableSize());
-    PrintFormatter::out(SafeString(str.cstr()), nullptr, output);
+    buf.format("MaxAllocatableSize: %zu\n", obj.getMaxAllocatableSize());
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
 
     PrintFormatter::out(SafeString("--------------------------------------------------\n"), nullptr, output);
 }
