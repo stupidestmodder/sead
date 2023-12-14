@@ -9,9 +9,6 @@ namespace sead {
 
 class MemBlock
 {
-public:
-    static const u32 cPtrSize = sizeof(void*);
-
 protected:
     MemBlock()
         : mListNode()
@@ -51,8 +48,6 @@ protected:
         {
             intptr_t* offsetTail = reinterpret_cast<intptr_t*>(memory() - cPtrSize);
             SEAD_ASSERT(!PtrUtil::isInclude(offsetTail, this, PtrUtil::addOffset(this, sizeof(MemBlock))));
-
-            //? Huh
             *offsetTail = reinterpret_cast<intptr_t>(this) + 1;
         }
     }
@@ -64,6 +59,8 @@ protected:
 
     // TODO
     bool isInclude(const void*) const;
+
+    static const u32 cPtrSize = sizeof(void*);
 
     friend class ExpHeap;
 
@@ -88,24 +85,24 @@ public:
         if (mSize == 0)
             return false;
 
-        const u8* heapStartU8 = reinterpret_cast<const u8*>(heapStart);
-        const u8* memBlock = reinterpret_cast<const u8*>(this);
+        const u8* start = reinterpret_cast<const u8*>(heapStart);
+        const u8* block = reinterpret_cast<const u8*>(this);
 
-        if (memBlock < heapStartU8 || heapStartU8 + heapSize < memBlock + getSizeWithManage())
+        if (block < start || block + getSizeWithManage() > start + heapSize)
         {
-            SEAD_PRINT("Invalid address: 0x%p\n", memBlock);
+            SEAD_PRINT("Invalid address: 0x%p\n", block);
             return false;
         }
 
         u8* next = reinterpret_cast<u8*>(mListNode.next());
-        if (next < heapStartU8 || heapStartU8 + heapSize < next + sizeof(MemBlock))
+        if (next < start || next + sizeof(MemBlock) > start + heapSize)
         {
             SEAD_PRINT("Invalid next address: 0x%p\n", next);
             return false;
         }
 
         u8* prev = reinterpret_cast<u8*>(mListNode.prev());
-        if (prev < heapStartU8 || heapStartU8 + heapSize < prev + sizeof(MemBlock))
+        if (prev < start || prev + sizeof(MemBlock) > start + heapSize)
         {
             SEAD_PRINT("Invalid prev address: 0x%p\n", prev);
             return false;
@@ -131,18 +128,20 @@ public:
 
     static MemBlock* FindManageArea(void* ptr)
     {
-        MemBlock* memBlock;
+        MemBlock* block;
 
-        uintptr_t blockHeaderAddr = *reinterpret_cast<uintptr_t*>(reinterpret_cast<intptr_t>(ptr) - cPtrSize);
-        if ((blockHeaderAddr & 1) == 0)
+        uintptr_t offsetTail = *reinterpret_cast<uintptr_t*>(reinterpret_cast<intptr_t>(ptr) - cPtrSize);
+        if ((offsetTail & 1) == 0)
         {
-            memBlock = reinterpret_cast<MemBlock*>(reinterpret_cast<intptr_t>(ptr) - sizeof(MemBlock));
-            if (memBlock->getOffset() != 0)
+            block = reinterpret_cast<MemBlock*>(reinterpret_cast<intptr_t>(ptr) - sizeof(MemBlock));
+
+#ifdef SEAD_DEBUG
+            if (block->getOffset() != 0)
             {
                 SEAD_PRINT("===================================\n");
                 SEAD_PRINT("Invalid pointer: 0x%p\n", ptr);
-                SEAD_PRINT("[ block (0x%p) ]\n", memBlock);
-                MemUtil::dumpMemoryBinary(memBlock, 16 * 0, 16 * 2, true);
+                SEAD_PRINT("[ block (0x%p) ]\n", block);
+                MemUtil::dumpMemoryBinary(block, 16 * 0, 16 * 2, true);
                 SEAD_PRINT("\n");
                 SEAD_PRINT("[ ptr (0x%p) ]\n", ptr);
                 MemUtil::dumpMemoryBinary(ptr, 16 * 2, 16 * 2, true);
@@ -150,13 +149,14 @@ public:
 
                 SEAD_ASSERT_MSG(false, "Invalid pointer: 0x%p\n", ptr);
             }
+#endif // SEAD_DEBUG
         }
         else
         {
-            memBlock = reinterpret_cast<MemBlock*>(blockHeaderAddr - 1);
+            block = reinterpret_cast<MemBlock*>(offsetTail - 1);
         }
 
-        return memBlock;
+        return block;
     }
 
 protected:
