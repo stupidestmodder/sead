@@ -45,10 +45,10 @@ void Heap::dumpTreeYAML(WriteStream& stream, s32 indent) const
 {
     dumpYAML(stream, indent);
 
-    FixedSafeString<128> str("");
-    str.append(' ', indent);
-    str.appendWithFormat("  children:\n");
-    stream.writeDecorationText(str);
+    FixedSafeString<128> buf("");
+    buf.append(' ', indent);
+    buf.appendWithFormat("  children:\n");
+    stream.writeDecorationText(buf);
 
     for (Heap& child : mChildren)
     {
@@ -60,23 +60,23 @@ void Heap::dumpYAML(WriteStream& stream, s32 indent) const
 {
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
-    FixedSafeString<128> str("");
-    str.append(' ', indent);
-    str.appendWithFormat("- name: \"%s\"\n", getName().cstr());
-    stream.writeDecorationText(str);
+    FixedSafeString<128> buf("");
+    buf.append(' ', indent);
+    buf.appendWithFormat("- name: \"%s\"\n", getName().cstr());
+    stream.writeDecorationText(buf);
 
-    str.clear();
-    str.append(' ', indent);
-    str.appendWithFormat("  start_address: 0x%p\n", getStartAddress());
-    stream.writeDecorationText(str);
+    buf.clear();
+    buf.append(' ', indent);
+    buf.appendWithFormat("  start_address: 0x%p\n", getStartAddress());
+    stream.writeDecorationText(buf);
 
-    str.clear();
-    str.append(' ', indent);
-    str.appendWithFormat("  end_address: 0x%p\n", getEndAddress());
-    stream.writeDecorationText(str);
+    buf.clear();
+    buf.append(' ', indent);
+    buf.appendWithFormat("  end_address: 0x%p\n", getEndAddress());
+    stream.writeDecorationText(buf);
 
-    str.clear();
-    str.append(' ', indent);
+    buf.clear();
+    buf.append(' ', indent);
 
     const char* parent;
 
@@ -85,11 +85,11 @@ void Heap::dumpYAML(WriteStream& stream, s32 indent) const
     else
         parent = "--";
 
-    str.appendWithFormat("  parent: %s\n", parent);
-    stream.writeDecorationText(str);
+    buf.appendWithFormat("  parent: %s\n", parent);
+    stream.writeDecorationText(buf);
 
-    str.clear();
-    str.append(' ', indent);
+    buf.clear();
+    buf.append(' ', indent);
 
     const char* direction;
 
@@ -98,23 +98,23 @@ void Heap::dumpYAML(WriteStream& stream, s32 indent) const
     else
         direction = "Reverse";
 
-    str.appendWithFormat("  direction: %s\n", direction);
-    stream.writeDecorationText(str);
+    buf.appendWithFormat("  direction: %s\n", direction);
+    stream.writeDecorationText(buf);
 
-    str.clear();
-    str.append(' ', indent);
-    str.appendWithFormat("  size: %zu\n", getSize());
-    stream.writeDecorationText(str);
+    buf.clear();
+    buf.append(' ', indent);
+    buf.appendWithFormat("  size: %zu\n", getSize());
+    stream.writeDecorationText(buf);
 
-    str.clear();
-    str.append(' ', indent);
-    str.appendWithFormat("  free_size: %zu\n", getFreeSize());
-    stream.writeDecorationText(str);
+    buf.clear();
+    buf.append(' ', indent);
+    buf.appendWithFormat("  free_size: %zu\n", getFreeSize());
+    stream.writeDecorationText(buf);
 
-    str.clear();
-    str.append(' ', indent);
-    str.appendWithFormat("  max_allocatable_size: %zu\n", getMaxAllocatableSize());
-    stream.writeDecorationText(str);
+    buf.clear();
+    buf.append(' ', indent);
+    buf.appendWithFormat("  max_allocatable_size: %zu\n", getMaxAllocatableSize());
+    stream.writeDecorationText(buf);
 }
 
 Heap* Heap::findContainHeap_(const void* ptr)
