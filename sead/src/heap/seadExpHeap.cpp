@@ -1399,4 +1399,32 @@ void ExpHeap::fillMemBlockDebugFillFree_(void* addr)
 }
 #endif // SEAD_DEBUG
 
+template <>
+void PrintFormatter::out<ExpHeap>(const ExpHeap& obj, const char*, PrintOutput* output)
+{
+    ConditionalScopedLock<CriticalSection> lock(&obj.mCS, obj.isEnableLock());
+
+    PrintFormatter::out<Heap>(obj, nullptr, output);
+
+    FixedSafeString<128> buf;
+
+    const char* allocMode;
+
+    if (obj.getAllocMode() == ExpHeap::AllocMode::eFirstFit)
+        allocMode = "First Fit";
+    else
+        allocMode = "Best Fit";
+
+    buf.format("         AllocMode: %s\n", allocMode);
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
+
+    buf.format("      UseList size: %d\n", obj.mUseList.size());
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
+
+    buf.format("     FreeList size: %d\n", obj.mFreeList.size());
+    PrintFormatter::out(SafeString(buf.cstr()), nullptr, output);
+
+    PrintFormatter::out(SafeString("==================================================\n"), nullptr, output);
+}
+
 } // namespace sead

@@ -127,6 +127,8 @@ protected:
     void fillMemBlockDebugFillFree_(void* addr);
 #endif // SEAD_DEBUG
 
+    friend class PrintFormatter;
+
 protected:
     AllocMode mAllocMode;
     MemBlockList mFreeList;
