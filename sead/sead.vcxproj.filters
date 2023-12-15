@@ -195,6 +195,9 @@
     <ClInclude Include="include\stream\seadBufferStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\stream\seadPrintStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\basis\seadNew.cpp">
@@ -297,6 +300,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\math\seadMathCalcCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stream\seadPrintStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

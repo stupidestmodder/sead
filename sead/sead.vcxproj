@@ -220,6 +220,7 @@
     <ClInclude Include="include\sead\test.h" />
     <ClInclude Include="include\stream\seadBinaryStreamFormat.h" />
     <ClInclude Include="include\stream\seadBufferStream.h" />
+    <ClInclude Include="include\stream\seadPrintStream.h" />
     <ClInclude Include="include\stream\seadRamStream.h" />
     <ClInclude Include="include\stream\seadStream.h" />
     <ClInclude Include="include\stream\seadStreamFormat.h" />
@@ -263,6 +264,7 @@
     <ClCompile Include="src\random\seadGlobalRandom.cpp" />
     <ClCompile Include="src\random\seadRandom.cpp" />
     <ClCompile Include="src\stream\seadBinaryStreamFormat.cpp" />
+    <ClCompile Include="src\stream\seadPrintStream.cpp" />
     <ClCompile Include="src\stream\seadStream.cpp" />
     <ClCompile Include="src\thread\seadThread.cpp" />
     <ClCompile Include="src\thread\seadThreadUtil.cpp" />
