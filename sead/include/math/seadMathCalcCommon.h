@@ -54,7 +54,15 @@ public:
 
     static T neg(T);
     static T inv(T);
-    static T sign(T);
+
+    static T sign(T t)
+    {
+        if (t >= 0)
+            return 1;
+        else
+            return -1;
+    }
+
     static T fitSign(T, T);
     static T square(T);
     static T sqrt(T);
@@ -88,7 +96,7 @@ public:
     static T nan();
     static T epsilon();
     static bool equalsEpsilon(T, T, T);
-    static T abs(T);
+    static T abs(T t);
     static T max(T, T);
     static T min(T, T);
     static T max3(T, T, T);
@@ -109,9 +117,9 @@ public:
     static s32 floor(T);
     static s32 ceil(T);
     static T roundUpN(T, s32);
-    static T roundUpPow2(T, s32);
+    static T roundUpPow2(T val, s32 base);
     static T roundDownN(T, s32);
-    static T roundDownPow2(T, s32);
+    static T roundDownPow2(T val, s32 base);
     static T clampMax(T, T);
     static T clampMin(T, T);
     static T clamp2(T, T, T);
@@ -119,8 +127,8 @@ public:
     static T lcm(T, T);
     static bool isZero(T, T);
     static bool isNan(T);
-    static bool isPow2(T);
-    static bool isMultiplePow2(T, T);
+    static bool isPow2(T t);
+    static bool isMultiplePow2(T n, T mult);
     static bool isInfinity(T);
     static bool isIntersect1d(T, T, T, T);
     static bool chase(T*, T, const T);

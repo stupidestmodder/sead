@@ -252,6 +252,7 @@
     <ClCompile Include="src\heap\seadHeap.cpp" />
     <ClCompile Include="src\heap\seadHeapMgr.cpp" />
     <ClCompile Include="src\heap\win\seadArenaWin.cpp" />
+    <ClCompile Include="src\math\seadMathCalcCommon.cpp" />
     <ClCompile Include="src\prim\seadBitFlag.cpp" />
     <ClCompile Include="src\prim\seadEndian.cpp" />
     <ClCompile Include="src\prim\seadFormatPrint.cpp" />

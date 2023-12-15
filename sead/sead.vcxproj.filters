@@ -296,5 +296,8 @@
     <ClCompile Include="src\thread\seadThreadUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\math\seadMathCalcCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
