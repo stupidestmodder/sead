@@ -169,7 +169,7 @@ public:
         return &mBuffer[idx];
     }
 
-    T& front() { return get(0) }
+    T& front() { return get(0); }
     const T& front() const { return get(0); }
     T& back() { return get(mSize - 1); }
     const T& back() const { return get(mSize - 1); }
@@ -184,7 +184,7 @@ public:
 
     Buffer& operator=(const Buffer&);
 
-    bool isRangeValid(s32) const
+    bool isRangeValid(s32 idx) const
     {
         return static_cast<u32>(idx) < static_cast<u32>(mSize);
     }
