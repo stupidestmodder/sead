@@ -1,7 +1,9 @@
 #pragma once
 
 #include <basis/seadTypes.h>
+#include <prim/seadSafeString.h>
 #include <stream/seadBufferStream.h>
+#include <stream/seadPrintStream.h>
 
 namespace sead {
 
@@ -20,11 +22,15 @@ public:
     PrintFormatter& operator<<(PrintFormatter& f);
 };
 
-// TODO
 class BufferingPrintOutput : public PrintOutput
 {
 public:
-    BufferingPrintOutput(char*, u32);
+    BufferingPrintOutput(char* start, u32 size)
+        : PrintOutput()
+        , mStreamSrc(PrintStreamSrc::instance(), start, size)
+    {
+    }
+
     ~BufferingPrintOutput() override;
 
     void write(const char* str, s32 len) override;
@@ -33,10 +39,9 @@ protected:
     BufferMultiByteNullTerminatedTextWriteStreamSrc mStreamSrc;
 };
 
-// TODO
 class PrintFormatter
 {
-public:
+protected:
     template <typename T, template <typename> typename TClass>
     class OutImpl
     {
@@ -55,6 +60,7 @@ public:
     void flush();
     void flushWithLineBreak();
 
+    // TODO
     PrintFormatter& operator,(const s8);
     PrintFormatter& operator,(const u8);
     PrintFormatter& operator,(const s16);
@@ -104,7 +110,25 @@ protected:
 
     static void outputString_(const char* option, PrintOutput* output, const char* str, s32 strLen);
     static void outputPtr_(const char* option, PrintOutput* output, uintptr_t ptr);
-    static bool isQualification_(char c);
+
+    static bool isQualification_(char c)
+    {
+        return c == '+' || c == '-' || c == ' ' || c == '#' || c == 'h' || c == 'l' || c == 'L' || c == '.' || c > '/' && c < ':';
+    }
+
+    template <typename T>
+    static void outSimpleObject_(const char* defaultOption, const char* userOption, PrintOutput* output, const T& obj)
+    {
+        FixedSafeString<cOptionBufSize> str;
+
+        s32 strLen = 0;
+        if (userOption)
+            strLen = str.format(userOption, obj);
+        else
+            strLen = str.format(defaultOption, obj);
+
+        output->write(str.cstr(), strLen);
+    }
 
 protected:
     const char* mFormatStr;
@@ -114,16 +138,17 @@ protected:
     bool mIsFormatRestAll;
 };
 
-// TODO
 class BufferingPrintFormatter : public PrintFormatter
 {
 public:
     BufferingPrintFormatter();
-    explicit BufferingPrintFormatter(const char*);
+    explicit BufferingPrintFormatter(const char* formatStr);
+
+    static const u32 cBufferSize = 128;
 
 protected:
     BufferingPrintOutput mOutput;
-    char mBuffer[128];
+    char mBuffer[cBufferSize];
 };
 
 }
