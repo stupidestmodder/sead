@@ -27,15 +27,22 @@ public:
 
     s64 toNanoSeconds() const;
 
-    // TODO
-    s64 toMicroSeconds() const;
+    s64 toMicroSeconds() const
+    {
+        if (LLONG_MIN / 1000 / 1000 <= mSpan && mSpan < LLONG_MAX / 1000 / 1000)
+            return mSpan * 1000 * 1000 / cFrequency;
+        else if (LLONG_MIN / 1000 <= mSpan && mSpan < LLONG_MAX / 1000)
+            return mSpan * 1000 / cFrequency * 1000;
+        else
+            return mSpan / cFrequency * 1000 * 1000;
+    }
 
     s64 toMilliSeconds() const
     {
         if (LLONG_MIN / 1000 <= mSpan && mSpan < LLONG_MAX / 1000)
-            return 1000 * mSpan / cFrequency;
-
-        return 1000 * (mSpan / cFrequency);
+            return mSpan * 1000 / cFrequency;
+        else
+            return mSpan / cFrequency * 1000;
     }
 
     // TODO
