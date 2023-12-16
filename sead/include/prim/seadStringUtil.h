@@ -71,6 +71,11 @@ inline s32 convertUtf8ToSjis(BufferedSafeString* dst, const SafeString& src, s32
     return convertUtf8ToSjis(dst->getBuffer(), dst->getBufferSize(), src.cstr(), srcLen);
 }
 
+inline s32 convertUtf16ToUtf8(BufferedSafeString* dst, const WSafeString& src, s32 srcLen)
+{
+    return convertUtf16ToUtf8(dst->getBuffer(), dst->getBufferSize(), src.cstr(), srcLen);
+}
+
 s32 compareChar16Pair(const Char16Pair& value, const char16& target);
 
 char16 replace(char16 c, const Buffer<const Char16Pair>& sortedTable);
