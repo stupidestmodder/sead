@@ -305,5 +305,8 @@
     <ClCompile Include="src\stream\seadPrintStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\stream\seadBufferStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

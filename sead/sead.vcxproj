@@ -264,6 +264,7 @@
     <ClCompile Include="src\random\seadGlobalRandom.cpp" />
     <ClCompile Include="src\random\seadRandom.cpp" />
     <ClCompile Include="src\stream\seadBinaryStreamFormat.cpp" />
+    <ClCompile Include="src\stream\seadBufferStream.cpp" />
     <ClCompile Include="src\stream\seadPrintStream.cpp" />
     <ClCompile Include="src\stream\seadStream.cpp" />
     <ClCompile Include="src\thread\seadThread.cpp" />

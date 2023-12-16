@@ -4,18 +4,19 @@
 
 namespace sead {
 
-// TODO
+// TODO: Add remaining classes
+
 class BufferWriteStreamSrc : public StreamSrc
 {
 public:
-    BufferWriteStreamSrc(StreamSrc*, void*, u32);
+    BufferWriteStreamSrc(StreamSrc* src, void* start, u32 size);
     virtual ~BufferWriteStreamSrc();
 
-    u32 skip(s32) override;
-    u32 read(void*, u32) override;
-    u32 write(const void*, u32) override;
+    u32 read(void* dst, u32 size) override;
+    u32 write(const void* src, u32 size) override;
+    u32 skip(s32 byte) override;
     void rewind() override;
-    bool isEOF() override;
+    bool isEOF() override { return mStreamSrc->isEOF(); }
     bool flush() override;
 
 protected:
@@ -25,22 +26,29 @@ protected:
     u32 mCurrentPos;
 };
 
-// TODO
 class BufferMultiByteTextWriteStreamSrc : public BufferWriteStreamSrc
 {
 public:
-    BufferMultiByteTextWriteStreamSrc(StreamSrc*, void*, u32);
-    ~BufferMultiByteTextWriteStreamSrc() override;
+    BufferMultiByteTextWriteStreamSrc(StreamSrc* src, void* start, u32 size);
 
-    u32 write(const void*, u32) override;
+    ~BufferMultiByteTextWriteStreamSrc() override
+    {
+    }
+
+    u32 write(const void* src, u32 size) override;
 };
 
-// TODO
 class BufferMultiByteNullTerminatedTextWriteStreamSrc : public BufferMultiByteTextWriteStreamSrc
 {
 public:
-    BufferMultiByteNullTerminatedTextWriteStreamSrc(StreamSrc*, void*, u32);
-    ~BufferMultiByteNullTerminatedTextWriteStreamSrc() override;
+    BufferMultiByteNullTerminatedTextWriteStreamSrc(StreamSrc* src, void* start, u32 size)
+        : BufferMultiByteTextWriteStreamSrc(src, start, size - 1)
+    {
+    }
+
+    ~BufferMultiByteNullTerminatedTextWriteStreamSrc() override
+    {
+    }
 
     bool flush() override;
 };
