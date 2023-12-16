@@ -98,7 +98,15 @@ public:
     static bool equalsEpsilon(T, T, T);
     static T abs(T t);
     static T max(T, T);
-    static T min(T, T);
+
+    static T min(T a, T b)
+    {
+        if (a < b)
+            return a;
+        else
+            return b;
+    }
+
     static T max3(T, T, T);
     static T min3(T, T, T);
     static T deg2rad(T);
