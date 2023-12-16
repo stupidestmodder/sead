@@ -82,4 +82,123 @@ ThreadMgr::ThreadMgr()
 {
 }
 
+ThreadMgr::~ThreadMgr()
+{
+    ScopedLock<CriticalSection> lock(&mIterateLockCS);
+
+    for (Thread* thread : mList)
+    {
+        thread->quit(false);
+    }
+
+    bool threadsDone;
+    do
+    {
+        threadsDone = true;
+
+        for (Thread* thread : mList)
+        {
+            threadsDone &= thread->isDone();
+        }
+
+        Thread::yield();
+    } while (!threadsDone);
+
+    for (Thread* thread : mList)
+    {
+        thread->waitDone();
+    }
+
+    sInstance = nullptr;
+}
+
+void ThreadMgr::initialize(Heap* heap)
+{
+    initMainThread_(heap);
+    SEAD_ASSERT(mMainThread);
+}
+
+void ThreadMgr::destroy()
+{
+    destroyMainThread_();
+}
+
+bool ThreadMgr::isMainThread() const
+{
+    return getCurrentThread() == mMainThread;
+}
+
+void ThreadMgr::quitAndWaitDoneMultipleThread(Thread** threads, s32 num, bool isJam)
+{
+    for (s32 i = 0; i < num; i++)
+    {
+        threads[i]->quit(isJam);
+    }
+
+    ThreadMgr::waitDoneMultipleThread(threads, num);
+}
+
+void ThreadMgr::waitDoneMultipleThread(Thread* const* threads, s32 num)
+{
+    bool threadsDone;
+    do
+    {
+        threadsDone = true;
+
+        for (s32 i = 0; i < num; i++)
+        {
+            threadsDone &= threads[i]->isDone();
+        }
+
+        Thread::yield();
+    } while (!threadsDone);
+
+    for (s32 i = 0; i < num; i++)
+    {
+        threads[i]->waitDone();
+    }
+}
+
+void ThreadMgr::checkCurrentThreadStackOverFlow(const char* pos, s32 line)
+{
+    ThreadMgr* threadMgr = ThreadMgr::instance();
+    if (!threadMgr)
+        return;
+
+    Thread* currentThread = threadMgr->getCurrentThread();
+    if (currentThread)
+        currentThread->checkStackOverFlow(pos, line);
+}
+
+void ThreadMgr::checkCurrentThreadStackEndCorruption(const char* pos, s32 line)
+{
+    ThreadMgr* threadMgr = ThreadMgr::instance();
+    if (!threadMgr)
+        return;
+
+    Thread* currentThread = threadMgr->getCurrentThread();
+    if (currentThread)
+        currentThread->checkStackEndCorruption(pos, line);
+}
+
+void ThreadMgr::checkCurrentThreadStackPointerOverFlow(const char* pos, s32 line)
+{
+    ThreadMgr* threadMgr = ThreadMgr::instance();
+    if (!threadMgr)
+        return;
+
+    Thread* currentThread = threadMgr->getCurrentThread();
+    if (currentThread)
+        currentThread->checkStackPointerOverFlow(pos, line);
+}
+
+void ThreadMgr::destroyMainThread_()
+{
+    if (mMainThread)
+    {
+        delete mMainThread;
+        mMainThread = nullptr;
+    }
+}
+
 } // namespace sead

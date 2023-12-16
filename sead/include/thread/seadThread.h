@@ -95,7 +95,7 @@ protected:
     virtual u32* getStackCheckStartAddress_() const;
 
 #ifdef SEAD_PLATFORM_WINDOWS
-    static u32 winThreadFunc_(void* arg);
+    static u32 __stdcall winThreadFunc_(void* arg);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -125,26 +125,36 @@ protected:
 
 };
 
-// TODO
 class ThreadMgr
 {
     SEAD_SINGLETON_DISPOSER(ThreadMgr);
 
 public:
     ThreadMgr();
-    ~ThreadMgr();
+    virtual ~ThreadMgr();
 
     void initialize(Heap* heap);
     void destroy();
 
     Thread* getCurrentThread() const { return reinterpret_cast<Thread*>(mThreadPtrTLS.getValue()); }
     Thread* getMainThread() const { return mMainThread; }
-    bool isMainThread() const { return getCurrentThread() == mMainThread; }
+    bool isMainThread() const;
 
     ThreadList::constIterator constBegin() const { return mList.constBegin(); }
     ThreadList::constIterator constEnd() const { return mList.constEnd(); }
 
     CriticalSection* getIterateLockCS() { return &mIterateLockCS; }
+
+    static void quitAndDestroyMultipleThread(Thread** threads, s32 num, bool isJam)
+    {
+        ThreadMgr::quitAndWaitDoneMultipleThread(threads, num, isJam);
+    }
+
+    static void quitAndWaitDoneMultipleThread(Thread** threads, s32 num, bool isJam);
+    static void waitDoneMultipleThread(Thread* const* threads, s32 num);
+    static void checkCurrentThreadStackOverFlow(const char* pos, s32 line);
+    static void checkCurrentThreadStackEndCorruption(const char* pos, s32 line);
+    static void checkCurrentThreadStackPointerOverFlow(const char* pos, s32 line);
 
 protected:
     void addThread_(Thread* thread)
@@ -164,7 +174,6 @@ protected:
     void initMainThread_(Heap* heap);
     void destroyMainThread_();
 
-    // TODO
     static u32 getCurrentThreadID_();
 
 protected:
@@ -172,6 +181,32 @@ protected:
     CriticalSection mIterateLockCS;
     Thread* mMainThread;
     ThreadLocalStorage mThreadPtrTLS;
+};
+
+class MainThread : public Thread
+{
+public:
+#ifdef SEAD_PLATFORM_WINDOWS
+    MainThread(Heap* heap, HANDLE thread, u32 id)
+        : Thread(heap, thread, id)
+    {
+    }
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM_WINDOWS
+    ~MainThread() override
+    {
+        mState = State::eTerminated;
+    }
+
+    void destroy() override { SEAD_ASSERT_MSG(false, "Main thread can not destroy"); }
+    void quit(bool) override { SEAD_ASSERT_MSG(false, "Main thread can not quit"); }
+    void waitDone() override { SEAD_ASSERT_MSG(false, "Main thread can not waitDone"); }
+    void quitAndDestroySingleThread(bool) override { SEAD_ASSERT_MSG(false, "Main thread can not quit"); }
+    void setPriority(s32) override { SEAD_ASSERT_MSG(false, "Main thread priority can not set"); }
+
+protected:
+    void calc_(MessageQueue::Element) override { }
 };
 
 } // namespace sead

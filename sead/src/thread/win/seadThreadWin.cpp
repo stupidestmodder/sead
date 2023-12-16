@@ -141,4 +141,31 @@ s32 Thread::getPriority() const
     return GetThreadPriority(mHandle);
 }
 
+u32 __stdcall Thread::winThreadFunc_(void* arg)
+{
+    Thread* self = static_cast<Thread*>(arg);
+
+    ThreadMgr::instance()->mThreadPtrTLS.setValue(reinterpret_cast<uintptr_t>(self));
+
+    self->mState = State::eRunning;
+    self->run_();
+    self->mState = State::eTerminated;
+
+    return 0;
+}
+
+void ThreadMgr::initMainThread_(Heap* heap)
+{
+    HANDLE threadHandle;
+    DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, false, DUPLICATE_SAME_ACCESS);
+
+    mMainThread = new(heap) MainThread(heap, threadHandle, GetCurrentThreadId());
+    mThreadPtrTLS.setValue(reinterpret_cast<uintptr_t>(mMainThread));
+}
+
+u32 ThreadMgr::getCurrentThreadID_()
+{
+    return GetCurrentThreadId();
+}
+
 } // namespace sead
