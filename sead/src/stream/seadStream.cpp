@@ -7,11 +7,12 @@
 namespace sead {
 
 BinaryStreamFormat sBinaryStreamInstance;
-TextStreamFormat sTextStreamInstance;
+//TextStreamFormat sTextStreamInstance;
 
 StreamFormat* const Stream::BASIC_STREAM_FORMAT[Stream::Modes::eNum] = {
     &sBinaryStreamInstance,
-    &sTextStreamInstance
+    // TODO
+    //&sTextStreamInstance
 };
 
 Stream::Stream()

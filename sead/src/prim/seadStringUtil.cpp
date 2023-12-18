@@ -5,6 +5,33 @@
 
 namespace sead { namespace StringUtil {
 
+template <typename T>
+static bool tryParseImpl_(T* value, const SafeString& str, CardinalNumber cardinalNumber)
+{
+    // TODO
+    SEAD_UNUSED(value);
+    SEAD_UNUSED(str);
+    SEAD_UNUSED(cardinalNumber);
+    SEAD_ASSERT(false);
+    return false;
+}
+
+template <typename T>
+static T parseImpl_(const SafeString& str, CardinalNumber cardinalNumber)
+{
+    T value = 0;
+
+    bool success = tryParseImpl_(&value, str, cardinalNumber);
+    SEAD_ASSERT_MSG(success, "parse failed. (str = \"%s\")", str.cstr());
+
+    return value;
+}
+
+s32 parseS32(const SafeString& str, CardinalNumber cardinalNumber)
+{
+    return parseImpl_<s32>(str, cardinalNumber);
+}
+
 s32 snprintf(char* dst, size_t dstSize, const char* format, ...)
 {
     std::va_list vargs;
