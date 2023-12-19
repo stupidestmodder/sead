@@ -42,8 +42,8 @@ private:
 
 private:
 #ifdef SEAD_PLATFORM_WINDOWS
-    CriticalSection mCriticalSection;
-    Event mEvent;
+    mutable CriticalSection mCriticalSection;
+    mutable Event mEvent;
     RingBuffer<Element> mBuffer;
 #else
 #error "Unsupported platform"
