@@ -228,6 +228,7 @@
     <ClInclude Include="include\stream\seadTextStreamFormat.h" />
     <ClInclude Include="include\thread\seadAtomic.h" />
     <ClInclude Include="include\thread\seadCriticalSection.h" />
+    <ClInclude Include="include\thread\seadDelegateThread.h" />
     <ClInclude Include="include\thread\seadEvent.h" />
     <ClInclude Include="include\thread\seadMessageQueue.h" />
     <ClInclude Include="include\thread\seadThread.h" />
@@ -267,6 +268,7 @@
     <ClCompile Include="src\stream\seadBufferStream.cpp" />
     <ClCompile Include="src\stream\seadPrintStream.cpp" />
     <ClCompile Include="src\stream\seadStream.cpp" />
+    <ClCompile Include="src\thread\seadDelegateThread.cpp" />
     <ClCompile Include="src\thread\seadThread.cpp" />
     <ClCompile Include="src\thread\seadThreadUtil.cpp" />
     <ClCompile Include="src\thread\win\seadCriticalSectionWin.cpp" />
