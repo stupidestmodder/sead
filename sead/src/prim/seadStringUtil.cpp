@@ -80,4 +80,15 @@ s32 vsw16printf(char16* dst, size_t dstLen, const char16* format, std::va_list a
     return std::vswprintf(dst, dstLen, format, args);
 }
 
+s32 convertUtf8ToSjis(char* dst, u32 dstLen, const char* src, s32 srcLen)
+{
+    // TODO
+    SEAD_UNUSED(dst);
+    SEAD_UNUSED(dstLen);
+    SEAD_UNUSED(src);
+    SEAD_UNUSED(srcLen);
+    SEAD_ASSERT(false);
+    return 0;
+}
+
 } } // namespace sead::StringUtil
