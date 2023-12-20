@@ -249,6 +249,7 @@
     <ClCompile Include="src\container\seadPtrArray.cpp" />
     <ClCompile Include="src\devenv\seadAssertConfig.cpp" />
     <ClCompile Include="src\devenv\seadPrintConfig.cpp" />
+    <ClCompile Include="src\framework\seadFramework.cpp" />
     <ClCompile Include="src\heap\seadDisposer.cpp" />
     <ClCompile Include="src\heap\seadExpHeap.cpp" />
     <ClCompile Include="src\heap\seadHeap.cpp" />

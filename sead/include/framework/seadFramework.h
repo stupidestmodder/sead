@@ -3,6 +3,7 @@
 #include <framework/seadTaskBase.h>
 #include <gfx/seadFrameBuffer.h>
 #include <prim/seadDelegateEventSlot.h>
+#include <prim/seadRuntimeTypeInfo.h>
 #include <time/seadTickSpan.h>
 
 namespace sead {
@@ -14,6 +15,8 @@ class TaskMgr;
 
 class Framework
 {
+    SEAD_RTTI_BASE(Framework);
+
 public:
     struct CreateSystemTaskArg
     {
@@ -79,6 +82,8 @@ public:
     {
         return mMethodTreeMgr;
     }
+
+    static void initialize(const InitializeArg& arg);
 
 protected:
     using ResetEvent = DelegateEvent<void*>;
