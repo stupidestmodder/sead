@@ -834,7 +834,7 @@ void ExpHeap::dumpUseList() const
 
     for (MemBlock& block : mUseList)
     {
-        SEAD_PRINT("[ 0x%p ] 0x%p | 0x%zX | %8d | 0x%p | 0x%p\n",
+        SEAD_PRINT("[ 0x%p ] 0x%p | %10zu | %8d | 0x%p | 0x%p\n",
                    &block, block.memory(), block.getSize(), block.getOffset(), mUseList.prev(&block), mUseList.next(&block));
     }
 
