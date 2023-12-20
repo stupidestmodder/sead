@@ -7,6 +7,8 @@
 
 namespace sead {
 
+const s32 Thread::cDefaultPriority = THREAD_PRIORITY_NORMAL;
+
 SEAD_SINGLETON_DISPOSER_IMPL(ThreadMgr);
 
 Thread::Thread(const SafeString& name, Heap* heap, s32 platformPriority, MessageQueue::BlockType blockType,
@@ -42,7 +44,7 @@ Thread::Thread(const SafeString& name, Heap* heap, s32 platformPriority, Message
         SEAD_ASSERT_MSG(false, "ThreadMgr not initialized");
 }
 
-Thread::Thread(Heap* heap, HANDLE handle, u32 id)
+Thread::Thread(Heap* heap, HANDLE thread, u32 id)
     : IDisposer()
     , INamable("sead::MainThread")
     , mMessageQueue()
@@ -51,12 +53,12 @@ Thread::Thread(Heap* heap, HANDLE handle, u32 id)
     , mCurrentHeap(nullptr)
     , mFindContainHeapCache()
     , mBlockType(MessageQueue::BlockType::eNoBlock)
-    , mQuitMsg(0x7FFFFFFF)
+    , mQuitMsg(cDefaultQuitMsg)
     , mID(id)
     , mState(State::eRunning)
-    , mHandle(handle)
+    , mHandle(thread)
 {
-    mMessageQueue.allocate(32, heap);
+    mMessageQueue.allocate(cDefaultMsgQueueSize, heap);
 }
 
 Thread::~Thread()
@@ -92,7 +94,7 @@ bool Thread::start()
 {
     if (mState != State::eInitialized)
     {
-        SEAD_WARNING("Thread is already started or done. Can not start.");
+        SEAD_WARNING("Thread is running or done. Can not start.\n");
         return false;
     }
 
@@ -101,10 +103,10 @@ bool Thread::start()
     if (mState == State::eInitialized)
         mState = State::eRunning;
 
-    if (ret == 0 || ret == 1)
-        return true;
+    if (ret != 0 && ret != 1)
+        return false;
 
-    return false;
+    return true;
 }
 
 void Thread::waitDone()
@@ -113,6 +115,7 @@ void Thread::waitDone()
         return;
 
     WaitForSingleObject(mHandle, INFINITE);
+    SEAD_ASSERT_MSG(mState == State::eTerminated, "Join failed?");
     mState = State::eReleased;
 }
 
@@ -141,9 +144,14 @@ s32 Thread::getPriority() const
     return GetThreadPriority(mHandle);
 }
 
-u32 __stdcall Thread::winThreadFunc_(void* arg)
+u32* Thread::getStackCheckStartAddress_() const
 {
-    Thread* self = static_cast<Thread*>(arg);
+    return nullptr;
+}
+
+u32 __stdcall Thread::winThreadFunc_(void* param)
+{
+    Thread* self = static_cast<Thread*>(param);
 
     ThreadMgr::instance()->mThreadPtrTLS.setValue(reinterpret_cast<uintptr_t>(self));
 

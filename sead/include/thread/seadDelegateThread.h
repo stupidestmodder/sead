@@ -7,8 +7,9 @@ namespace sead {
 class DelegateThread : public Thread
 {
 public:
-    DelegateThread(const SafeString& name, IDelegate2<Thread*, MessageQueue::Element>* deleg, Heap* heap, s32 platformPriority,
-                   MessageQueue::BlockType blockType, MessageQueue::Element quitMsg, s32 stackSize, s32 msgQueueSize);
+    DelegateThread(const SafeString& name, IDelegate2<Thread*, MessageQueue::Element>* deleg, Heap* heap, s32 platformPriority = cDefaultPriority,
+                   MessageQueue::BlockType blockType = MessageQueue::BlockType::eBlock, MessageQueue::Element quitMsg = cDefaultQuitMsg,
+                   s32 stackSize = cDefaultStackSize, s32 msgQueueSize = cDefaultMsgQueueSize);
     ~DelegateThread() override;
 
 protected:

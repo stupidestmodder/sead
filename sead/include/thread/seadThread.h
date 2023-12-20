@@ -16,7 +16,6 @@ class Thread;
 using ThreadList = TList<Thread*>;
 using ThreadListNode = TListNode<Thread*>;
 
-// TODO
 class Thread : public IDisposer, public INamable
 {
     SEAD_NO_COPY(Thread);
@@ -32,16 +31,22 @@ public:
         eReleased
     };
 
+    // TODO
     static const s32 cDefaultSeadPriority;
+
     static const s32 cDefaultPriority;
 
+    static const s32 cDefaultMsgQueueSize = 32;
+    static const s32 cDefaultStackSize = 0x1000;
+    static const s32 cDefaultQuitMsg = 0x7FFFFFFF;
+
 public:
-    Thread(const SafeString& name, Heap* heap, s32 platformPriority, MessageQueue::BlockType blockType,
-           MessageQueue::Element quitMsg, s32 stackSize, s32 msgQueueSize);
+    Thread(const SafeString& name, Heap* heap, s32 platformPriority = cDefaultPriority, MessageQueue::BlockType blockType = MessageQueue::BlockType::eBlock,
+           MessageQueue::Element quitMsg = cDefaultQuitMsg, s32 stackSize = cDefaultStackSize, s32 msgQueueSize = cDefaultMsgQueueSize);
 
 protected:
 #ifdef SEAD_PLATFORM_WINDOWS
-    Thread(Heap* heap, HANDLE handle, u32 id);
+    Thread(Heap* heap, HANDLE thread, u32 id);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -56,6 +61,7 @@ public:
     virtual bool start();
     virtual void quit(bool isJam);
 
+    bool isQuitting() const { return mState == State::eQuitting; }
     bool isDone() const { return mState == State::eTerminated || mState == State::eReleased; }
 
     virtual void waitDone();
@@ -65,7 +71,7 @@ public:
     static void sleep(TickSpan span);
     static void yield();
 
-    u32 getID() const;
+    u32 getID() const { return mID; }
     Heap* getCurrentHeap() const { return mCurrentHeap; }
 
     virtual void setPriority(s32 platformPriority);
@@ -74,12 +80,11 @@ public:
     virtual s32 getStackSize() const { return mStackSize; }
     virtual s32 calcStackUsedSizePeak() const;
 
-    void checkStackOverFlow(const char*, s32) const;
-    void checkStackEndCorruption(const char*, s32) const;
-    void checkStackPointerOverFlow(const char*, s32) const;
+    void checkStackOverFlow(const char* pos, s32 line) const;
+    void checkStackEndCorruption(const char* pos, s32 line) const;
+    void checkStackPointerOverFlow(const char* pos, s32 line) const;
 
-    bool isQuitting() const;
-    void setStackOverflowExceptionEnable(bool);
+    void setStackOverflowExceptionEnable(bool enable);
 
 protected:
     ThreadListNode* getListNode() { return &mListNode; }
@@ -87,24 +92,22 @@ protected:
     FindContainHeapCache* getFindContainHeapCache() { return &mFindContainHeapCache; }
     const FindContainHeapCache* getFindContainHeapCache() const { return &mFindContainHeapCache; }
 
-    void run_();
-    virtual void calc_(MessageQueue::Element) = 0;
+    virtual void run_();
+    virtual void calc_(MessageQueue::Element msg) = 0;
 
     void initStackCheck_();
     void initStackCheckWithCurrentStackPointer_();
+
     virtual u32* getStackCheckStartAddress_() const;
 
 #ifdef SEAD_PLATFORM_WINDOWS
-    static u32 __stdcall winThreadFunc_(void* arg);
+    static u32 __stdcall winThreadFunc_(void* param);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 
     friend class ThreadMgr;
     friend class HeapMgr;
-
-public:
-    uintptr_t getStackBase() const;
 
 protected:
     MessageQueue mMessageQueue;
@@ -116,7 +119,6 @@ protected:
     MessageQueue::Element mQuitMsg;
     u32 mID;
     State mState;
-    // Affinity
 #ifdef SEAD_PLATFORM_WINDOWS
     HANDLE mHandle;
 #else

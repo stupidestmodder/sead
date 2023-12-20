@@ -1,6 +1,7 @@
 #include <thread/seadThread.h>
 
 #include <basis/seadWarning.h>
+#include <thread/seadThreadUtil.h>
 
 namespace sead {
 
@@ -58,12 +59,108 @@ void Thread::quitAndWaitDoneSingleThread(bool isJam)
     waitDone();
 }
 
+static const u32 cStackCanaryMagic = 0x5EAD5CEC;
+
+s32 Thread::calcStackUsedSizePeak() const
+{
+#ifdef SEAD_DEBUG
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+    return 0;
+#else
+    u32* stackCheck = getStackCheckStartAddress_();
+    if (stackCheck)
+    {
+        u32* stackCheckEnd = static_cast<u32*>(PtrUtil::addOffset(mStackTop, mStackSize));
+        for (; stackCheck < stackCheckEnd; stackCheck++)
+        {
+            if (*stackCheck != cStackCanaryMagic)
+                return PtrUtil::diff(stackCheckEnd, stackCheck);
+        }
+    }
+
+    return 0;
+#endif // SEAD_PLATFORM_WINDOWS
+#else
+    return 0;
+#endif // SEAD_DEBUG
+}
+
+void Thread::checkStackOverFlow(const char* pos, s32 line) const
+{
+    SEAD_UNUSED(pos);
+    SEAD_UNUSED(line);
+
+#ifdef SEAD_DEBUG
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+#else
+    checkStackPointerOverFlow(pos, line);
+    checkStackEndCorruption(pos, line);
+#endif // SEAD_PLATFORM_WINDOWS
+#endif // SEAD_DEBUG
+}
+
+void Thread::checkStackEndCorruption(const char* pos, s32 line) const
+{
+    SEAD_UNUSED(pos);
+    SEAD_UNUSED(line);
+
+#ifdef SEAD_DEBUG
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+#else
+    if (this == ThreadMgr::instance()->getMainThread())
+        return;
+
+    u32* stackCheckAddr = getStackCheckStartAddress_();
+    if (!stackCheckAddr)
+        return;
+
+    SEAD_ASSERT_MSG(*stackCheckAddr == cStackCanaryMagic, "sead::Thread Stack End Corruption! [%s:0x%p]\n  Source File: %s\n  Line Number: %d\n  Stack Size: %d",
+                    getName().cstr(), this, pos ? pos : SafeString::cEmptyString.cstr(), line, getStackSize());
+#endif // SEAD_PLATFORM_WINDOWS
+#endif // SEAD_DEBUG
+}
+
+void Thread::checkStackPointerOverFlow(const char* pos, s32 line) const
+{
+    SEAD_UNUSED(pos);
+    SEAD_UNUSED(line);
+
+#ifdef SEAD_DEBUG
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+#else
+    // TODO
+    SEAD_ASSERT(false);
+#endif // SEAD_PLATFORM_WINDOWS
+#endif // SEAD_DEBUG
+}
+
+void Thread::setStackOverflowExceptionEnable(bool enable)
+{
+    //! Idk what platform actually uses this
+
+    SEAD_UNUSED(enable);
+
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+#else
+    SEAD_WARNING("This platform cannot set stack overflow exception.");
+#endif // SEAD_PLATFORM_WINDOWS
+}
+
 void Thread::run_()
 {
     while (true)
     {
 #ifdef SEAD_DEBUG
+#ifdef SEAD_PLATFORM_WINDOWS
+        // Nothing
+#else
         checkStackOverFlow(nullptr, 0);
+#endif // SEAD_PLATFORM_WINDOWS
 #endif // SEAD_DEBUG
 
         MessageQueue::Element msg = mMessageQueue.pop(mBlockType);
@@ -72,6 +169,40 @@ void Thread::run_()
 
         calc_(msg);
     }
+}
+
+void Thread::initStackCheck_()
+{
+#ifdef SEAD_DEBUG
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+#else
+    u32* stackCheck = getStackCheckStartAddress_();
+    u32* stackCheckEnd = static_cast<u32*>(PtrUtil::addOffset(mStackTop, mStackSize));
+
+    for (; stackCheck < stackCheckEnd; stackCheck++)
+    {
+        *stackCheck = cStackCanaryMagic;
+    }
+#endif // SEAD_PLATFORM_WINDOWS
+#endif // SEAD_DEBUG
+}
+
+void Thread::initStackCheckWithCurrentStackPointer_()
+{
+#ifdef SEAD_DEBUG
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+#else
+    u32* stackCheck = getStackCheckStartAddress_();
+    u32* stackCheckEnd = reinterpret_cast<u32*>(ThreadUtil::GetCurrentStackPointer());
+
+    for (; stackCheck < stackCheckEnd; stackCheck++)
+    {
+        *stackCheck = cStackCanaryMagic;
+    }
+#endif // SEAD_PLATFORM_WINDOWS
+#endif // SEAD_DEBUG
 }
 
 ThreadMgr::ThreadMgr()
@@ -161,6 +292,11 @@ void ThreadMgr::waitDoneMultipleThread(Thread* const* threads, s32 num)
 
 void ThreadMgr::checkCurrentThreadStackOverFlow(const char* pos, s32 line)
 {
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+    SEAD_UNUSED(pos);
+    SEAD_UNUSED(line);
+#else
     ThreadMgr* threadMgr = ThreadMgr::instance();
     if (!threadMgr)
         return;
@@ -168,10 +304,16 @@ void ThreadMgr::checkCurrentThreadStackOverFlow(const char* pos, s32 line)
     Thread* currentThread = threadMgr->getCurrentThread();
     if (currentThread)
         currentThread->checkStackOverFlow(pos, line);
+#endif // SEAD_PLATFORM_WINDOWS
 }
 
 void ThreadMgr::checkCurrentThreadStackEndCorruption(const char* pos, s32 line)
 {
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+    SEAD_UNUSED(pos);
+    SEAD_UNUSED(line);
+#else
     ThreadMgr* threadMgr = ThreadMgr::instance();
     if (!threadMgr)
         return;
@@ -179,10 +321,16 @@ void ThreadMgr::checkCurrentThreadStackEndCorruption(const char* pos, s32 line)
     Thread* currentThread = threadMgr->getCurrentThread();
     if (currentThread)
         currentThread->checkStackEndCorruption(pos, line);
+#endif // SEAD_PLATFORM_WINDOWS
 }
 
 void ThreadMgr::checkCurrentThreadStackPointerOverFlow(const char* pos, s32 line)
 {
+#ifdef SEAD_PLATFORM_WINDOWS
+    // Nothing
+    SEAD_UNUSED(pos);
+    SEAD_UNUSED(line);
+#else
     ThreadMgr* threadMgr = ThreadMgr::instance();
     if (!threadMgr)
         return;
@@ -190,6 +338,7 @@ void ThreadMgr::checkCurrentThreadStackPointerOverFlow(const char* pos, s32 line
     Thread* currentThread = threadMgr->getCurrentThread();
     if (currentThread)
         currentThread->checkStackPointerOverFlow(pos, line);
+#endif // SEAD_PLATFORM_WINDOWS
 }
 
 void ThreadMgr::destroyMainThread_()
