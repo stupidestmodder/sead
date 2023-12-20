@@ -121,27 +121,68 @@ public:
 
     bool isBufferReady() const { return mBuffer != nullptr; }
 
-    T& operator()(s32 idx);
-    const T& operator()(s32 idx) const;
+    T& operator()(s32 idx)
+    {
+        if (static_cast<u32>(idx) >= static_cast<u32>(mNum))
+        {
+            SEAD_ASSERT_MSG(false, "index exceeded [%d/%d]", idx, mNum);
+            return mBuffer[0];
+        }
+
+        return mBuffer[getIndex(idx)];
+    }
+
+    const T& operator()(s32 idx) const
+    {
+        if (static_cast<u32>(idx) >= static_cast<u32>(mNum))
+        {
+            SEAD_ASSERT_MSG(false, "index exceeded [%d/%d]", idx, mNum);
+            return mBuffer[0];
+        }
+
+        return mBuffer[getIndex(idx)];
+    }
+
     T& operator[](s32 idx);
     const T& operator[](s32 idx) const;
 
     T* get(s32 idx);
     const T* get(s32 idx) const;
-    T* unsafeGet(s32 idx);
-    const T* unsafeGet(s32 idx) const;
+
+    T* unsafeGet(s32 idx) { return &mBuffer[getIndex(idx)]; }
+    const T* unsafeGet(s32 idx) const { return &mBuffer[getIndex(idx)]; }
 
     T* getFromBack(s32 idx);
     const T* getFromBack(s32 idx) const;
 
-    T& front();
-    const T& front() const;
+    T& front() { return operator()(0); }
+    const T& front() const { return operator()(0); }
     T& back();
     const T& back() const;
 
-    bool pushBack(const T&);
+    bool pushBack(const T& t)
+    {
+        if (isFull())
+            return false;
+
+        *unsafeGet(mNum++) = t;
+        return true;
+    }
+
     void forcePushBack(const T&);
-    bool pushFront(const T&);
+
+    bool pushFront(const T& t)
+    {
+        if (isFull())
+            return false;
+
+        mStart = (mStart < 1 ? mNumMax : mStart) - 1;
+        mNum++;
+
+        *unsafeGet(0) = t;
+        return true;
+    }
+
     void forcePushFront(const T&);
 
     T* unsafeBirthBack();
@@ -151,7 +192,19 @@ public:
     void popBack(T*);
     void popBack(T);
     void popFront();
-    void popFront(T*);
+
+    void popFront(T* t)
+    {
+        *t = front();
+
+        if (mNum > 0)
+        {
+            mStart++;
+            mStart = mStart >= mNumMax ? 0 : mStart;
+            mNum--;
+        }
+    }
+
     void popFront(T);
 
     void eraseAt(s32);
@@ -165,7 +218,13 @@ public:
     // TODO: Iterators
 
 protected:
-    s32 getIndex(s32) const;
+    s32 getIndex(s32 idx) const
+    {
+        s32 realIdx = mStart + idx;
+        if (realIdx >= mNumMax)
+            realIdx -= mNumMax;
+        return realIdx;
+    }
 
 protected:
     T* mBuffer;
