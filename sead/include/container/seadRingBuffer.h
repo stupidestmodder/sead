@@ -218,12 +218,12 @@ public:
     // TODO: Iterators
 
 protected:
-    s32 getIndex(s32 idx) const
+    s32 getIndex(s32 i) const
     {
-        s32 realIdx = mStart + idx;
-        if (realIdx >= mNumMax)
-            realIdx -= mNumMax;
-        return realIdx;
+        s32 idx = mStart + i;
+        if (idx >= mNumMax)
+            idx -= mNumMax;
+        return idx;
     }
 
 protected:

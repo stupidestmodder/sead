@@ -11,8 +11,7 @@
 
 namespace sead {
 
-const size_t cMinAlignment = alignof(void*);
-const size_t cDefaultAlignment = cMinAlignment;
+static const uintptr_t cOffsetMax = UINT16_MAX;
 
 ExpHeap* ExpHeap::create(size_t size, const SafeString& name, Heap* parent, HeapDirection direction, bool enableLock)
 {
@@ -480,7 +479,7 @@ void* ExpHeap::resizeFront(void* ptr, size_t newSize)
     if (remainSize < sizeof(MemBlock))
     {
         size_t offset = block->getOffset() + block->getSize() - newSize;
-        SEAD_ASSERT_MSG(offset <= UINT16_MAX, "Offset is too large.");
+        SEAD_ASSERT_MSG(offset <= cOffsetMax, "Offset is too large.");
         block->setOffset(static_cast<u16>(offset));
         return block->memory();
     }
@@ -681,8 +680,6 @@ size_t ExpHeap::getMaxAllocatableSize(s32 alignment) const
         SEAD_ASSERT_MSG(false, "bad alignment %d", alignment);
         return 0;
     }
-
-    const size_t cPtrSize = sizeof(void*);
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -1177,6 +1174,20 @@ void ExpHeap::pushToFreeList_(MemBlock* memBlock)
     }
 }
 
+#ifdef SEAD_DEBUG
+void ExpHeap::fillMemBlockDebugFillFree_(void* addr)
+{
+    if (!isEnableDebugFillFree_())
+        return;
+
+    HeapMgr* heapMgr = HeapMgr::instance();
+    if (heapMgr)
+        MemUtil::fill(addr, heapMgr->getDebugFillFree(), sizeof(MemBlock));
+    else
+        MemUtil::fill(addr, HeapMgr::cDefaultDebugFillFree, sizeof(MemBlock));
+}
+#endif // SEAD_DEBUG
+
 s32 ExpHeap::compareMemBlockAddr_(const MemBlock* a, const MemBlock* b)
 {
     return Mathi::sign(static_cast<s32>(PtrUtil::diff(a, b)));
@@ -1224,7 +1235,7 @@ MemBlock* ExpHeap::allocFromHead_(size_t size, s32 alignment)
     size_t offset = PtrUtil::diff(PtrUtil::roundUpPow2(memory, alignment), memory);
     size_t remainSize = memBlock->getSize() - (size + offset);
 
-    if (offset <= UINT16_MAX)
+    if (offset <= cOffsetMax)
     {
         memBlock->setOffset(static_cast<u16>(offset));
         memBlock->setSize(size);
@@ -1300,7 +1311,7 @@ MemBlock* ExpHeap::allocFromTail_(size_t size, s32 alignment)
     if (remainSize < sizeof(MemBlock) + 1)
     {
         size_t offset = memBlock->getSize() - newBlockSize;
-        SEAD_ASSERT_MSG(offset <= UINT16_MAX, "Offset is too large.");
+        SEAD_ASSERT_MSG(offset <= cOffsetMax, "Offset is too large.");
         memBlock->setOffset(static_cast<u16>(offset));
         memBlock->setSize(newBlockSize);
 
@@ -1384,20 +1395,6 @@ void* ExpHeap::realloc_(void* ptr, u8* oldMem, size_t copySize, size_t newSize, 
 
     return ret;
 }
-
-#ifdef SEAD_DEBUG
-void ExpHeap::fillMemBlockDebugFillFree_(void* addr)
-{
-    if (!isEnableDebugFillFree_())
-        return;
-
-    HeapMgr* heapMgr = HeapMgr::instance();
-    if (heapMgr)
-        MemUtil::fill(addr, heapMgr->getDebugFillFree(), sizeof(MemBlock));
-    else
-        MemUtil::fill(addr, HeapMgr::cDefaultDebugFillFree, sizeof(MemBlock));
-}
-#endif // SEAD_DEBUG
 
 template <>
 void PrintFormatter::out<ExpHeap>(const ExpHeap& obj, const char*, PrintOutput* output)

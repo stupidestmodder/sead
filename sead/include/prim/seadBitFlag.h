@@ -23,8 +23,8 @@ class BitFlag
 {
 public:
     BitFlag()
-        : mBits(0)
     {
+        makeAllZero();
     }
 
     explicit BitFlag(T bits)

@@ -66,6 +66,10 @@ public:
 #endif // SEAD_DEBUG
     };
 
+    static const s32 cMinAlignment = cDefaultAlignment;
+    static const size_t cMinAllocSize = cPtrSize;
+    //static const size_t cAlignmentAliquot;
+
 private:
     using HeapList = OffsetList<Heap>;
     using DisposerList = OffsetList<IDisposer>;
@@ -78,7 +82,7 @@ public:
     virtual void destroy() = 0;
     virtual size_t adjust() = 0;
 
-    void* alloc(size_t size, s32 alignment = alignof(void*))
+    void* alloc(size_t size, s32 alignment = cMinAlignment)
     {
         void* ptr = tryAlloc(size, alignment);
         SEAD_ASSERT_MSG(ptr, "alloc failed. size: %zu, allocatable size: %zu, alignment: %d, heap: %s",
@@ -86,12 +90,13 @@ public:
         return ptr;
     }
 
-    virtual void* tryAlloc(size_t size, s32 alignment = alignof(void*)) = 0;
+    virtual void* tryAlloc(size_t size, s32 alignment = cMinAlignment) = 0;
     virtual void free(void* ptr) = 0;
+
     virtual void* resizeFront(void* ptr, size_t newSize) = 0;
     virtual void* resizeBack(void* ptr, size_t newSize) = 0;
 
-    void* realloc(void* ptr, size_t newSize, s32 alignment)
+    void* realloc(void* ptr, size_t newSize, s32 alignment = 0)
     {
         void* ret = tryRealloc(ptr, newSize, alignment);
         SEAD_ASSERT_MSG(newSize == 0 || ret, "realloc failed. size: %zu, allocatable size: %zu, alignment: %d, heap: %s",
@@ -99,7 +104,7 @@ public:
         return ret;
     }
 
-    virtual void* tryRealloc(void* ptr, size_t newSize, s32 alignment)
+    virtual void* tryRealloc(void* ptr, size_t newSize, s32 alignment = 0)
     {
         SEAD_UNUSED(ptr);
         SEAD_UNUSED(newSize);
@@ -110,11 +115,13 @@ public:
     }
 
     virtual void freeAll() = 0;
+
     virtual const void* getStartAddress() const = 0;
     virtual const void* getEndAddress() const = 0;
     virtual size_t getSize() const = 0;
     virtual size_t getFreeSize() const = 0;
     virtual size_t getMaxAllocatableSize(s32 alignment = alignof(void*)) const = 0;
+
     virtual bool isInclude(const void* ptr) const = 0;
     virtual bool isEmpty() const = 0;
     virtual bool isFreeable() const = 0;

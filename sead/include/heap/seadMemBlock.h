@@ -1,5 +1,6 @@
 #pragma once
 
+#include <basis/seadNew.h>
 #include <basis/seadRawPrint.h>
 #include <container/seadOffsetList.h>
 #include <prim/seadMemUtil.h>
@@ -59,8 +60,6 @@ protected:
 
     // TODO
     bool isInclude(const void*) const;
-
-    static const u32 cPtrSize = sizeof(void*);
 
     friend class ExpHeap;
 

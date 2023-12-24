@@ -18,9 +18,9 @@ public:
     {
     }
 
-    explicit TListNode(T data)
+    explicit TListNode(T ptr)
         : ListNode()
-        , mData(data)
+        , mData(ptr)
         , mList(nullptr)
     {
     }
@@ -42,6 +42,9 @@ public:
         if (mList)
             mList->erase(this);
     }
+
+    T& val() { return mData; }
+    const T& val() const { return mData; }
 
 protected:
     T mData;

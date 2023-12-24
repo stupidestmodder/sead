@@ -39,7 +39,7 @@ public:
     static ExpHeap* tryCreate(size_t size, const SafeString& name, Heap* parent, HeapDirection direction = HeapDirection::eForward, bool enableLock = false);
     static ExpHeap* tryCreate(void* start, size_t size, const SafeString& name, bool enableLock = false);
 
-    static size_t getManagementAreaSize(s32 alignment);
+    static size_t getManagementAreaSize(s32 alignment = cMinAlignment);
 
 protected:
     ExpHeap(const SafeString& name, Heap* parent, void* start, size_t size, HeapDirection direction, bool enableLock);
@@ -48,17 +48,17 @@ protected:
 public:
     void destroy() override;
     size_t adjust() override;
-    void* tryAlloc(size_t size, s32 alignment = alignof(void*)) override;
+    void* tryAlloc(size_t size, s32 alignment = cMinAlignment) override;
     void free(void* ptr) override;
     void* resizeFront(void* ptr, size_t newSize) override;
     void* resizeBack(void* ptr, size_t newSize) override;
-    void* tryRealloc(void* ptr, size_t newSize, s32 alignment) override;
+    void* tryRealloc(void* ptr, size_t newSize, s32 alignment = 0) override;
     void freeAll() override;
     const void* getStartAddress() const override;
     const void* getEndAddress() const override;
     size_t getSize() const override;
     size_t getFreeSize() const override;
-    size_t getMaxAllocatableSize(s32 alignment = alignof(void*)) const override;
+    size_t getMaxAllocatableSize(s32 alignment = cMinAlignment) const override;
     bool isInclude(const void* ptr) const override;
     bool isEmpty() const override;
     bool isFreeable() const override;
@@ -81,9 +81,12 @@ public:
 
     // TODO
     void checkFreeList() const;
+
     bool tryCheckFreeList() const;
+
     // TODO
     void checkUseList() const;
+
     bool tryCheckUseList() const;
 
     size_t getFreeListSize() const { return mFreeList.size(); }
@@ -111,6 +114,10 @@ protected:
     void pushToUseList_(MemBlock* memBlock);
     void pushToFreeList_(MemBlock* memBlock);
 
+#ifdef SEAD_DEBUG
+    void fillMemBlockDebugFillFree_(void* addr);
+#endif // SEAD_DEBUG
+
     static s32 compareMemBlockAddr_(const MemBlock* a, const MemBlock* b);
 
     MemBlock* allocFromHead_(size_t size);
@@ -122,10 +129,6 @@ protected:
     size_t adjustFront_();
 
     void* realloc_(void* ptr, u8* oldMem, size_t copySize, size_t newSize, s32 alignment);
-
-#ifdef SEAD_DEBUG
-    void fillMemBlockDebugFillFree_(void* addr);
-#endif // SEAD_DEBUG
 
     friend class PrintFormatter;
 

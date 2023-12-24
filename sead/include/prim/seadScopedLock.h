@@ -10,8 +10,8 @@ class ScopedLock
     SEAD_NO_COPY(ScopedLock);
 
 public:
-    explicit ScopedLock(T* lock)
-        : mLocked(lock)
+    explicit ScopedLock(T* t)
+        : mLocked(t)
     {
         mLocked->lock();
     }
@@ -31,12 +31,12 @@ class ConditionalScopedLock
     SEAD_NO_COPY(ConditionalScopedLock);
 
 public:
-    ConditionalScopedLock(T* lock, bool doLock)
+    ConditionalScopedLock(T* t, bool cond)
         : mLocked(nullptr)
     {
-        if (doLock)
+        if (cond)
         {
-            mLocked = lock;
+            mLocked = t;
             mLocked->lock();
         }
     }

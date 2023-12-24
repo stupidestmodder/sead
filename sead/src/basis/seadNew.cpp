@@ -9,13 +9,32 @@
 
 namespace sead { namespace system {
 
-void* NewImpl(Heap* heap, size_t size, s32 alignment, bool abortOnFailure)
+void* AllocFromSDK(size_t size)
+{
+    SEAD_WARNING("alloced[%zu] before sead system initialize", size);
+
+#ifdef SEAD_PLATFORM_WINDOWS
+    return std::malloc(size);
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM_WINDOWS
+}
+
+void FreeFromSDK(void* ptr)
+{
+    SEAD_WARNING("free[0x%p] before sead system initialize", ptr);
+
+#ifdef SEAD_PLATFORM_WINDOWS
+    std::free(ptr);
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM_WINDOWS
+}
+
+void* NewImpl(Heap* heap, size_t size, s32 alignment, bool useAssert)
 {
     if (!HeapMgr::isInitialized())
-    {
-        SEAD_WARNING("alloced[%zu] before sead system initialize", size);
-        return std::malloc(size);
-    }
+        return AllocFromSDK(size);
 
     if (!heap)
     {
@@ -27,34 +46,33 @@ void* NewImpl(Heap* heap, size_t size, s32 alignment, bool abortOnFailure)
         }
     }
 
-    void* result = heap->tryAlloc(size, alignment);
-    if (!result && abortOnFailure)
+    void* ptr = heap->tryAlloc(size, alignment);
+    if (!ptr && useAssert)
     {
         SEAD_ASSERT_MSG(false, "alloc failed. size: %zu, allocatable size: %zu, alignment: %d, heap: %s",
                         size, heap->getMaxAllocatableSize(alignment), alignment, heap->getName().cstr());
         return nullptr;
     }
 
-    return result;
+    return ptr;
 }
 
-void DeleteImpl(void* ptr)
+void DeleteImpl(void* p)
 {
     if (!HeapMgr::isInitialized())
     {
-        SEAD_WARNING("free[0x%p] before sead system initialize", ptr);
-        std::free(ptr);
+        FreeFromSDK(p);
         return;
     }
 
-    if (!ptr)
+    if (!p)
         return;
 
-    Heap* containHeap = HeapMgr::instance()->findContainHeap(ptr);
-    if (containHeap)
-        containHeap->free(ptr);
+    Heap* heap = HeapMgr::instance()->findContainHeap(p);
+    if (heap)
+        heap->free(p);
     else
-        SEAD_ASSERT_MSG(false, "delete bad pointer [0x%p]", ptr);
+        SEAD_ASSERT_MSG(false, "delete bad pointer [0x%p]", p);
 }
 
 } // namespace system
@@ -79,44 +97,44 @@ void AllocFailAssert(Heap* heap, size_t size, s32 alignment)
 
 void* operator new(size_t size)
 {
-    return sead::system::NewImpl(nullptr, size, alignof(void*), true);
+    return sead::system::NewImpl(nullptr, size, sead::cDefaultAlignment, true);
 }
 
 void* operator new[](size_t size)
 {
-    return sead::system::NewImpl(nullptr, size, alignof(void*), true);
+    return sead::system::NewImpl(nullptr, size, sead::cDefaultAlignment, true);
 }
 
 void* operator new(size_t size, const std::nothrow_t&) noexcept
 {
-    return sead::system::NewImpl(nullptr, size, alignof(void*), false);
+    return sead::system::NewImpl(nullptr, size, sead::cDefaultAlignment, false);
 }
 
 void* operator new[](size_t size, const std::nothrow_t&) noexcept
 {
-    return sead::system::NewImpl(nullptr, size, alignof(void*), false);
+    return sead::system::NewImpl(nullptr, size, sead::cDefaultAlignment, false);
 }
 
 // operator new(size_t, Heap*)
 
 void* operator new(size_t size, sead::Heap* heap)
 {
-    return sead::system::NewImpl(heap, size, alignof(void*), true);
+    return sead::system::NewImpl(heap, size, sead::cDefaultAlignment, true);
 }
 
 void* operator new[](size_t size, sead::Heap* heap)
 {
-    return sead::system::NewImpl(heap, size, alignof(void*), true);
+    return sead::system::NewImpl(heap, size, sead::cDefaultAlignment, true);
 }
 
 void* operator new(size_t size, sead::Heap* heap, const std::nothrow_t&) noexcept
 {
-    return sead::system::NewImpl(heap, size, alignof(void*), false);
+    return sead::system::NewImpl(heap, size, sead::cDefaultAlignment, false);
 }
 
 void* operator new[](size_t size, sead::Heap* heap, const std::nothrow_t&) noexcept
 {
-    return sead::system::NewImpl(heap, size, alignof(void*), false);
+    return sead::system::NewImpl(heap, size, sead::cDefaultAlignment, false);
 }
 
 // operator new(size_t, s32)
