@@ -148,7 +148,19 @@ public:
     void swap(TListNode<T>* obj1, TListNode<T>* obj2);
     void moveAfter(TListNode<T>* basis, TListNode<T>* obj);
     void moveBefore(TListNode<T>* basis, TListNode<T>* obj);
-    void clear();
+
+    void clear()
+    {
+        ListNode* node = mStartEnd.next();
+
+        while (node != &mStartEnd)
+        {
+            ListNode* temp = node->next();
+            erase(static_cast<TListNode<T>*>(node));
+            node = temp;
+        }
+    }
+
     void unsafeClear();
     void sort();
     void sort(CompareCallback cmp);
