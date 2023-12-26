@@ -250,6 +250,10 @@ public:
         return listNodeToObj(next);
     }
 
+    T* nth(s32 index) const { return listNodeToObjWithNullCheck(ListImpl::nth(index)); }
+    s32 indexOf(const T* obj) const { return ListImpl::indexOf(objToListNode(obj)); }
+    bool isNodeLinked(const T* obj) const { return objToListNode(obj)->isLinked(); }
+
     // TODO: Iterators
 
 protected:
