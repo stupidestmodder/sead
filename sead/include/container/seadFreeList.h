@@ -26,12 +26,12 @@ public:
 
         mFree = work;
 
-        for (s32 i = 0; i < num - 1; ++i)
+        for (s32 i = 0; i < num - 1; i++)
         {
             workAsPtr[sizeDiv * i] = &workAsPtr[sizeDiv * (i + 1)];
         }
 
-        workAsPtr[(num - 1) * sizeDiv] = nullptr;
+        workAsPtr[sizeDiv * (num - 1)] = nullptr;
 
         mWork = work;
     }
