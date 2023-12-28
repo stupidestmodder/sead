@@ -270,7 +270,12 @@ public:
     }
 
 private:
-    std::aligned_storage_t<sizeof(DelegateDummy), alignof(DelegateDummy)> mStorage;
+    /*
+     * We can't assume pointer to member function have the same size and alignment as they're implementation specific
+     * So we hardcode some values here and hope it's good
+     * Plus the static_asserts should be good enough
+    */
+    std::aligned_storage_t<sizeof(DelegateDummy) + cPtrSize, 8> mStorage;
     IDelegate* mDelegate;
 };
 
@@ -503,7 +508,12 @@ public:
     }
 
 private:
-    std::aligned_storage_t<sizeof(DelegateDummy), alignof(DelegateDummy)> mStorage;
+    /*
+     * We can't assume pointer to member function have the same size and alignment as they're implementation specific
+     * So we hardcode some values here and hope it's good
+     * Plus the static_asserts should be good enough
+    */
+    std::aligned_storage_t<sizeof(DelegateDummy) + cPtrSize, 8> mStorage;
     IDelegate1<TArg1>* mDelegate;
 };
 
@@ -737,7 +747,12 @@ public:
     }
 
 private:
-    std::aligned_storage_t<sizeof(DelegateDummy), alignof(DelegateDummy)> mStorage;
+    /*
+     * We can't assume pointer to member function have the same size and alignment as they're implementation specific
+     * So we hardcode some values here and hope it's good
+     * Plus the static_asserts should be good enough
+    */
+    std::aligned_storage_t<sizeof(DelegateDummy) + cPtrSize, 8> mStorage;
     IDelegate2<TArg1, TArg2>* mDelegate;
 };
 
