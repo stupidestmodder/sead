@@ -95,6 +95,13 @@ void AllocFailAssert(Heap* heap, size_t size, s32 alignment)
 
 // operator new(size_t)
 
+//* So MSVC won't complain
+
+#ifdef SEAD_COMPILER_MSVC
+#pragma warning(push)
+#pragma warning(disable : 28251)
+#endif // SEAD_COMPILER_MSVC
+
 void* operator new(size_t size)
 {
     return sead::system::NewImpl(nullptr, size, sead::cDefaultAlignment, true);
@@ -114,6 +121,10 @@ void* operator new[](size_t size, const std::nothrow_t&) noexcept
 {
     return sead::system::NewImpl(nullptr, size, sead::cDefaultAlignment, false);
 }
+
+#ifdef SEAD_COMPILER_MSVC
+#pragma warning(pop)
+#endif // SEAD_COMPILER_MSVC
 
 // operator new(size_t, Heap*)
 
