@@ -38,6 +38,15 @@ Thread::Thread(const SafeString& name, Heap* heap, s32 platformPriority, Message
     bool success = SetThreadPriority(mHandle, platformPriority);
     SEAD_ASSERT_MSG(success, "SetThreadPriority failed. %d", GetLastError());
 
+    //* Set thread name for debuggers
+    {
+        const size_t cBufSize = 32;
+        WFixedSafeString<cBufSize> buf;
+
+        MultiByteToWideChar(CP_UTF8, 0, name.cstr(), -1, buf.getBuffer(), cBufSize);
+        SetThreadDescription(mHandle, buf.cstr());
+    }
+
     if (ThreadMgr::instance())
         ThreadMgr::instance()->addThread_(this);
     else
