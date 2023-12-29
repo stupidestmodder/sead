@@ -331,6 +331,3 @@ private:
 };
 
 } // namespace sead
-
-#undef NUM_ROOT_HEAPS_MAX
-#undef NUM_INDEPENDENT_HEAPS_MAX
