@@ -18,6 +18,7 @@ class Framework
     SEAD_RTTI_BASE(Framework);
 
 public:
+    // TODO
     struct CreateSystemTaskArg
     {
         CreateSystemTaskArg();
@@ -49,30 +50,31 @@ public:
         eRealTime
     };
 
+    using ResetEvent = DelegateEvent<void*>;
+
 public:
     Framework();
     virtual ~Framework();
 
+    static void initialize(const InitializeArg& arg);
+
     virtual void run(Heap* heap, const TaskBase::CreateArg& rootCreateArg, const RunArg& runArg);
-    virtual void createSystemTasks(TaskBase*, const CreateSystemTaskArg&);
+    virtual void createSystemTasks(TaskBase* rootTask, const CreateSystemTaskArg& arg);
     virtual FrameBuffer* getMethodFrameBuffer(s32 methodType) const = 0;
     virtual LogicalFrameBuffer* getMethodLogicalFrameBuffer(s32 methodType) const { return getMethodFrameBuffer(methodType); }
-    virtual bool setProcessPriority(ProcessPriority) { return false; }
+
+    virtual bool setProcessPriority(ProcessPriority priority)
+    {
+        SEAD_UNUSED(priority);
+        return false;
+    }
 
     virtual void reserveReset(void* param)
     {
-        mResetParameter = param;
         mReserveReset = true;
+        mResetParameter = param;
     }
 
-protected:
-    virtual void initRun_(Heap*) { }
-    virtual void quitRun_(Heap*) { }
-    virtual void runImpl_() { }
-    virtual MethodTreeMgr* createMethodTreeMgr_(Heap* heap) = 0;
-    virtual void procReset_();
-
-public:
     TaskMgr* getTaskMgr()
     {
         return mTaskMgr;
@@ -83,11 +85,26 @@ public:
         return mMethodTreeMgr;
     }
 
-    static void initialize(const InitializeArg& arg);
+    //? Unofficial name but probably exists
+    void registerResetEvent(ResetEvent::Slot& slot)
+    {
+        mResetEvent.connect(slot);
+    }
+
+    //? Unofficial name but probably exists
+    void unregisterResetEvent(ResetEvent::Slot& slot)
+    {
+        mResetEvent.disconnect(slot);
+    }
 
 protected:
-    using ResetEvent = DelegateEvent<void*>;
+    virtual void initRun_(Heap* heap) { SEAD_UNUSED(heap); }
+    virtual void quitRun_(Heap* heap) { SEAD_UNUSED(heap); }
+    virtual void runImpl_() { }
+    virtual MethodTreeMgr* createMethodTreeMgr_(Heap* heap) = 0;
+    virtual void procReset_();
 
+protected:
     bool mReserveReset;
     void* mResetParameter;
     ResetEvent mResetEvent;
