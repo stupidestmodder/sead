@@ -191,6 +191,9 @@
     <ClInclude Include="include\container\seadTreeNode.h" />
     <ClInclude Include="include\devenv\seadAssertConfig.h" />
     <ClInclude Include="include\devenv\seadPrintConfig.h" />
+    <ClInclude Include="include\filedevice\seadFileDevice.h" />
+    <ClInclude Include="include\filedevice\seadFileDeviceMgr.h" />
+    <ClInclude Include="include\filedevice\seadMainFileDevice.h" />
     <ClInclude Include="include\framework\seadCalculateTask.h" />
     <ClInclude Include="include\framework\seadFaderTask.h" />
     <ClInclude Include="include\framework\seadFramework.h" />

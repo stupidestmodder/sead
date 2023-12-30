@@ -261,6 +261,15 @@
     <ClInclude Include="include\gfx\seadGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\filedevice\seadFileDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\filedevice\seadFileDeviceMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\filedevice\seadMainFileDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\basis\seadNew.cpp">
