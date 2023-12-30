@@ -15,7 +15,6 @@ namespace sead {
 
 class WriteStream;
 
-// TODO
 class HeapMgr
 {
 public:
@@ -95,23 +94,23 @@ public:
     static u32 getHeapCheckTag() { return sHeapCheckTag.increment(); }
     static u32 peekHeapCheckTag() { return sHeapCheckTag.getValue(); }
 
-    void setDebugFillHeapCreate(u8);
-    void setDebugFillAlloc(u8);
-    void setDebugFillFree(u8);
-    void setDebugFillHeapDestroy(u8);
+    void setDebugFillHeapCreate(u8 debugFill) { mDebugFillHeapCreate = debugFill; }
+    void setDebugFillAlloc(u8 debugFill) { mDebugFillAlloc = debugFill; }
+    void setDebugFillFree(u8 debugFill) { mDebugFillFree = debugFill; }
+    void setDebugFillHeapDestroy(u8 debugFill) { mDebugFillHeapDestroy = debugFill; }
 
     u8 getDebugFillHeapCreate() const { return mDebugFillHeapCreate; }
     u8 getDebugFillAlloc() const { return mDebugFillAlloc; }
     u8 getDebugFillFree() const { return mDebugFillFree; }
     u8 getDebugFillHeapDestroy() const { return mDebugFillHeapDestroy; }
 
-    void setEnableDebugFillHeapCreate(bool);
+    void setEnableDebugFillHeapCreate(bool enable) { mIsEnableDebugFillHeapCreate = enable; }
     bool isEnableDebugFillHeapCreate() { return mIsEnableDebugFillHeapCreate; }
-    void setEnableDebugFillAlloc(bool);
+    void setEnableDebugFillAlloc(bool enable) { mIsEnableDebugFillAlloc = enable; }
     bool isEnableDebugFillAlloc() { return mIsEnableDebugFillAlloc; }
-    void setEnableDebugFillFree(bool);
+    void setEnableDebugFillFree(bool enable) { mIsEnableDebugFillFree = enable; }
     bool isEnableDebugFillFree() { return mIsEnableDebugFillFree; }
-    void setEnableDebugFillHeapDestroy(bool);
+    void setEnableDebugFillHeapDestroy(bool enable) { mIsEnableDebugFillHeapDestroy = enable; }
     bool isEnableDebugFillHeapDestroy() { return mIsEnableDebugFillHeapDestroy; }
 
     IAllocCallback* setAllocCallback(IAllocCallback* callback);
