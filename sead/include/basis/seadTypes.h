@@ -17,7 +17,7 @@ public:                                      \
     CLASS(const CLASS&) = delete;            \
     CLASS& operator=(const CLASS&) = delete
 
-#define SEAD_UNUSED(VARIABLE) (void)(VARIABLE)
+#define SEAD_UNUSED(VARIABLE) static_cast<void>(VARIABLE)
 
 #include <cstddef>
 #include <cstdint>

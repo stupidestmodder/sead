@@ -28,7 +28,7 @@
         if (false)                                                                                 \
         {                                                                                          \
             static_cast<void>(condition);                                                          \
-            static_cast<void>(format);                                                             \
+            sead::system::HaltWithDetail(nullptr, 0, format, ##__VA_ARGS__);                       \
         }                                                                                          \
     } while (0)
 #endif // SEAD_DEBUG

@@ -12,7 +12,7 @@
     do                                                                                             \
     {                                                                                              \
         if (false)                                                                                 \
-            static_cast<void>(format);                                                             \
+            sead::system::Warning(nullptr, 0, format, ##__VA_ARGS__);                              \
     } while (0)
 #endif // SEAD_DEBUG
 

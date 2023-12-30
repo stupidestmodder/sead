@@ -372,8 +372,8 @@ void ExpHeap::free(void* ptr)
     if (!ptr)
         return;
 
-#ifdef SEAD_DEBUG
     HeapMgr* heapMgr = HeapMgr::instance();
+#ifdef SEAD_DEBUG
     if (heapMgr)
     {
         HeapMgr::FreeCallbackArg arg;

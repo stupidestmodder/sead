@@ -94,6 +94,7 @@ public:
     static u32 getHeapCheckTag() { return sHeapCheckTag.increment(); }
     static u32 peekHeapCheckTag() { return sHeapCheckTag.getValue(); }
 
+#ifdef SEAD_DEBUG
     void setDebugFillHeapCreate(u8 debugFill) { mDebugFillHeapCreate = debugFill; }
     void setDebugFillAlloc(u8 debugFill) { mDebugFillAlloc = debugFill; }
     void setDebugFillFree(u8 debugFill) { mDebugFillFree = debugFill; }
@@ -115,10 +116,12 @@ public:
 
     IAllocCallback* setAllocCallback(IAllocCallback* callback);
     IAllocCallback* getAllocCallback() { return mAllocCallback; }
+#endif // SEAD_DEBUG
 
     IAllocFailedCallback* setAllocFailedCallback(IAllocFailedCallback* callback);
     IAllocFailedCallback* getAllocFailedCallback() { return mAllocFailedCallback; }
 
+#ifdef SEAD_DEBUG
     IFreeCallback* setFreeCallback(IFreeCallback* callback);
     IFreeCallback* getFreeCallback() { return mFreeCallback; }
 
@@ -161,6 +164,7 @@ public:
 
         mFreeCallback->invoke(&arg);
     }
+#endif // SEAD_DEBUG
 
     static CriticalSection* getHeapTreeLockCS_() { return &sHeapTreeLockCS; }
 

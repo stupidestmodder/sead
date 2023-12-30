@@ -14,7 +14,7 @@
     do                                                                                             \
     {                                                                                              \
         if (false)                                                                                 \
-            static_cast<void>(format);                                                             \
+            sead::system::Print(format, ##__VA_ARGS__);                                            \
     } while (0)
 #endif // SEAD_DEBUG
 
