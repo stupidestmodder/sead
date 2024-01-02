@@ -179,6 +179,10 @@
       <Project>{83400ca8-871e-4ff7-9dee-a78bfa08f885}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\AppFramework.h" />
+    <ClInclude Include="include\RootTask.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
