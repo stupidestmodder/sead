@@ -61,19 +61,19 @@ private:
     u64 mTick;
 };
 
-TickSpan operator-(TickTime lhs, TickTime rhs)
+inline TickSpan operator-(TickTime lhs, TickTime rhs)
 {
     return lhs.diff(rhs);
 }
 
-TickTime operator+(TickTime time, TickSpan span)
+inline TickTime operator+(TickTime time, TickSpan span)
 {
     TickTime t = time;
     t += span;
     return t;
 }
 
-TickTime operator-(TickTime time, TickSpan span)
+inline TickTime operator-(TickTime time, TickSpan span)
 {
     TickTime t = time;
     t -= span;
