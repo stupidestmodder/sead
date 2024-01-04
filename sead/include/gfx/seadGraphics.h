@@ -5,9 +5,8 @@
 
 namespace sead {
 
-class Thread;
+class DrawLockContext;
 
-// TODO
 class Graphics : public IDisposer
 {
 public:
@@ -23,16 +22,31 @@ public:
         eInvalid
     };
 
-    using LockFunc = void (*)(bool);
+    using LockFunc = void (*)(bool isLock);
+
+public:
+    static Graphics* instance() { return sInstance; }
+    static void setInstance(Graphics* impl) { sInstance = impl; }
 
 public:
     Graphics();
     ~Graphics() override;
 
-    void initialize();
+    void initialize(Heap* heap);
 
     void lockDrawContext();
     void unlockDrawContext();
+
+    static DevicePosture getDefaultDevicePosture() { return sDefaultDevicePosture; }
+    static f32 getDefaultDeviceZScale() { return sDefaultDeviceZScale; }
+    static f32 getDefaultDeviceZOffset() { return sDefaultDeviceZOffset; }
+
+protected:
+    virtual void initializeDrawLockContext(Heap* heap);
+    virtual void initializeImpl(Heap* heap) = 0;
+    virtual void setViewportImpl(f32 x, f32 y, f32 w, f32 h) = 0;
+    virtual void setScissorImpl(f32 x, f32 y, f32 w, f32 h) = 0;
+    // TODO: Add remaining methods
 
 protected:
     static Graphics* sInstance;
@@ -42,10 +56,8 @@ protected:
     static f32 sDefaultDeviceZOffset;
 
 protected:
-    Thread* mContextHolderThread;
-    s32 mContextRefCounter;
-    CriticalSection mContextCriticalSection;
     LockFunc mContextLockFunc;
+    DrawLockContext* mDrawLockContext;
 };
 
 } // namespace sead
