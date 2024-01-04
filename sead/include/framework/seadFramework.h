@@ -61,7 +61,7 @@ public:
     virtual void run(Heap* heap, const TaskBase::CreateArg& rootCreateArg, const RunArg& runArg);
     virtual void createSystemTasks(TaskBase* rootTask, const CreateSystemTaskArg& arg);
     virtual FrameBuffer* getMethodFrameBuffer(s32 methodType) const = 0;
-    virtual LogicalFrameBuffer* getMethodLogicalFrameBuffer(s32 methodType) const { return getMethodFrameBuffer(methodType); }
+    virtual const LogicalFrameBuffer* getMethodLogicalFrameBuffer(s32 methodType) const { return getMethodFrameBuffer(methodType); }
 
     virtual bool setProcessPriority(ProcessPriority priority)
     {
