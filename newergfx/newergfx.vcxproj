@@ -171,8 +171,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\entry.cpp" />
+    <ClCompile Include="src\AppFramework.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\RootTask.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\sead\sead.vcxproj">

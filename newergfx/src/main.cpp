@@ -12,7 +12,7 @@ int main()
 
     AppFramework* framework = nullptr;
     {
-        sead::Heap* heap = sead::ExpHeap::create(0, "AppFramework", sead::HeapMgr::getRootHeap(0));
+        sead::ExpHeap* heap = sead::ExpHeap::create(0, "AppFramework", sead::HeapMgr::getRootHeap(0));
         framework = new(heap) AppFramework();
         heap->adjust();
     }
