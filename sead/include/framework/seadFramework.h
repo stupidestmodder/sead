@@ -18,10 +18,12 @@ class Framework
     SEAD_RTTI_BASE(Framework);
 
 public:
-    // TODO
     struct CreateSystemTaskArg
     {
-        CreateSystemTaskArg();
+        CreateSystemTaskArg()
+            : infloop_detection_span(0)
+        {
+        }
 
         TickSpan infloop_detection_span;
     };
