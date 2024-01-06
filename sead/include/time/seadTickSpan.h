@@ -79,6 +79,16 @@ public:
     // TODO
     void setFrameRatio(f32, f32);
 
+    TickSpan operator+(TickSpan rhs)
+    {
+        return mSpan + rhs.mSpan;
+    }
+
+    TickSpan operator-(TickSpan rhs)
+    {
+        return mSpan - rhs.mSpan;
+    }
+
     const TickSpan& operator+=(TickSpan rhs)
     {
         mSpan += rhs.mSpan;
@@ -101,6 +111,26 @@ public:
     {
         mSpan = static_cast<s64>(mSpan / s);
         return *this;
+    }
+
+    friend bool operator==(const TickSpan& lhs, const TickSpan& rhs)
+    {
+        return lhs.toS64() == rhs.toS64();
+    }
+
+    friend bool operator!=(const TickSpan& lhs, const TickSpan& rhs)
+    {
+        return lhs.toS64() != rhs.toS64();
+    }
+
+    friend bool operator<(const TickSpan& lhs, const TickSpan& rhs)
+    {
+        return lhs.toS64() < rhs.toS64();
+    }
+
+    friend bool operator>(const TickSpan& lhs, const TickSpan& rhs)
+    {
+        return lhs.toS64() > rhs.toS64();
     }
 
     static TickSpan makeFromNanoSeconds(s64 nsec)
