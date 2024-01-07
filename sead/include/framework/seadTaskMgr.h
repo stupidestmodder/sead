@@ -159,3 +159,68 @@ private:
 };
 
 } // namespace sead
+
+#define SEAD_TASK_SINGLETON_DISPOSER(CLASS)                 \
+protected:                                                  \
+    class SingletonDisposer_                                \
+    {                                                       \
+    public:                                                 \
+        SingletonDisposer_()                                \
+            : mIsSetAsSingleton_(false)                     \
+        {                                                   \
+        }                                                   \
+                                                            \
+        ~SingletonDisposer_();                              \
+                                                            \
+        bool mIsSetAsSingleton_;                            \
+    };                                                      \
+                                                            \
+public:                                                     \
+    static CLASS* instance() { return sInstance; }          \
+    static void setInstance_(sead::TaskBase* instance);     \
+    static void deleteInstance();                           \
+                                                            \
+    SEAD_NO_COPY(CLASS);                                    \
+                                                            \
+protected:                                                  \
+    SingletonDisposer_ mSingletonDisposer_;                 \
+                                                            \
+    static CLASS* sInstance;                                \
+                                                            \
+    friend class SingletonDisposer_
+
+#define SEAD_TASK_SET_SINGLETON_INSTANCE(CLASS)                                                         \
+    void CLASS::setInstance_(sead::TaskBase* instance)                                                  \
+    {                                                                                                   \
+        if (!sInstance)                                                                                 \
+        {                                                                                               \
+            sInstance = static_cast<CLASS*>(instance);                                                  \
+            sInstance->mSingletonDisposer_.mIsSetAsSingleton_ = true;                                   \
+        }                                                                                               \
+        else                                                                                            \
+        {                                                                                               \
+            SEAD_ASSERT_MSG(false, "Create Singleton Twice (%s) : addr 0x%p", #CLASS, sInstance);       \
+        }                                                                                               \
+    }
+
+#define SEAD_TASK_DELETE_SINGLETON_INSTANCE(CLASS)                      \
+    void CLASS::deleteInstance()                                        \
+    {                                                                   \
+        if (sInstance)                                                  \
+        {                                                               \
+            sInstance->getTaskMgr()->destroyTaskSync(sInstance);        \
+            sInstance = nullptr;                                        \
+        }                                                               \
+    }
+
+#define SEAD_TASK_SINGLETON_DISPOSER_IMPL(CLASS)                \
+    CLASS* CLASS::sInstance = nullptr;                          \
+                                                                \
+    SEAD_TASK_SET_SINGLETON_INSTANCE(CLASS)                     \
+    SEAD_TASK_DELETE_SINGLETON_INSTANCE(CLASS)                  \
+                                                                \
+    CLASS::SingletonDisposer_::~SingletonDisposer_()            \
+    {                                                           \
+        if (mIsSetAsSingleton_)                                 \
+            CLASS::sInstance = nullptr;                         \
+    }
