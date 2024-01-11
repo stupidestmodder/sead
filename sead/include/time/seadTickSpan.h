@@ -101,6 +101,16 @@ public:
         return *this;
     }
 
+    TickSpan operator*(f32 s) const
+    {
+        return static_cast<s64>(toS64() * s);
+    }
+
+    TickSpan operator/(f32 s) const
+    {
+        return static_cast<s64>(toS64() / s);
+    }
+
     const TickSpan& operator*=(f32 s)
     {
         mSpan = static_cast<s64>(mSpan * s);
