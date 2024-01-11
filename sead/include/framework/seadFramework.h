@@ -4,6 +4,7 @@
 #include <gfx/seadFrameBuffer.h>
 #include <prim/seadDelegateEventSlot.h>
 #include <prim/seadRuntimeTypeInfo.h>
+#include <thread/seadThread.h>
 #include <time/seadTickSpan.h>
 
 namespace sead {
@@ -22,10 +23,12 @@ public:
     {
         CreateSystemTaskArg()
             : infloop_detection_span(0)
+            , infloop_thread_stack_size(Thread::cDefaultStackSize)
         {
         }
 
         TickSpan infloop_detection_span;
+        s32 infloop_thread_stack_size;
     };
 
     struct InitializeArg
