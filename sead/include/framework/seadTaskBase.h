@@ -163,6 +163,11 @@ public:
         return parent() ? parent()->val() : nullptr;
     }
 
+    const HeapArray& getHeapArray() const
+    {
+        return mHeapArray;
+    }
+
     TaskMgr* getTaskMgr() const
     {
         return mTaskMgr;
