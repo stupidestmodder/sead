@@ -9,7 +9,7 @@ class GlobalRandom : public Random
 {
     SEAD_SINGLETON_DISPOSER(GlobalRandom);
 
-protected:
+public:
     GlobalRandom()
         : Random()
     {
