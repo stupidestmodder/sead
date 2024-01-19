@@ -173,9 +173,11 @@ public:
         return mTaskMgr;
     }
 
-    TaskParameter* getParameter()
+    template <typename T>
+    T* getParameter() const
     {
-        return mParameter;
+        T* param = DynamicCast<T>(mParameter);
+        return param;
     }
 
     Tag getTag() const
