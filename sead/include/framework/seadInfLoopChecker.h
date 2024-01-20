@@ -55,10 +55,14 @@ public:
         mDisableCounter.setValue(counter);
     }
 
-    //? Unofficial name but probably exists
     void setEnable(bool enable)
     {
         mEnable = enable;
+    }
+
+    bool isEnable() const
+    {
+        return mEnable;
     }
 
     //? Unofficial name but probably exists
