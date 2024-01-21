@@ -22,13 +22,16 @@ template <typename T>
 class BitFlag
 {
 public:
+    static const u32 cBitNum = sizeof(T) * 8;
+
+public:
     BitFlag()
     {
         makeAllZero();
     }
 
-    explicit BitFlag(T bits)
-        : mBits(bits)
+    explicit BitFlag(T t)
+        : mBits(t)
     {
     }
 
@@ -57,7 +60,7 @@ public:
 
     static T makeMask(s32 bit)
     {
-        SEAD_ASSERT(static_cast<u32>(bit) < sizeof(T) * 8);
+        SEAD_ASSERT(static_cast<u32>(bit) < cBitNum);
         return static_cast<T>(1 << bit);
     }
 
