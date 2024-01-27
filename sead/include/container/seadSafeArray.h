@@ -18,11 +18,6 @@ template <typename T, s32 N>
 class SafeArray
 {
 public:
-    SafeArray()
-        : mBuffer()
-    {
-    }
-
     T& operator[](s32 x)
     {
         if (static_cast<u32>(x) >= static_cast<u32>(N))
