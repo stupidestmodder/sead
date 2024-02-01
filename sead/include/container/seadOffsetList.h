@@ -240,8 +240,46 @@ public:
         s32 mOffset;
     };
 
-    // TODO
-    class reverseIterator { };
+    class reverseIterator
+    {
+    public:
+        reverseIterator(T* ptr, s32 offset)
+            : mPtr(ptr)
+            , mOffset(offset)
+        {
+        }
+
+        reverseIterator& operator++()
+        {
+            ListNode* prev = static_cast<ListNode*>(PtrUtil::addOffset(mPtr, mOffset))->prev();
+            mPtr = static_cast<T*>(PtrUtil::addOffset(prev, -mOffset));
+            return *this;
+        }
+
+        T& operator*() const
+        {
+            return *mPtr;
+        }
+
+        T* operator->() const
+        {
+            return mPtr;
+        }
+
+        friend bool operator==(const reverseIterator& it1, const reverseIterator& it2)
+        {
+            return it1.mPtr == it2.mPtr;
+        }
+
+        friend bool operator!=(const reverseIterator& it1, const reverseIterator& it2)
+        {
+            return it1.mPtr != it2.mPtr;
+        }
+
+    protected:
+        T* mPtr;
+        s32 mOffset;
+    };
 
     // TODO
     class reverseConstIterator { };
@@ -251,18 +289,18 @@ public:
 
     iterator begin() const { return iterator(listNodeToObj(mStartEnd.next()), mOffset); }
     iterator end() const { return iterator(listNodeToObj(&mStartEnd), mOffset); }
-    iterator toIterator(T* obj) const { return iterator(obj, mOffset); }
+    iterator toIterator(T* obj) const;
 
     constIterator constBegin() const { return constIterator(listNodeToObj(mStartEnd.next()), mOffset); }
     constIterator constEnd() const { return constIterator(listNodeToObj(&mStartEnd), mOffset); }
-    constIterator toConstIterator(const T* obj) const { return constIterator(obj, mOffset); }
+    constIterator toConstIterator(const T* obj) const;
 
     robustIterator robustBegin() { return robustIterator(listNodeToObj(mStartEnd.next()), mOffset); }
     robustIterator robustEnd() { return robustIterator(listNodeToObj(&mStartEnd), mOffset); }
     robustIterator toRobustIterator(T* obj) { return robustIterator(obj, mOffset); }
 
-    reverseIterator reverseBegin() const;
-    reverseIterator reverseEnd() const;
+    reverseIterator reverseBegin() const { return reverseIterator(listNodeToObj(mStartEnd.prev()), mOffset); }
+    reverseIterator reverseEnd() const { return reverseIterator(listNodeToObj(&mStartEnd), mOffset); }
     reverseIterator toReverseIterator(T* obj) const;
 
     reverseConstIterator reverseConstBegin() const;
