@@ -3,10 +3,6 @@
 #include <basis/seadAssert.h>
 #include <thread/seadThreadLocalStorage.h>
 
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
 namespace sead {
 
 inline ThreadLocalStorage::ThreadLocalStorage()
