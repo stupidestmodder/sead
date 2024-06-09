@@ -3,9 +3,7 @@
 #include <basis/seadAssert.h>
 
 #ifdef SEAD_PLATFORM_WINDOWS
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
 static s64 getFrequency_()
