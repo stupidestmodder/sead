@@ -1,10 +1,19 @@
 #pragma once
 
+#ifdef SEAD_COMPILER_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4201)
+#endif // SEAD_COMPILER_MSVC
+
 namespace sead {
 
 template <typename T>
 struct BaseVec2
 {
+    BaseVec2()
+    {
+    }
+
     BaseVec2(T _x, T _y)
         : x(_x)
         , y(_y)
@@ -35,6 +44,10 @@ struct BaseVec2
 template <typename T>
 struct BaseVec3
 {
+    BaseVec3()
+    {
+    }
+
     BaseVec3(T _x, T _y, T _z)
         : x(_x)
         , y(_y)
@@ -68,6 +81,10 @@ struct BaseVec3
 template <typename T>
 struct BaseVec4
 {
+    BaseVec4()
+    {
+    }
+
     BaseVec4(T _x, T _y, T _z, T _w)
         : x(_x)
         , y(_y)
@@ -96,7 +113,11 @@ struct BaseVec4
 template <typename T>
 struct BaseQuat
 {
-    BaseQuat(T _x, T _y, T _z, T _w)
+    BaseQuat()
+    {
+    }
+
+    BaseQuat(T _w, T _x, T _y, T _z)
         : x(_x)
         , y(_y)
         , z(_z)
@@ -236,3 +257,7 @@ struct BaseMtx44
 };
 
 } // namespace sead
+
+#ifdef SEAD_COMPILER_MSVC
+#pragma warning(pop)
+#endif // SEAD_COMPILER_MSVC

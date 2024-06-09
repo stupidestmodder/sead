@@ -44,16 +44,20 @@ public:
     static const LogSample cLogTbl[256 + 1];
 
 public:
-    static T piHalf() { return 1.570796326794896619231; }
-    static T pi()     { return 3.141592653589793238462; }
-    static T pi2()    { return 6.283185307179586476924; }
-    static T zero()   { return 0; }
-    static T one()    { return 1; }
-    static T ln2()    { return 0.69314718055994530942; }
-    static T ln2Inv() { return 1.442695040888963407; }
+    static T piHalf() { return static_cast<T>(1.570796326794896619231); }
+    static T pi()     { return static_cast<T>(3.141592653589793238462); }
+    static T pi2()    { return static_cast<T>(6.283185307179586476924); }
+    static T zero()   { return static_cast<T>(0); }
+    static T one()    { return static_cast<T>(1); }
+    static T ln2()    { return static_cast<T>(0.69314718055994530942); }
+    static T ln2Inv() { return static_cast<T>(1.442695040888963407); }
 
     static T neg(T);
-    static T inv(T);
+
+    static T inv(T t)
+    {
+        return 1 / t;
+    }
 
     static T sign(T t)
     {
@@ -65,24 +69,24 @@ public:
 
     static T fitSign(T, T);
     static T square(T);
-    static T sqrt(T);
+    static T sqrt(T t);
     static T rsqrt(T);
     static T pow(T, T);
     static T powTable(T, T);
-    static T sin(T);
-    static T cos(T);
-    static T tan(T);
+    static T sin(T t);
+    static T cos(T t);
+    static T tan(T t);
     static T asin(T);
     static T acos(T);
     static T atan(T);
-    static T atan2(T, T);
-    static T sinIdx(u32);
+    static T atan2(T y, T x);
+    static T sinIdx(u32 idx);
     static T cosIdx(u32);
     static T tanIdx(u32);
     static u32 asinIdx(T);
     static u32 acosIdx(T);
     static u32 atanIdx(T);
-    static u32 atan2Idx(T, T);
+    static u32 atan2Idx(T y, T x);
     static void sinCosIdx(T*, T*, u32);
     static T exp(T);
     static T log(T);
@@ -97,7 +101,14 @@ public:
     static T epsilon();
     static bool equalsEpsilon(T, T, T);
     static T abs(T t);
-    static T max(T, T);
+
+    static T max(T a, T b)
+    {
+        if (a > b)
+            return a;
+        else
+            return b;
+    }
 
     static T min(T a, T b)
     {
@@ -109,7 +120,12 @@ public:
 
     static T max3(T, T, T);
     static T min3(T, T, T);
-    static T deg2rad(T);
+
+    static T deg2rad(T a)
+    {
+        return a * (pi() / 180);
+    }
+
     static T rad2deg(T);
     static u32 deg2idx(T);
     static u32 rad2idx(T);
@@ -124,13 +140,13 @@ public:
     static s32 roundOff(T);
     static s32 floor(T);
     static s32 ceil(T);
-    static T roundUpN(T, s32);
+    static T roundUpN(T val, s32 multNumber);
     static T roundUpPow2(T val, s32 base);
     static T roundDownN(T, s32);
     static T roundDownPow2(T val, s32 base);
-    static T clampMax(T, T);
-    static T clampMin(T, T);
-    static T clamp2(T, T, T);
+    static T clampMax(T val, T max_);
+    static T clampMin(T val, T min_);
+    static T clamp2(T min_, T val, T max_);
     static T gcd(T, T);
     static T lcm(T, T);
     static bool isZero(T, T);
