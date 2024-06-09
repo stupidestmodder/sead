@@ -4,6 +4,10 @@
 
 namespace sead {
 
+#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+class Thread;
+#endif
+
 class DrawLockContext
 {
 public:
@@ -16,7 +20,14 @@ public:
     void unlock();
 
 protected:
-    CriticalSection mCriticalSection;
+    CriticalSection mContextLock;
+
+#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+    Thread* mContextHolderThread;
+    s32 mContextRefCounter;
+    void* mHGLRC; //* GL Context Handle
+    void* mHDC;   //* Device Context Handle
+#endif
 };
 
 } // namespace sead

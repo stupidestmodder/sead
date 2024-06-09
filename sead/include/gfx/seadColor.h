@@ -29,6 +29,10 @@ public:
     {
     }
 
+    Color4f& operator*=(const Color4f& rhs);
+
+    friend Color4f operator*(const Color4f& lhs, const Color4f& rhs);
+
     static const f32 cElementMax;
     static const f32 cElementMin;
 
