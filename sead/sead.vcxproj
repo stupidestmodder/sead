@@ -73,22 +73,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\out\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\int\</IntDir>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(SolutionDir)glad\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\out\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\int\</IntDir>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(SolutionDir)glad\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\out\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\int\</IntDir>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(SolutionDir)glad\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\out\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)-$(Configuration)\int\</IntDir>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(SolutionDir)glad\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,6 +108,9 @@
     <Lib>
       <AdditionalDependencies>winmm.lib</AdditionalDependencies>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -131,6 +134,9 @@
     <Lib>
       <AdditionalDependencies>winmm.lib</AdditionalDependencies>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -150,6 +156,9 @@
     <Lib>
       <AdditionalDependencies>winmm.lib</AdditionalDependencies>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -173,13 +182,18 @@
     <Lib>
       <AdditionalDependencies>winmm.lib</AdditionalDependencies>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\basis\seadAssert.h" />
+    <ClInclude Include="include\basis\seadDefines.h" />
     <ClInclude Include="include\basis\seadNew.h" />
     <ClInclude Include="include\basis\seadRawPrint.h" />
     <ClInclude Include="include\basis\seadTypes.h" />
     <ClInclude Include="include\basis\seadWarning.h" />
+    <ClInclude Include="include\basis\win\seadWindows.h" />
     <ClInclude Include="include\container\seadBuffer.h" />
     <ClInclude Include="include\container\seadFreeList.h" />
     <ClInclude Include="include\container\seadListImpl.h" />
@@ -187,18 +201,37 @@
     <ClInclude Include="include\container\seadOffsetList.h" />
     <ClInclude Include="include\container\seadPtrArray.h" />
     <ClInclude Include="include\container\seadRingBuffer.h" />
+    <ClInclude Include="include\container\seadSafeArray.h" />
     <ClInclude Include="include\container\seadTList.h" />
     <ClInclude Include="include\container\seadTreeNode.h" />
+    <ClInclude Include="include\controller\seadControlDevice.h" />
+    <ClInclude Include="include\controller\seadController.h" />
+    <ClInclude Include="include\controller\seadControllerAddon.h" />
+    <ClInclude Include="include\controller\seadControllerBase.h" />
+    <ClInclude Include="include\controller\seadControllerDefine.h" />
+    <ClInclude Include="include\controller\seadControllerMgr.h" />
+    <ClInclude Include="include\controller\seadControllerWrapper.h" />
+    <ClInclude Include="include\controller\seadControllerWrapperBase.h" />
+    <ClInclude Include="include\controller\win\seadKeyboardMouseDeviceWin.h" />
+    <ClInclude Include="include\controller\win\seadWinControllerWin.h" />
+    <ClInclude Include="include\controller\win\seadWinJoyPadDeviceWin.h" />
     <ClInclude Include="include\devenv\seadAssertConfig.h" />
     <ClInclude Include="include\devenv\seadPrintConfig.h" />
+    <ClInclude Include="include\devenv\seadSeadMenuMgr.h" />
     <ClInclude Include="include\filedevice\seadFileDevice.h" />
     <ClInclude Include="include\filedevice\seadFileDeviceMgr.h" />
     <ClInclude Include="include\filedevice\seadMainFileDevice.h" />
+    <ClInclude Include="include\filedevice\seadPath.h" />
+    <ClInclude Include="include\filedevice\win\seadWinContentFileDeviceWin.h" />
+    <ClInclude Include="include\filedevice\win\seadWinFileDeviceWin.h" />
+    <ClInclude Include="include\filedevice\win\seadWinNativeFileDeviceWin.h" />
     <ClInclude Include="include\framework\seadCalculateTask.h" />
     <ClInclude Include="include\framework\seadFaderTask.h" />
     <ClInclude Include="include\framework\seadFramework.h" />
     <ClInclude Include="include\framework\seadGameFramework.h" />
     <ClInclude Include="include\framework\seadHeapPolicies.h" />
+    <ClInclude Include="include\framework\seadInfLoopChecker.h" />
+    <ClInclude Include="include\framework\seadInfLoopCheckerThread.h" />
     <ClInclude Include="include\framework\seadMethodTree.h" />
     <ClInclude Include="include\framework\seadMethodTreeMgr.h" />
     <ClInclude Include="include\framework\seadProcessMeter.h" />
@@ -211,16 +244,58 @@
     <ClInclude Include="include\framework\seadTaskMgr.h" />
     <ClInclude Include="include\framework\seadTaskParameter.h" />
     <ClInclude Include="include\framework\win\seadConsoleFrameworkWin.h" />
+    <ClInclude Include="include\framework\win\seadGameFrameworkBaseWin.h" />
+    <ClInclude Include="include\framework\win\seadGameFrameworkWinGL.h" />
+    <ClInclude Include="include\geom\seadLine.h" />
+    <ClInclude Include="include\gfx\gl\seadDebugFontMgrGL.h" />
+    <ClInclude Include="include\gfx\gl\seadGL.h" />
+    <ClInclude Include="include\gfx\gl\seadGraphicsGL.h" />
+    <ClInclude Include="include\gfx\gl\seadPrimitiveDrawMgrGL.h" />
+    <ClInclude Include="include\gfx\gl\seadTextureFrameBufferGL.h" />
+    <ClInclude Include="include\gfx\gl\seadTextureGL.h" />
+    <ClInclude Include="include\gfx\seadCamera.h" />
+    <ClInclude Include="include\gfx\seadColor.h" />
+    <ClInclude Include="include\gfx\seadDrawContext.h" />
+    <ClInclude Include="include\gfx\seadDrawLockContext.h" />
+    <ClInclude Include="include\gfx\seadFontBase.h" />
     <ClInclude Include="include\gfx\seadFrameBuffer.h" />
     <ClInclude Include="include\gfx\seadGraphics.h" />
+    <ClInclude Include="include\gfx\seadGraphicsContext.h" />
+    <ClInclude Include="include\gfx\seadPrimitiveDrawer.h" />
+    <ClInclude Include="include\gfx\seadPrimitiveDrawMgrBase.h" />
+    <ClInclude Include="include\gfx\seadPrimitiveDrawUtil.h" />
+    <ClInclude Include="include\gfx\seadPrimitiveRenderer.h" />
+    <ClInclude Include="include\gfx\seadProjection.h" />
+    <ClInclude Include="include\gfx\seadTexture.h" />
+    <ClInclude Include="include\gfx\seadTextureUtil.h" />
+    <ClInclude Include="include\gfx\seadTextWriter.h" />
+    <ClInclude Include="include\gfx\seadViewport.h" />
     <ClInclude Include="include\heap\seadArena.h" />
     <ClInclude Include="include\heap\seadDisposer.h" />
     <ClInclude Include="include\heap\seadExpHeap.h" />
+    <ClInclude Include="include\heap\seadFrameHeap.h" />
     <ClInclude Include="include\heap\seadHeap.h" />
     <ClInclude Include="include\heap\seadHeapMgr.h" />
     <ClInclude Include="include\heap\seadMemBlock.h" />
+    <ClInclude Include="include\heap\seadUnboundHeap.h" />
+    <ClInclude Include="include\math\seadBoundBox.h" />
+    <ClInclude Include="include\math\seadBoundBox.hpp" />
+    <ClInclude Include="include\math\seadMathBase.h" />
     <ClInclude Include="include\math\seadMathCalcCommon.h" />
     <ClInclude Include="include\math\seadMathCalcCommon.hpp" />
+    <ClInclude Include="include\math\seadMathPolicies.h" />
+    <ClInclude Include="include\math\seadMatrix.h" />
+    <ClInclude Include="include\math\seadMatrix.hpp" />
+    <ClInclude Include="include\math\seadMatrixCalcCommon.h" />
+    <ClInclude Include="include\math\seadMatrixCalcCommon.hpp" />
+    <ClInclude Include="include\math\seadQuat.h" />
+    <ClInclude Include="include\math\seadQuat.hpp" />
+    <ClInclude Include="include\math\seadQuatCalcCommon.h" />
+    <ClInclude Include="include\math\seadQuatCalcCommon.hpp" />
+    <ClInclude Include="include\math\seadVector.h" />
+    <ClInclude Include="include\math\seadVector.hpp" />
+    <ClInclude Include="include\math\seadVectorCalcCommon.h" />
+    <ClInclude Include="include\math\seadVectorCalcCommon.hpp" />
     <ClInclude Include="include\prim\seadBitFlag.h" />
     <ClInclude Include="include\prim\seadDelegate.h" />
     <ClInclude Include="include\prim\seadDelegateEventSlot.h" />
@@ -243,6 +318,7 @@
     <ClInclude Include="include\sead\test.h" />
     <ClInclude Include="include\stream\seadBinaryStreamFormat.h" />
     <ClInclude Include="include\stream\seadBufferStream.h" />
+    <ClInclude Include="include\stream\seadFileDeviceStream.h" />
     <ClInclude Include="include\stream\seadPrintStream.h" />
     <ClInclude Include="include\stream\seadRamStream.h" />
     <ClInclude Include="include\stream\seadStream.h" />
@@ -271,25 +347,70 @@
     <ClCompile Include="src\container\seadListImpl.cpp" />
     <ClCompile Include="src\container\seadPtrArray.cpp" />
     <ClCompile Include="src\container\seadTreeNode.cpp" />
+    <ClCompile Include="src\controller\seadController.cpp" />
+    <ClCompile Include="src\controller\seadControllerBase.cpp" />
+    <ClCompile Include="src\controller\seadControllerMgr.cpp" />
+    <ClCompile Include="src\controller\seadControllerWrapper.cpp" />
+    <ClCompile Include="src\controller\seadControllerWrapperBase.cpp" />
+    <ClCompile Include="src\controller\win\seadKeyboardMouseDeviceWin.cpp" />
+    <ClCompile Include="src\controller\win\seadWinControllerWin.cpp" />
+    <ClCompile Include="src\controller\win\seadWinJoyPadDeviceWin.cpp" />
     <ClCompile Include="src\devenv\seadAssertConfig.cpp" />
     <ClCompile Include="src\devenv\seadPrintConfig.cpp" />
+    <ClCompile Include="src\devenv\seadSeadMenuMgr.cpp" />
+    <ClCompile Include="src\filedevice\seadFileDevice.cpp" />
+    <ClCompile Include="src\filedevice\seadFileDeviceMgr.cpp" />
+    <ClCompile Include="src\filedevice\seadMainFileDevice.cpp" />
+    <ClCompile Include="src\filedevice\seadPath.cpp" />
+    <ClCompile Include="src\filedevice\win\seadWinContentFileDeviceWin.cpp" />
+    <ClCompile Include="src\filedevice\win\seadWinFileDeviceWin.cpp" />
+    <ClCompile Include="src\filedevice\win\seadWinNativeFileDeviceWin.cpp" />
     <ClCompile Include="src\framework\seadCalculateTask.cpp" />
     <ClCompile Include="src\framework\seadFaderTask.cpp" />
     <ClCompile Include="src\framework\seadFramework.cpp" />
+    <ClCompile Include="src\framework\seadGameFramework.cpp" />
+    <ClCompile Include="src\framework\seadInfLoopChecker.cpp" />
+    <ClCompile Include="src\framework\seadInfLoopCheckerThread.cpp" />
     <ClCompile Include="src\framework\seadMethodTree.cpp" />
     <ClCompile Include="src\framework\seadMethodTreeMgr.cpp" />
+    <ClCompile Include="src\framework\seadProcessMeter.cpp" />
+    <ClCompile Include="src\framework\seadProcessMeterBar.cpp" />
     <ClCompile Include="src\framework\seadSingleScreenMethodTreeMgr.cpp" />
     <ClCompile Include="src\framework\seadTask.cpp" />
     <ClCompile Include="src\framework\seadTaskBase.cpp" />
     <ClCompile Include="src\framework\seadTaskID.cpp" />
     <ClCompile Include="src\framework\seadTaskMgr.cpp" />
     <ClCompile Include="src\framework\win\seadConsoleFrameworkWin.cpp" />
+    <ClCompile Include="src\framework\win\seadGameFrameworkBaseWin.cpp" />
+    <ClCompile Include="src\framework\win\seadGameFrameworkWinGL.cpp" />
+    <ClCompile Include="src\gfx\gl\seadDebugFontMgrGL.cpp" />
+    <ClCompile Include="src\gfx\gl\seadGraphicsGL.cpp" />
+    <ClCompile Include="src\gfx\gl\seadPrimitiveDrawMgrGL.cpp" />
+    <ClCompile Include="src\gfx\gl\seadTextureFrameBufferGL.cpp" />
+    <ClCompile Include="src\gfx\gl\seadTextureUtilGL.cpp" />
+    <ClCompile Include="src\gfx\seadCamera.cpp" />
+    <ClCompile Include="src\gfx\seadColor.cpp" />
+    <ClCompile Include="src\gfx\seadDrawLockContext.cpp" />
+    <ClCompile Include="src\gfx\seadFrameBuffer.cpp" />
+    <ClCompile Include="src\gfx\seadGraphics.cpp" />
+    <ClCompile Include="src\gfx\seadGraphicsContext.cpp" />
+    <ClCompile Include="src\gfx\seadPrimitiveDrawer.cpp" />
+    <ClCompile Include="src\gfx\seadPrimitiveDrawUtil.cpp" />
+    <ClCompile Include="src\gfx\seadPrimitiveRenderer.cpp" />
+    <ClCompile Include="src\gfx\seadProjection.cpp" />
+    <ClCompile Include="src\gfx\seadTextWriter.cpp" />
+    <ClCompile Include="src\gfx\seadViewport.cpp" />
     <ClCompile Include="src\heap\seadDisposer.cpp" />
     <ClCompile Include="src\heap\seadExpHeap.cpp" />
+    <ClCompile Include="src\heap\seadFrameHeap.cpp" />
     <ClCompile Include="src\heap\seadHeap.cpp" />
     <ClCompile Include="src\heap\seadHeapMgr.cpp" />
+    <ClCompile Include="src\heap\seadUnboundHeap.cpp" />
     <ClCompile Include="src\heap\win\seadArenaWin.cpp" />
     <ClCompile Include="src\math\seadMathCalcCommon.cpp" />
+    <ClCompile Include="src\math\seadMatrix.cpp" />
+    <ClCompile Include="src\math\seadQuat.cpp" />
+    <ClCompile Include="src\math\seadVector.cpp" />
     <ClCompile Include="src\prim\seadBitFlag.cpp" />
     <ClCompile Include="src\prim\seadEndian.cpp" />
     <ClCompile Include="src\prim\seadFormatPrint.cpp" />
@@ -301,6 +422,7 @@
     <ClCompile Include="src\random\seadRandom.cpp" />
     <ClCompile Include="src\stream\seadBinaryStreamFormat.cpp" />
     <ClCompile Include="src\stream\seadBufferStream.cpp" />
+    <ClCompile Include="src\stream\seadFileDeviceStream.cpp" />
     <ClCompile Include="src\stream\seadPrintStream.cpp" />
     <ClCompile Include="src\stream\seadStream.cpp" />
     <ClCompile Include="src\thread\seadDelegateThread.cpp" />
@@ -311,6 +433,11 @@
     <ClCompile Include="src\thread\win\seadMessageQueueWin.cpp" />
     <ClCompile Include="src\thread\win\seadThreadWin.cpp" />
     <ClCompile Include="src\time\seadTickSpan.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\glad\glad.vcxproj">
+      <Project>{c9412882-4a89-4dd9-97a3-7f69b9c22fbf}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
