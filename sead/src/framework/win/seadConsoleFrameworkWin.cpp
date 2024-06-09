@@ -1,12 +1,9 @@
 #include <framework/win/seadConsoleFrameworkWin.h>
 
+#include <basis/win/seadWindows.h>
 #include <framework/seadSingleScreenMethodTreeMgr.h>
 #include <framework/seadTaskMgr.h>
 #include <thread/seadThread.h>
-
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 namespace sead {
 

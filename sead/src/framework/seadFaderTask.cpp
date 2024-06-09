@@ -4,10 +4,54 @@
 #include <framework/seadMethodTreeMgr.h>
 #include <framework/seadTaskEvent.h>
 #include <framework/seadTaskMgr.h>
+#include <gfx/seadCamera.h>
 #include <gfx/seadGraphics.h>
+#include <gfx/seadPrimitiveDrawer.h>
+#include <gfx/seadProjection.h>
+#include <gfx/seadViewport.h>
 #include <prim/seadScopedLock.h>
 
 namespace sead {
+
+class ScreenFiller
+{
+public:
+    ScreenFiller(const LogicalFrameBuffer* fb)
+        : mViewport(*fb)
+        , mProjection(1.0f, 2000.0f, mViewport)
+        , mCamera(mProjection)
+        , mLogicalFrameBuffer(fb)
+    {
+    }
+
+    void draw(f32 alpha);
+
+private:
+    Viewport mViewport;
+    OrthoProjection mProjection;
+    OrthoCamera mCamera;
+    const LogicalFrameBuffer* mLogicalFrameBuffer;
+};
+
+void ScreenFiller::draw(f32 alpha)
+{
+    PrimitiveDrawer drawer(nullptr);
+
+    mViewport.apply(nullptr, *mLogicalFrameBuffer);
+
+    drawer.setProjection(&mProjection);
+    drawer.setCamera(&mCamera);
+
+    const f32 w = mLogicalFrameBuffer->getVirtualSize().x;
+    const f32 h = mLogicalFrameBuffer->getVirtualSize().y;
+    BoundBox2f box(-w, -h, w, h);
+
+    drawer.begin();
+    {
+        drawer.drawQuad(PrimitiveDrawer::QuadArg().setBoundBox(box, 0.0f).setColor(Color4f(1.0f, 1.0f, 1.0f, alpha)));
+    }
+    drawer.end();
+}
 
 FaderTaskBase::FaderTaskBase(const TaskConstructArg& arg, const char* name)
     : TaskBase(arg, name)
@@ -514,8 +558,9 @@ MethodTreeNode* FaderTask::getMethodTreeNode(s32 methodType)
 
 void FaderTask::draw()
 {
-    // TODO: Need gfx !!!
-    SEAD_ASSERT(false);
+    SEAD_ASSERT(Graphics::instance());
+
+    ScreenFiller(getFramework()->getMethodLogicalFrameBuffer(3)).draw(mBlackness);
 }
 
 NullFaderTask::NullFaderTask(const TaskConstructArg& arg)

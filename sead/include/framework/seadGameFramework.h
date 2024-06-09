@@ -8,7 +8,6 @@ namespace sead {
 
 class InfLoopCheckerThread;
 
-// TODO
 class GameFramework : public Framework
 {
     SEAD_RTTI_OVERRIDE(GameFramework, Framework);
@@ -34,17 +33,22 @@ public:
     void lockFrameDrawContext();
     void unlockFrameDrawContext();
 
-    void createSystemTasks(TaskBase*, const CreateSystemTaskArg&) override;
+    void createSystemTasks(TaskBase* rootTask, const CreateSystemTaskArg& arg) override;
 
-    virtual void createControllerMgr(TaskBase*);
-    virtual void createProcessMeter(TaskBase*);
-    virtual void createSeadMenuMgr(TaskBase*);
-    virtual void createInfLoopChecker(TaskBase*, const TickSpan&, s32);
+    virtual void createControllerMgr(TaskBase* rootTask);
+    virtual void createProcessMeter(TaskBase* rootTask);
+    virtual void createSeadMenuMgr(TaskBase* rootTask);
+    virtual void createInfLoopChecker(TaskBase* rootTask, const TickSpan& infLoopSpan, s32 infLoopThreadStackSize);
 
     virtual f32 calcFps() = 0;
 
-    virtual void saveScreenShot(const sead::SafeString&);
-    virtual bool isScreenShotBusy() const;
+    virtual void saveScreenShot(const sead::SafeString& filename) { SEAD_UNUSED(filename); }
+    virtual bool isScreenShotBusy() const { return false; }
+
+    DisplayState getDisplayState() const { return mDisplayState; }
+    MultiProcessMeterBar<32>& getCalcMeter() { return mCalcMeter; }
+    MultiProcessMeterBar<32>& getDrawMeter() { return mDrawMeter; }
+    MultiProcessMeterBar<32>& getGPUMeter() { return mGPUMeter; }
 
 protected:
     virtual void waitStartDisplayLoop_();
