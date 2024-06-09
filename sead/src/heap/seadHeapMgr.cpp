@@ -5,6 +5,10 @@
 #include <prim/seadScopedLock.h>
 #include <thread/seadThread.h>
 
+#ifdef SEAD_PLATFORM_WINDOWS
+#include <heap/seadUnboundHeap.h>
+#endif // SEAD_PLATFORM_WINDOWS
+
 namespace sead {
 
 HeapMgr* HeapMgr::sInstancePtr = nullptr;
@@ -18,6 +22,10 @@ CriticalSection HeapMgr::sHeapTreeLockCS;
 
 HeapMgr::RootHeaps HeapMgr::sRootHeaps;
 HeapMgr::IndependentHeaps HeapMgr::sIndependentHeaps;
+
+#ifdef SEAD_PLATFORM_WINDOWS
+Heap* HeapMgr::sUnboundHeap = nullptr;
+#endif // SEAD_PLATFORM_WINDOWS
 
 HeapMgr::HeapMgr()
 #ifdef SEAD_DEBUG
@@ -187,6 +195,25 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         }
     }
 
+#ifdef SEAD_PLATFORM_WINDOWS
+    if (sUnboundHeap)
+    {
+        Heap* containHeap = sUnboundHeap->findContainHeap_(memBlock);
+        if (containHeap)
+        {
+            if (heapCache)
+            {
+#ifdef SEAD_DEBUG
+                heapCache->miss++;
+#endif // SEAD_DEBUG
+                heapCache->setHeap(containHeap);
+            }
+
+            return containHeap;
+        }
+    }
+#endif // SEAD_PLATFORM_WINDOWS
+
 #ifdef SEAD_DEBUG
     if (heapCache)
         heapCache->notfound++;
@@ -266,6 +293,11 @@ void HeapMgr::dumpTreeYAML(WriteStream& stream)
     {
         heap.dumpTreeYAML(stream, 0);
     }
+
+#ifdef SEAD_PLATFORM_WINDOWS
+    if (sUnboundHeap)
+        sUnboundHeap->dumpTreeYAML(stream, 0);
+#endif // SEAD_PLATFORM_WINDOWS
 }
 
 #ifdef SEAD_DEBUG
@@ -413,6 +445,15 @@ void HeapMgr::clearFindContainHeapCacheStatistics()
     }
 }
 #endif // SEAD_DEBUG
+
+#ifdef SEAD_PLATFORM_WINDOWS
+void HeapMgr::createUnboundHeap()
+{
+    SEAD_ASSERT(!sUnboundHeap);
+
+    sUnboundHeap = UnboundHeap::create("UnboundHeap");
+}
+#endif // SEAD_PLATFORM_WINDOWS
 
 Heap* HeapMgr::setCurrentHeap_(Heap* heap)
 {

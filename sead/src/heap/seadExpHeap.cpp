@@ -274,7 +274,7 @@ void* ExpHeap::tryAlloc(size_t size, s32 alignment)
                 arg.alloc_alignment = allocAlignment;
 
                 callback->invoke(&arg);
-            } 
+            }
         }
 
         SEAD_ASSERT_MSG(false, "bad alignment %d", allocAlignment);

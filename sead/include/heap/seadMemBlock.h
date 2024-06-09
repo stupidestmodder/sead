@@ -58,10 +58,12 @@ protected:
         MemUtil::fill(memory(), val, mSize);
     }
 
-    // TODO
-    bool isInclude(const void*) const;
+    bool isInclude(const void* ptr) const
+    {
+        u8* begin = memory();
 
-    friend class ExpHeap;
+        return PtrUtil::isInclude(ptr, begin, begin + mSize);
+    }
 
 public:
     size_t getSize() const
@@ -163,6 +165,9 @@ protected:
     u16 mHeapCheckTag;
     u16 mOffset;
     size_t mSize;
+
+    friend class ExpHeap;
+    friend class UnboundHeap;
 };
 
 using MemBlockList = OffsetList<MemBlock>;
