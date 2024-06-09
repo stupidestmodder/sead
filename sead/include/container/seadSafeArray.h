@@ -40,6 +40,8 @@ public:
         return mBuffer[x];
     }
 
+    s32 size() const { return N; }
+
 private:
     T mBuffer[N];
 };
