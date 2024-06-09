@@ -1,13 +1,10 @@
 #include <basis/seadAssert.h>
 
 #include <basis/seadRawPrint.h>
+#include <basis/win/seadWindows.h>
 #include <devenv/seadAssertConfig.h>
 #include <prim/seadMemUtil.h>
 #include <prim/seadStringUtil.h>
-
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 #include <cstdlib>
 #include <cstring>
