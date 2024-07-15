@@ -9,6 +9,14 @@
 
 namespace sead {
 
+Framework::CreateSystemTaskArg::CreateSystemTaskArg()
+    : hostio_parameter(nullptr)
+    , hostio_task_heap(nullptr)
+    , infloop_detection_span(0)
+    , infloop_thread_stack_size(Thread::cDefaultStackSize)
+{
+}
+
 Framework::InitializeArg::InitializeArg()
     : heap_size(0x3000000)
     , arena(nullptr)

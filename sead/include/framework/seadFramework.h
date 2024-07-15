@@ -2,6 +2,7 @@
 
 #include <framework/seadTaskBase.h>
 #include <gfx/seadFrameBuffer.h>
+#include <hostio/seadHostIOMgr.h>
 #include <prim/seadDelegateEventSlot.h>
 #include <prim/seadRuntimeTypeInfo.h>
 #include <thread/seadThread.h>
@@ -21,12 +22,10 @@ class Framework
 public:
     struct CreateSystemTaskArg
     {
-        CreateSystemTaskArg()
-            : infloop_detection_span(0)
-            , infloop_thread_stack_size(Thread::cDefaultStackSize)
-        {
-        }
+        CreateSystemTaskArg();
 
+        HostIOMgr::Parameter* hostio_parameter;
+        Heap* hostio_task_heap;
         TickSpan infloop_detection_span;
         s32 infloop_thread_stack_size;
     };
