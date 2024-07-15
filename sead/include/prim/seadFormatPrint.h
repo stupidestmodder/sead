@@ -60,13 +60,35 @@ public:
     void flush();
     void flushWithLineBreak();
 
-    // TODO
-    PrintFormatter& operator,(const s8);
-    PrintFormatter& operator,(const u8);
-    PrintFormatter& operator,(const s16);
-    PrintFormatter& operator,(const u16);
-    PrintFormatter& operator,(const s32);
-    PrintFormatter& operator,(const u32);
+    PrintFormatter& operator,(const s8 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const u8 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const s16 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const u16 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const s32 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const u32 obj)
+    {
+        return operator<<(obj);
+    }
 
     template <typename T>
     PrintFormatter& operator,(const T& obj)

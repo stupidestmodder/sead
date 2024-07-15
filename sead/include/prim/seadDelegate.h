@@ -2,6 +2,8 @@
 
 #include <basis/seadNew.h>
 
+#include <type_traits> //? For std::aligned_storage_t
+
 namespace sead {
 
 template <typename TObject, typename TMethodPtr, typename TIDelegate>
