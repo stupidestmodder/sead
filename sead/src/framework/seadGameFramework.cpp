@@ -102,6 +102,7 @@ void GameFramework::createSystemTasks(TaskBase* rootTask, const CreateSystemTask
     createControllerMgr(rootTask);
     createProcessMeter(rootTask);
     createSeadMenuMgr(rootTask);
+    createHostIOMgr(rootTask, arg.hostio_parameter, arg.hostio_task_heap);
     createInfLoopChecker(rootTask, arg.infloop_detection_span, arg.infloop_thread_stack_size);
 }
 
@@ -111,6 +112,24 @@ void GameFramework::createControllerMgr(TaskBase* rootTask)
     arg.parent = rootTask;
 
     mTaskMgr->createSingletonTaskSync<ControllerMgr>(arg);
+}
+
+void GameFramework::createHostIOMgr(TaskBase* rootTask, HostIOMgr::Parameter* parameter, Heap* heap)
+{
+    TaskBase::SystemMgrTaskArg arg(&TTaskFactory<HostIOMgr>);
+    arg.parent = rootTask;
+    arg.parameter = parameter;
+    arg.heap_policies[arg.heap_policies.getPrimaryHeapIndex()].parent = heap;
+
+    mTaskMgr->createSingletonTaskSync<HostIOMgr>(arg);
+
+    SEAD_WARNING("GameFramework::createHostIOMgr() is TODO");
+
+    //HeapMgr::instance()->initHostIO();
+    //ThreadMgr::instance()->initHostIO();
+    //getTaskMgr()->initHostIO();
+    initHostIO_();
+    //Graphics::instance()->initHostIO();
 }
 
 void GameFramework::createProcessMeter(TaskBase* rootTask)
@@ -172,6 +191,11 @@ void GameFramework::waitStartDisplayLoop_()
     getMethodTreeMgr()->pauseAll(false);
 
     startDisplay();
+}
+
+void GameFramework::initHostIO_()
+{
+    // TODO
 }
 
 } // namespace sead

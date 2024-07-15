@@ -36,6 +36,7 @@ public:
     void createSystemTasks(TaskBase* rootTask, const CreateSystemTaskArg& arg) override;
 
     virtual void createControllerMgr(TaskBase* rootTask);
+    virtual void createHostIOMgr(TaskBase* rootTask, HostIOMgr::Parameter* parameter, Heap* heap);
     virtual void createProcessMeter(TaskBase* rootTask);
     virtual void createSeadMenuMgr(TaskBase* rootTask);
     virtual void createInfLoopChecker(TaskBase* rootTask, const TickSpan& infLoopSpan, s32 infLoopThreadStackSize);
@@ -52,6 +53,7 @@ public:
 
 protected:
     virtual void waitStartDisplayLoop_();
+    virtual void initHostIO_();
 
 protected:
     DisplayState mDisplayState;
