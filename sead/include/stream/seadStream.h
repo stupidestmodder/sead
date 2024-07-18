@@ -7,6 +7,14 @@ namespace sead {
 
 class StreamSrc;
 class StreamFormat;
+class WriteStream;
+
+class Serialization
+{
+public:
+    template <typename T>
+    static void write(WriteStream& stream, const T& value);
+};
 
 class Stream
 {
@@ -184,6 +192,13 @@ public:
     void writeNullChar();
     void flush();
 
+    template <typename T>
+    WriteStream& operator<<(const T& src)
+    {
+        Serialization::write(*this, src);
+        return *this;
+    }
+
 private:
     void writeF32BitImpl_(f32 value, u32 intBitnum, u32 fracBitnum);
     void writeF64BitImpl_(f64 value, u32 intBitnum, u32 fracBitnum);
@@ -194,3 +209,5 @@ private:
 };
 
 } // namespace sead
+
+#include <stream/seadStream.hpp>
