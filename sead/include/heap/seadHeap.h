@@ -157,6 +157,11 @@ public:
     void setEnableWarning(bool enable) { mFlag.changeBit(Flag::eEnableWarning, enable); }
     bool isEnableWarning() const { return mFlag.isOnBit(Flag::eEnableWarning); }
 
+#ifdef SEAD_DEBUG
+    void setAccessThread(Thread* thread) { mAccessThread = thread; }
+    Thread* getAccessThread() const { return mAccessThread; }
+#endif // SEAD_DEBUG
+
     void setEnableDebugFill(bool enable)
     {
 #ifdef SEAD_DEBUG
