@@ -31,8 +31,8 @@ project "sead"
 
     flags {
         "MultiProcessorCompile",
-        --"ShadowedVariables",
-        --"FatalWarnings"
+        "ShadowedVariables",
+        "FatalWarnings"
     }
 
     filter "system:windows"

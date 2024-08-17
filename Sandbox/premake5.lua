@@ -29,8 +29,8 @@ project "Sandbox"
 
     flags {
         "MultiProcessorCompile",
-        --"ShadowedVariables",
-        --"FatalWarnings"
+        "ShadowedVariables",
+        "FatalWarnings"
     }
 
     filter "system:windows"

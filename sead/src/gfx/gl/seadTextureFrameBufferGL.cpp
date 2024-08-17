@@ -345,7 +345,7 @@ void DisplayBufferGL::reconfigure(f32 width, f32 height)
     GLuint handle = mTextureGL->getID();
 
     glBindTexture(GL_TEXTURE_2D, handle);
-    glTexImage2D(mTextureGL->getTarget(), 0, mTextureGL->getInternalFormat(), width, height, 0, mTextureGL->getPixelFormat(), mTextureGL->getDataType(), nullptr);
+    glTexImage2D(mTextureGL->getTarget(), 0, mTextureGL->getInternalFormat(), static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, mTextureGL->getPixelFormat(), mTextureGL->getDataType(), nullptr);
 }
 
 } // namespace sead
