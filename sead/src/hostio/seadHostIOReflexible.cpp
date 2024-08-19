@@ -234,7 +234,8 @@ void Reflexible::safeDelete_(AllocFlg flg)
 
     if (buf)
     {
-        Heap* heapPtr = *static_cast<Heap**>(PtrUtil::addOffset(buf, -cPtrSize)); // Get the start of the allocated buffer which is a Heap pointer (see createStringBuffer_())
+
+        Heap* heapPtr = *static_cast<Heap**>(PtrUtil::addOffset(buf, -static_cast<std::intptr_t>(cPtrSize))); // Get the start of the allocated buffer which is a Heap pointer (see createStringBuffer_())
         heapPtr->free(&heapPtr);
     }
 }

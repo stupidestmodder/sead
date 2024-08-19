@@ -275,7 +275,7 @@ void GameFrameworkWinGL::resize_(f32 width, f32 height)
             GLuint handle = tex->getID();
 
             glBindTexture(GL_TEXTURE_2D, handle);
-            glTexImage2D(tex->getTarget(), 0, tex->getInternalFormat(), width, height, 0, tex->getPixelFormat(), tex->getDataType(), nullptr);
+            glTexImage2D(tex->getTarget(), 0, tex->getInternalFormat(), static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, tex->getPixelFormat(), tex->getDataType(), nullptr);
         }
 
         {
@@ -284,7 +284,7 @@ void GameFrameworkWinGL::resize_(f32 width, f32 height)
             GLuint handle = tex->getID();
 
             glBindTexture(GL_TEXTURE_2D, handle);
-            glTexImage2D(tex->getTarget(), 0, tex->getInternalFormat(), width, height, 0, tex->getPixelFormat(), tex->getDataType(), nullptr);
+            glTexImage2D(tex->getTarget(), 0, tex->getInternalFormat(), static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, tex->getPixelFormat(), tex->getDataType(), nullptr);
         }
 
         mDisplayBufferGL->reconfigure(width, height);
