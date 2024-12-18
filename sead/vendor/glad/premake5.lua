@@ -4,11 +4,10 @@ project "glad"
     staticruntime "off"
     systemversion "latest"
 
-    targetdir ("bin/%{prj.name}-%{cfg.buildcfg}/out")
-    objdir ("bin/%{prj.name}-%{cfg.buildcfg}/int")
+    targetdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out")
+    objdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int")
 
     links {
-        "glew32.lib",
         "opengl32.lib"
     }
 

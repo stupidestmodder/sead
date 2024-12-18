@@ -8,8 +8,8 @@ project "Sandbox"
     exceptionhandling "Off"
     rtti "Off"
 
-    targetdir ("bin/%{prj.name}-%{cfg.buildcfg}/out")
-    objdir ("bin/%{prj.name}-%{cfg.buildcfg}/int")
+    targetdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out")
+    objdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int")
     debugdir "../workdir"
 
     links {

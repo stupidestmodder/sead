@@ -10,10 +10,8 @@
 #define NOMINMAX
 #endif // NOMINMAX
 
-//#include <glad/glad.h>
-//#include <glad/glad_wgl.h>
-#include <GL/glew.h>
-#include <GL/wglew.h>
+#include <glad/gl.h>
+#include <glad/wgl.h>
 
 //#undef near
 //#undef far

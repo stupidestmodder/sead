@@ -8,8 +8,8 @@ project "sead"
     exceptionhandling "Off"
     rtti "Off"
 
-    targetdir ("bin/%{prj.name}-%{cfg.buildcfg}/out")
-    objdir ("bin/%{prj.name}-%{cfg.buildcfg}/int")
+    targetdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out")
+    objdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int")
 
     links {
         "glad"
@@ -40,7 +40,10 @@ project "sead"
         files {
             "src/**Win.cpp"
         }
-        links "winmm.lib"
+        links {
+            "winmm.lib",
+            "Ws2_32.lib"
+        }
 
     filter "configurations:Debug"
         defines { "SEAD_DEBUG" }
