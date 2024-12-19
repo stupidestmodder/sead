@@ -35,7 +35,6 @@ project "Sandbox"
 
     filter "system:windows"
         defines "SEAD_PLATFORM_WINDOWS"
-        links "winmm.lib"
 
     filter "configurations:Debug"
         defines { "SEAD_DEBUG" }
