@@ -32,7 +32,7 @@ project "sead"
     flags {
         "MultiProcessorCompile",
         "ShadowedVariables",
-        "FatalWarnings"
+        "FatalCompileWarnings"
     }
 
     filter "system:windows"
@@ -41,7 +41,7 @@ project "sead"
             "src/**Win.cpp"
         }
         links {
-            "winmm.lib",
+            "Winmm.lib",
             "Ws2_32.lib"
         }
 
