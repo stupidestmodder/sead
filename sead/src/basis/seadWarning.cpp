@@ -8,17 +8,17 @@ namespace sead { namespace system {
 
 void Warning(const char* pos, s32 line, const char* format, ...)
 {
-    if (!sIsWarningEnable)
-        return;
+    if (sIsWarningEnable)
+    {
+        Print("%s(%d) Warning: ", pos, line);
 
-    std::va_list list;
-    va_start(list, format);
+        std::va_list list;
+        va_start(list, format);
+        PrintV(format, list);
+        va_end(list);
 
-    Print("%s(%d) Warning: ", pos, line);
-    PrintV(format, list);
-    PrintString("\n", 1);
-
-    va_end(list);
+        PrintString("\n", 1);
+    }
 }
 
 void SetWarningEnable(bool enable)

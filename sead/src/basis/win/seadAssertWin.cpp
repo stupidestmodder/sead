@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
     #define SEAD_BREAKPOINT() __debugbreak()
 #elif defined(SEAD_COMPILER_CLANG)
     #define SEAD_BREAKPOINT() __builtin_debugtrap()
@@ -20,17 +20,19 @@
     #error "Unsupported compiler"
 #endif // SEAD_COMPILER_MSVC
 
-static const size_t cStrBufSize = 0x180;
+static const size_t sExceptionStrBufSize = 0x180;
+static char sExceptionStrBuf[sExceptionStrBufSize];
 
 static bool sEnableExceptionOnHalt = false;
-static char sExceptionStrBuf[cStrBufSize];
 
 namespace sead { namespace system {
 
 void DebugBreak()
 {
     if (!IsDebuggerPresent())
+    {
         return;
+    }
 
     SEAD_BREAKPOINT();
 }
@@ -57,62 +59,70 @@ void Halt()
 
 void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
 {
-    char strBuf[cStrBufSize];
+    char tmp[sExceptionStrBufSize];
+    MemUtil::fillZero(tmp, sExceptionStrBufSize);
 
-    MemUtil::fillZero(strBuf, cStrBufSize);
-
-    s32 strBufSize = StringUtil::snprintf(strBuf, cStrBufSize,
-        "\n//================= PROGRAM HALT ==================//\nSource File: %s\nLine  Number: %d\nDescription: ",
+    s32 msgLen = StringUtil::snprintf(
+        tmp, sExceptionStrBufSize,
+        "\n//======================= PROGRAM HALT =======================//\nSource File: %s\nLine Number: %d\nDescription: ",
         pos, line
     );
 
-    if (strBufSize >= 0)
+    if (msgLen > -1)
     {
+        s32 formatLen;
+
         std::va_list list;
         va_start(list, format);
-
-        s32 substrSize = StringUtil::vsnprintf(strBuf + strBufSize, cStrBufSize - strBufSize, format, list);
-
+        formatLen = StringUtil::vsnprintf(tmp + msgLen, sExceptionStrBufSize - msgLen, format, list);
         va_end(list);
 
-        if (substrSize >= 0)
+        if (formatLen > -1)
         {
-            strBufSize += substrSize;
-            substrSize = StringUtil::snprintf(strBuf + strBufSize, cStrBufSize - strBufSize, "\n//=================================================//");
+            msgLen += formatLen;
 
-            if (substrSize > 0)
+            s32 closeFormatLen = StringUtil::snprintf(
+                tmp + msgLen, sExceptionStrBufSize - msgLen,
+                "\n//============================================================//"
+            );
+
+            if (closeFormatLen > 0)
             {
-                strBufSize += substrSize;
-                
-                if (strBufSize < cStrBufSize - 2)
+                msgLen += closeFormatLen;
+
+                if (msgLen < sExceptionStrBufSize - 2)
                 {
-                    strBuf[strBufSize] = '\n';
-                    strBuf[strBufSize + 1] = '\0';
-                    strBufSize++;
+                    tmp[msgLen] = '\n';
+                    tmp[msgLen + 1] = '\0';
+                    msgLen++;
                 }
                 else
                 {
-                    strBufSize = cStrBufSize - 1;
+                    msgLen = sExceptionStrBufSize - 1;
                 }
             }
         }
         else
         {
-            strBufSize = -1;
+            msgLen = -1;
         }
     }
 
-    strBuf[cStrBufSize - 1] = '\0';
+    tmp[sExceptionStrBufSize - 1] = '\0';
 
-    if (strBufSize >= 0)
-        PrintString(strBuf, strBufSize);
+    if (msgLen > -1)
+    {
+        PrintString(tmp, msgLen);
+    }
     else
-        PrintString(strBuf, static_cast<s32>(std::strlen(strBuf)));
+    {
+        PrintString(tmp, static_cast<s32>(std::strlen(tmp)));
+    }
 
-    AssertConfig::execCallbacks(strBuf);
+    AssertConfig::execCallbacks(tmp);
 
-    strncpy_s(sExceptionStrBuf, cStrBufSize, strBuf, cStrBufSize);
-    sExceptionStrBuf[cStrBufSize - 1] = '\0';
+    ::strncpy_s(sExceptionStrBuf, sExceptionStrBufSize, tmp, sExceptionStrBufSize);
+    sExceptionStrBuf[sExceptionStrBufSize - 1] = '\0';
 
     Halt();
 }

@@ -12,15 +12,15 @@ namespace sead { namespace system {
 
 void PrintStringImpl(const char* str, s32 len)
 {
-    if (len <= 0)
-        return;
+    if (len > 0)
+    {
+        ScopedLock<CriticalSection> lock(&sPrintCriticalSection);
 
-    ScopedLock<CriticalSection> lock(&sPrintCriticalSection);
+        OutputDebugStringA(str);
+        std::printf("%s", str);
 
-    OutputDebugStringA(str);
-    std::printf("%s", str);
-
-    FlushPrint();
+        FlushPrint();
+    }
 }
 
 void FlushPrint()

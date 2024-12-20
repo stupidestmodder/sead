@@ -4,19 +4,33 @@
 
 #include <cstdarg>
 
-#ifdef SEAD_DEBUG
+#if UINTPTR_MAX == UINT32_MAX
+    #define SEAD_FMT_SIZE_T "%u"
+    #define SEAD_FMT_UINTPTR "0x%08X"
+#elif UINTPTR_MAX == UINT64_MAX
+    #define SEAD_FMT_SIZE_T "%llu"
+    #define SEAD_FMT_UINTPTR "0x%016llX"
+#else
+    #error "Unsupported platform"
+#endif
+
+#if defined(SEAD_TARGET_DEBUG)
 #define SEAD_PRINT(format, ...)                                                                    \
     do                                                                                             \
+    {                                                                                              \
         sead::system::Print(format, ##__VA_ARGS__);                                                \
+    }                                                                                              \
     while (0)
 #else
 #define SEAD_PRINT(format, ...)                                                                    \
     do                                                                                             \
     {                                                                                              \
         if (false)                                                                                 \
+        {                                                                                          \
             sead::system::Print(format, ##__VA_ARGS__);                                            \
+        }                                                                                          \
     } while (0)
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
 namespace sead { namespace system {
 

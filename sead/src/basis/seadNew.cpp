@@ -1,6 +1,7 @@
 #include <basis/seadNew.h>
 
 #include <basis/seadAssert.h>
+#include <basis/seadRawPrint.h>
 #include <basis/seadWarning.h>
 #include <heap/seadHeap.h>
 #include <heap/seadHeapMgr.h>
@@ -9,32 +10,34 @@
 
 namespace sead { namespace system {
 
-void* AllocFromSDK(size_t size)
+void* AllocFromSDK(size_t size, s32 alignment)
 {
-    SEAD_WARNING("alloced[%zu] before sead system initialize", size);
+    SEAD_WARNING("alloced[" SEAD_FMT_SIZE_T "] before sead system initialize", size);
 
-#ifdef SEAD_PLATFORM_WINDOWS
-    return std::malloc(size);
+#if defined(SEAD_PLATFORM_WINDOWS)
+    return ::_aligned_malloc(size, alignment);
 #else
-#error "Unsupported platform"
+    #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 }
 
 void FreeFromSDK(void* ptr)
 {
-    SEAD_WARNING("free[0x%p] before sead system initialize", ptr);
+    SEAD_WARNING("free[" SEAD_FMT_UINTPTR "] before sead system initialize", ptr);
 
-#ifdef SEAD_PLATFORM_WINDOWS
-    std::free(ptr);
+#if defined(SEAD_PLATFORM_WINDOWS)
+    ::_aligned_free(ptr);
 #else
-#error "Unsupported platform"
+    #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 }
 
-void* NewImpl(Heap* heap, size_t size, s32 alignment, bool useAssert)
+void* NewImpl(Heap* heap, size_t size, s32 alignment, bool assertOnFailure)
 {
     if (!HeapMgr::isInitialized())
-        return AllocFromSDK(size);
+    {
+        return AllocFromSDK(size, alignment);
+    }
 
     if (!heap)
     {
@@ -47,37 +50,49 @@ void* NewImpl(Heap* heap, size_t size, s32 alignment, bool useAssert)
     }
 
     void* ptr = heap->tryAlloc(size, alignment);
-    if (!ptr && useAssert)
+    if (ptr)
     {
-        SEAD_ASSERT_MSG(false, "alloc failed. size: %zu, allocatable size: %zu, alignment: %d, heap: %s",
-                        size, heap->getMaxAllocatableSize(alignment), alignment, heap->getName().cstr());
-        return nullptr;
+        return ptr;
     }
 
-    return ptr;
+    if (assertOnFailure)
+    {
+        SEAD_ASSERT_MSG(
+            false, "alloc failed. size: " SEAD_FMT_SIZE_T ", allocatable size: " SEAD_FMT_SIZE_T ", alignment: %d, heap: %s",
+            size, heap->getMaxAllocatableSize(alignment), alignment, heap->getName().cstr()
+        );
+    }
+
+    return nullptr;
 }
 
-void DeleteImpl(void* p)
+void DeleteImpl(void* ptr)
 {
     if (!HeapMgr::isInitialized())
     {
-        FreeFromSDK(p);
+        FreeFromSDK(ptr);
         return;
     }
 
-    if (!p)
+    if (!ptr)
+    {
         return;
+    }
 
-    Heap* heap = HeapMgr::instance()->findContainHeap(p);
+    Heap* heap = HeapMgr::instance()->findContainHeap(ptr);
     if (heap)
-        heap->free(p);
+    {
+        heap->free(ptr);
+    }
     else
-        SEAD_ASSERT_MSG(false, "delete bad pointer [0x%p]", p);
+    {
+        SEAD_ASSERT_MSG(false, "delete bad pointer [" SEAD_FMT_UINTPTR "]", ptr);
+    }
 }
 
 } // namespace system
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 void AllocFailAssert(Heap* heap, size_t size, s32 alignment)
 {
     if (!heap)
@@ -86,10 +101,12 @@ void AllocFailAssert(Heap* heap, size_t size, s32 alignment)
         SEAD_ASSERT_MSG(heap, "Current heap is null. Cannot alloc.");
     }
 
-    SEAD_ASSERT_MSG(false, "alloc failed. size: %zu, allocatable size: %zu, alignment: %d, heap: %s",
-                    size, heap->getMaxAllocatableSize(alignment), alignment, heap->getName().cstr());
+    SEAD_ASSERT_MSG(
+        false, "alloc failed. size: " SEAD_FMT_SIZE_T ", allocatable size: " SEAD_FMT_SIZE_T ", alignment: %d, heap: %s",
+        size, heap->getMaxAllocatableSize(alignment), alignment, heap->getName().cstr()
+    );
 }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
 } // namespace sead
 
@@ -97,7 +114,7 @@ void AllocFailAssert(Heap* heap, size_t size, s32 alignment)
 
 //* So MSVC won't complain
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(push)
 #pragma warning(disable : 28251)
 #endif // SEAD_COMPILER_MSVC
@@ -122,7 +139,7 @@ void* operator new[](size_t size, const std::nothrow_t&) noexcept
     return sead::system::NewImpl(nullptr, size, sead::cDefaultAlignment, false);
 }
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(pop)
 #endif // SEAD_COMPILER_MSVC
 

@@ -13,17 +13,20 @@ class Heap;
 
 void AllocFailAssert(Heap* heap, size_t size, s32 alignment);
 
-#ifndef SEAD_DEBUG
-inline void AllocFailAssert(Heap*, size_t, s32)
+#if !defined(SEAD_TARGET_DEBUG)
+inline void AllocFailAssert(Heap* heap, size_t size, s32 alignment)
 {
+    SEAD_UNUSED(heap);
+    SEAD_UNUSED(size);
+    SEAD_UNUSED(alignment);
 }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
 } // namespace sead
 
 //* So MSVC won't complain
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(push)
 #pragma warning(disable : 28251)
 #endif // SEAD_COMPILER_MSVC
@@ -33,7 +36,7 @@ void* operator new[](size_t size);
 void* operator new(size_t size, const std::nothrow_t&) noexcept;
 void* operator new[](size_t size, const std::nothrow_t&) noexcept;
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(pop)
 #endif // SEAD_COMPILER_MSVC
 
