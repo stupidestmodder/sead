@@ -36,16 +36,12 @@ public:
         mWork = work;
     }
 
-    void cleanup()
-    {
-        mFree = nullptr;
-        mWork = nullptr;
-    }
-
     void* get()
     {
         if (!mFree)
+        {
             return nullptr;
+        }
 
         void* ret = mFree;
         mFree = *static_cast<void**>(mFree);
@@ -61,6 +57,12 @@ public:
     void* work() const
     {
         return mWork;
+    }
+
+    void cleanup()
+    {
+        mFree = nullptr;
+        mWork = nullptr;
     }
 
     bool isEmpty() const
