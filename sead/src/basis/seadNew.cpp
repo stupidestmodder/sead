@@ -32,7 +32,7 @@ void FreeFromSDK(void* ptr)
 #endif // SEAD_PLATFORM_WINDOWS
 }
 
-void* NewImpl(Heap* heap, size_t size, s32 alignment, bool assertOnFailure)
+void* NewImpl(Heap* heap, size_t size, s32 alignment, bool useAssert)
 {
     if (!HeapMgr::isInitialized())
     {
@@ -55,7 +55,7 @@ void* NewImpl(Heap* heap, size_t size, s32 alignment, bool assertOnFailure)
         return ptr;
     }
 
-    if (assertOnFailure)
+    if (useAssert)
     {
         SEAD_ASSERT_MSG(
             false, "alloc failed. size: " SEAD_FMT_SIZE_T ", allocatable size: " SEAD_FMT_SIZE_T ", alignment: %d, heap: %s",
@@ -66,27 +66,27 @@ void* NewImpl(Heap* heap, size_t size, s32 alignment, bool assertOnFailure)
     return nullptr;
 }
 
-void DeleteImpl(void* ptr)
+void DeleteImpl(void* p)
 {
     if (!HeapMgr::isInitialized())
     {
-        FreeFromSDK(ptr);
+        FreeFromSDK(p);
         return;
     }
 
-    if (!ptr)
+    if (!p)
     {
         return;
     }
 
-    Heap* heap = HeapMgr::instance()->findContainHeap(ptr);
+    Heap* heap = HeapMgr::instance()->findContainHeap(p);
     if (heap)
     {
-        heap->free(ptr);
+        heap->free(p);
     }
     else
     {
-        SEAD_ASSERT_MSG(false, "delete bad pointer [" SEAD_FMT_UINTPTR "]", ptr);
+        SEAD_ASSERT_MSG(false, "delete bad pointer [" SEAD_FMT_UINTPTR "]", p);
     }
 }
 
