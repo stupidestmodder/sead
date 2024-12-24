@@ -208,11 +208,11 @@ public:
         return &mBuffer[idx];
     }
 
-    T& front() { return mBuffer[0]; }
-    const T& front() const { return mBuffer[0]; }
+    T& front() { return operator()(0); }
+    const T& front() const { return operator()(0); }
 
-    T& back() { return mBuffer[mSize - 1]; }
-    const T& back() const { return mBuffer[mSize - 1]; }
+    T& back() { return operator()(mSize - 1); }
+    const T& back() const { return operator()(mSize - 1); }
 
     s32 size() const { return mSize; }
     s32 getSize() const { return mSize; }
