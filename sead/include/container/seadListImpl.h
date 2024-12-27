@@ -1,6 +1,6 @@
 #pragma once
 
-#include <basis/seadTypes.h>
+#include <random/seadRandom.h>
 
 namespace sead {
 
@@ -19,6 +19,7 @@ public:
 
     ListNode* prev() const { return mPrev; }
     ListNode* next() const { return mNext; }
+
     bool isLinked() const { return mPrev || mNext; }
 
 private:
@@ -28,8 +29,8 @@ private:
         mNext = nullptr;
     }
 
-    void insertBack_(ListNode* node);
-    void insertFront_(ListNode* node);
+    void insertBack_(ListNode* n);
+    void insertFront_(ListNode* n);
     void erase_();
 
 private:
@@ -44,7 +45,7 @@ class ListImpl
     SEAD_NO_COPY(ListImpl);
 
 protected:
-    using CompareCallbackImpl = s32 (*)(const void*, const void*);
+    using CompareCallbackImpl = s32 (*)(const void* a, const void* b);
 
 public:
     ListImpl()
@@ -56,11 +57,18 @@ public:
     }
 
     bool isEmpty() const { return mCount == 0; }
+
     s32 size() const { return mCount; }
     s32 getSize() const { return mCount; }
 
     void reverse();
-    void shuffle();
+
+    void shuffle()
+    {
+        Random random;
+        shuffle(&random);
+    }
+
     void shuffle(Random* random);
     bool checkLinks() const;
 
@@ -68,36 +76,36 @@ protected:
     void sort(s32 offset, CompareCallbackImpl cmp);
     void mergeSort(s32 offset, CompareCallbackImpl cmp);
 
-    void pushBack(ListNode* node)
+    void pushBack(ListNode* n)
     {
-        mStartEnd.insertFront_(node);
+        mStartEnd.insertFront_(n);
         mCount++;
     }
 
-    void pushFront(ListNode* node)
+    void pushFront(ListNode* n)
     {
-        mStartEnd.insertBack_(node);
+        mStartEnd.insertBack_(n);
         mCount++;
     }
 
     ListNode* popBack();
     ListNode* popFront();
 
-    void insertBefore(ListNode* basis, ListNode* node)
+    void insertBefore(ListNode* basis, ListNode* n)
     {
-        basis->insertFront_(node);
+        basis->insertFront_(n);
         mCount++;
     }
 
-    void insertAfter(ListNode* basis, ListNode* node)
+    void insertAfter(ListNode* basis, ListNode* n)
     {
-        basis->insertBack_(node);
+        basis->insertBack_(n);
         mCount++;
     }
 
-    void erase(ListNode* node)
+    void erase(ListNode* n)
     {
-        node->erase_();
+        n->erase_();
         mCount--;
     }
 
@@ -105,14 +113,23 @@ protected:
     ListNode* back() const { return mCount > 0 ? mStartEnd.mPrev : nullptr; }
 
     ListNode* nth(s32 index) const;
-    s32 indexOf(const ListNode* node) const;
+    s32 indexOf(const ListNode* n) const;
+
     void swap(ListNode* n1, ListNode* n2);
-    void moveAfter(ListNode* basis, ListNode* node);
-    void moveBefore(ListNode* basis, ListNode* node);
+    void moveAfter(ListNode* basis, ListNode* n);
+    void moveBefore(ListNode* basis, ListNode* n);
+
     ListNode* find(const void* ptr, s32 offset, CompareCallbackImpl cmp) const;
     void uniq(s32 offset, CompareCallbackImpl cmp);
+
     void clear();
-    void unsafeClear();
+
+    void unsafeClear()
+    {
+        mCount = 0;
+        mStartEnd.mPrev = &mStartEnd;
+        mStartEnd.mNext = &mStartEnd;
+    }
 
     static void mergeSortImpl(ListNode* front, ListNode* back, s32 num, s32 offset, CompareCallbackImpl cmp);
 

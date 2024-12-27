@@ -1,38 +1,41 @@
 #include <container/seadListImpl.h>
 
-#include <basis/seadAssert.h>
+#include <basis/seadRawPrint.h>
 #include <basis/seadWarning.h>
 #include <prim/seadPtrUtil.h>
-#include <random/seadRandom.h>
 
 namespace sead {
 
-void ListNode::insertBack_(ListNode* node)
+void ListNode::insertBack_(ListNode* n)
 {
-    SEAD_ASSERT_MSG(!node->isLinked(), "node is already linked.");
+    SEAD_ASSERT_MSG(!n->isLinked(), "node is already linked.");
 
     ListNode* next = mNext;
+    mNext = n;
 
-    mNext = node;
-    node->mPrev = this;
-    node->mNext = next;
+    n->mPrev = this;
+    n->mNext = next;
 
     if (next)
-        next->mPrev = node;
+    {
+        next->mPrev = n;
+    }
 }
 
-void ListNode::insertFront_(ListNode* node)
+void ListNode::insertFront_(ListNode* n)
 {
-    SEAD_ASSERT_MSG(!node->isLinked(), "node is already linked.");
+    SEAD_ASSERT_MSG(!n->isLinked(), "node is already linked.");
 
     ListNode* prev = mPrev;
+    mPrev = n;
 
-    mPrev = node;
-    node->mPrev = prev;
-    node->mNext = this;
+    n->mPrev = prev;
+    n->mNext = this;
 
     if (prev)
-        prev->mNext = node;
+    {
+        prev->mNext = n;
+    }
 }
 
 void ListNode::erase_()
@@ -40,10 +43,14 @@ void ListNode::erase_()
     SEAD_ASSERT_MSG(isLinked(), "node is not linked.");
 
     if (mPrev)
+    {
         mPrev->mNext = mNext;
+    }
 
     if (mNext)
+    {
         mNext->mPrev = mPrev;
+    }
 
     mPrev = nullptr;
     mNext = nullptr;
@@ -52,42 +59,37 @@ void ListNode::erase_()
 void ListImpl::reverse()
 {
     if (mCount < 2)
+    {
         return;
+    }
 
-    ListNode* prev = mStartEnd.mPrev;
-    ListNode* next = mStartEnd.mNext;
+    ListNode* first;
     ListNode* node;
+    ListNode* next;
 
+    first = mStartEnd.mNext;
+    node = mStartEnd.mPrev;
     do
     {
-        node = prev->mPrev;
-
-        prev->erase_();
-        next->insertFront_(prev);
-
-        prev = node;
-    } while (node != next);
-}
-
-void ListImpl::shuffle()
-{
-    Random random;
-    shuffle(&random);
+        next = node->mPrev;
+        node->erase_();
+        first->insertFront_(node);
+        node = next;
+    } while (node != first);
 }
 
 void ListImpl::shuffle(Random* random)
 {
     SEAD_ASSERT(random);
 
-    s32 count = mCount;
-    while (count > 1)
+    s32 n = mCount;
+    s32 k;
+    while (n > 1)
     {
-        u32 value = random->getU32(count);
-        count--;
+        k = random->getU32(n);
+        n--;
 
-        ListNode* n1 = nth(count);
-        ListNode* n2 = nth(value);
-        swap(n1, n2);
+        swap(nth(n), nth(k));
     }
 }
 
@@ -99,8 +101,10 @@ bool ListImpl::checkLinks() const
         return false;
     }
 
+    ListNode* node;
+
     s32 count = 0;
-    for (ListNode* node = mStartEnd.mNext; node != &mStartEnd; node = node->mNext)
+    for (node = mStartEnd.mNext; node != &mStartEnd; node = node->mNext)
     {
         if (!node->mNext)
         {
@@ -110,7 +114,10 @@ bool ListImpl::checkLinks() const
 
         if (node->mNext->mPrev != node)
         {
-            SEAD_WARNING("node->mNext->mPrev[0x%p] is not equal to node[0x%p]. count = %d", node->mNext->mPrev, node, count);
+            SEAD_WARNING(
+                "node->mNext->mPrev[" SEAD_FMT_UINTPTR "] is not equal to node[" SEAD_FMT_UINTPTR "]. count = %d",
+                node->mNext->mPrev, node, count
+            );
             return false;
         }
 
@@ -124,7 +131,7 @@ bool ListImpl::checkLinks() const
     }
 
     s32 countR = 0;
-    for (ListNode* node = mStartEnd.mPrev; node != &mStartEnd; node = node->mPrev)
+    for (node = mStartEnd.mPrev; node != &mStartEnd; node = node->mPrev)
     {
         if (!node->mPrev)
         {
@@ -134,46 +141,58 @@ bool ListImpl::checkLinks() const
 
         if (node->mPrev->mNext != node)
         {
-            SEAD_WARNING("node->mPrev->mNext[0x%p] is not equal to node[0x%p]. countR = %d", node->mPrev->mNext, node, countR);
+            SEAD_WARNING(
+                "node->mPrev->mNext[" SEAD_FMT_UINTPTR "] is not equal to node[" SEAD_FMT_UINTPTR "]. countR = %d",
+                node->mPrev->mNext, node, countR
+            );
             return false;
         }
 
         countR++;
     }
 
-    if (count != mCount)
+    if (mCount != count)
+    {
         SEAD_WARNING("count[%d] is not equal to mCount[%d]", count, mCount);
+    }
 
-    if (countR != mCount)
+    if (mCount != countR)
+    {
         SEAD_WARNING("countR[%d] is not equal to mCount[%d]", countR, mCount);
+    }
 
-    return count == countR && countR == mCount;
+    return count == countR && mCount == countR;
 }
 
 void ListImpl::sort(s32 offset, CompareCallbackImpl cmp)
 {
     if (mCount < 2)
-        return;
-
-    for (ListNode* node = nth(1); node != &mStartEnd; node = node->mNext)
     {
+        return;
+    }
+
+    ListNode* node = nth(1);
+    while (node != &mStartEnd)
+    {
+        ListNode* next = node->mNext;
         ListNode* prev = node->mPrev;
 
-        s32 result = cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset));
-        if (result > 0)
+        if (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) > 0)
         {
             do
             {
                 prev = prev->mPrev;
                 if (prev == &mStartEnd)
+                {
                     break;
-
-                result = cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset));
-            } while (result > 0);
+                }
+            } while (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) > 0);
 
             node->erase_();
             prev->insertBack_(node);
         }
+
+        node = next;
     }
 }
 
@@ -184,18 +203,28 @@ void ListImpl::mergeSort(s32 offset, CompareCallbackImpl cmp)
 
 ListNode* ListImpl::popBack()
 {
-    ListNode* node = back();
-    if (node)
-       erase(node);
+    if (mCount < 1)
+    {
+        return nullptr;
+    }
+
+    ListNode* node = mStartEnd.mPrev;
+    node->erase_();
+    mCount--;
 
     return node;
 }
 
 ListNode* ListImpl::popFront()
 {
-    ListNode* node = front();
-    if (node)
-       erase(node);
+    if (mCount < 1)
+    {
+        return nullptr;
+    }
+
+    ListNode* node = mStartEnd.mNext;
+    node->erase_();
+    mCount--;
 
     return node;
 }
@@ -210,23 +239,27 @@ ListNode* ListImpl::nth(s32 index) const
 
     ListNode* node = mStartEnd.mNext;
     for (s32 i = 0; i < index; i++)
+    {
         node = node->mNext;
+    }
 
     return node;
 }
 
-s32 ListImpl::indexOf(const ListNode* node) const
+s32 ListImpl::indexOf(const ListNode* n) const
 {
-    ListNode* n = mStartEnd.mNext;
+    ListNode* node = mStartEnd.mNext;
 
     s32 index = 0;
-    while (n != &mStartEnd)
+    while (node != &mStartEnd)
     {
-        if (n == node)
+        if (node == n)
+        {
             return index;
+        }
 
+        node = node->mNext;
         index++;
-        n = n->mNext;
     }
 
     return -1;
@@ -237,7 +270,9 @@ void ListImpl::swap(ListNode* n1, ListNode* n2)
     SEAD_ASSERT(n1->mPrev && n1->mNext && n2->mPrev && n2->mNext);
 
     if (n1 == n2)
+    {
         return;
+    }
 
     ListNode* n1Prev = n1->mPrev;
     ListNode* n2Prev = n2->mPrev;
@@ -255,26 +290,30 @@ void ListImpl::swap(ListNode* n1, ListNode* n2)
     }
 }
 
-void ListImpl::moveAfter(ListNode* basis, ListNode* node)
+void ListImpl::moveAfter(ListNode* basis, ListNode* n)
 {
-    SEAD_ASSERT(basis->mPrev && basis->mNext && node->mPrev && node->mNext);
+    SEAD_ASSERT(basis->mPrev && basis->mNext && n->mPrev && n->mNext);
 
-    if (basis == node)
+    if (basis == n)
+    {
         return;
+    }
 
-    node->erase_();
-    basis->insertBack_(node);
+    n->erase_();
+    basis->insertBack_(n);
 }
 
-void ListImpl::moveBefore(ListNode* basis, ListNode* node)
+void ListImpl::moveBefore(ListNode* basis, ListNode* n)
 {
-    SEAD_ASSERT(basis->mPrev && basis->mNext && node->mPrev && node->mNext);
+    SEAD_ASSERT(basis->mPrev && basis->mNext && n->mPrev && n->mNext);
 
-    if (basis == node)
+    if (basis == n)
+    {
         return;
+    }
 
-    node->erase_();
-    basis->insertFront_(node);
+    n->erase_();
+    basis->insertFront_(n);
 }
 
 ListNode* ListImpl::find(const void* ptr, s32 offset, CompareCallbackImpl cmp) const
@@ -282,7 +321,9 @@ ListNode* ListImpl::find(const void* ptr, s32 offset, CompareCallbackImpl cmp) c
     for (ListNode* node = mStartEnd.mNext; node != &mStartEnd; node = node->mNext)
     {
         if (cmp(PtrUtil::addOffset(node, -offset), ptr) == 0)
+        {
             return node;
+        }
     }
 
     return nullptr;
@@ -291,21 +332,24 @@ ListNode* ListImpl::find(const void* ptr, s32 offset, CompareCallbackImpl cmp) c
 void ListImpl::uniq(s32 offset, CompareCallbackImpl cmp)
 {
     if (mCount < 2)
+    {
         return;
+    }
 
     for (ListNode* node = mStartEnd.mNext; node != &mStartEnd; node = node->mNext)
     {
-        for (ListNode* next = node->mNext; next != &mStartEnd; )
+        ListNode* checkNode = node->mNext;
+        while (checkNode != &mStartEnd)
         {
-            if (cmp(PtrUtil::addOffset(node, -offset), PtrUtil::addOffset(next, -offset)) == 0)
+            if (cmp(PtrUtil::addOffset(node, -offset), PtrUtil::addOffset(checkNode, -offset)) == 0)
             {
-                ListNode* tmp = next->mNext;
-                erase(next);
-                next = tmp;
+                ListNode* temp = checkNode->mNext;
+                erase(checkNode);
+                checkNode = temp;
             }
             else
             {
-                next = next->mNext;
+                checkNode = checkNode->mNext;
             }
         }
     }
@@ -316,9 +360,9 @@ void ListImpl::clear()
     ListNode* node = mStartEnd.mNext;
     while (node != &mStartEnd)
     {
-        ListNode* next = node->mNext;
+        ListNode* temp = node->mNext;
         node->init_();
-        node = next;
+        node = temp;
     }
 
     mCount = 0;
@@ -326,107 +370,106 @@ void ListImpl::clear()
     mStartEnd.mNext = &mStartEnd;
 }
 
-void ListImpl::unsafeClear()
-{
-    mCount = 0;
-    mStartEnd.mPrev = &mStartEnd;
-    mStartEnd.mNext = &mStartEnd;
-}
-
-// TODO: Better var names
 void ListImpl::mergeSortImpl(ListNode* front, ListNode* back, s32 num, s32 offset, CompareCallbackImpl cmp)
 {
-    if (num < 9)
+    if (num >= 9)
     {
-        if (num > 1)
+        s32 frontCount;
+        ListNode* middle;
+        s32 backCount;
+        ListNode* mergeTop;
+        ListNode* backTop;
+        bool takeFromFront;
+
+        frontCount = num / 2;
+        middle = front;
+        for (s32 i = 1; i < frontCount; i++)
         {
-            ListNode* frontPrev = front->prev();
-            ListNode* frontNext = front->next();
-            ListNode* backNext = back->next();
+            middle = middle->next();
+        }
 
-            for (ListNode* node = frontNext; node != backNext; node = node->mNext)
+        backCount = num - frontCount;
+
+        {
+            ListNode* temp = front->prev();
+
+            backTop = middle->next();
+
+            mergeSortImpl(front, middle, frontCount, offset, cmp);
+
+            middle = temp;
+            mergeTop = temp->next();
+
+            temp = backTop->prev();
+
+            mergeSortImpl(backTop, back, backCount, offset, cmp);
+
+            backTop = temp->next();
+        }
+
+        while (frontCount > 0 || backCount > 0)
+        {
+            if (frontCount == 0)
             {
-                ListNode* prev = node->mPrev;
+                takeFromFront = false;
+            }
+            else if (backCount == 0)
+            {
+                takeFromFront = true;
+            }
+            else
+            {
+                takeFromFront = cmp(PtrUtil::addOffset(mergeTop, -offset), PtrUtil::addOffset(backTop, -offset)) < 1;
+            }
 
-                s32 result = cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset));
-                if (result > 0)
-                {
-                    do
-                    {
-                        prev = prev->mPrev;
-                        if (prev == frontPrev)
-                            break;
-
-                        result = cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset));
-                    } while (result > 0);
-
-                    node->erase_();
-                    prev->insertBack_(node);
-                }
+            ListNode* temp;
+            if (takeFromFront)
+            {
+                temp = mergeTop->next();
+                mergeTop->erase_();
+                middle->insertBack_(mergeTop);
+                middle = mergeTop;
+                frontCount--;
+                mergeTop = temp;
+            }
+            else
+            {
+                temp = backTop->next();
+                backTop->erase_();
+                middle->insertBack_(backTop);
+                middle = backTop;
+                backCount--;
+                backTop = temp;
             }
         }
     }
-    else
+    else if (num > 1)
     {
-        s32 numHalf = num / 2;
+        ListNode* start = front->prev();
+        ListNode* node = front->next();
+        ListNode* end = back->next();
 
-        ListNode* node = front;
-        for (s32 i = 1; i < numHalf; i++)
-            node = node->next();
-
-        s32 numMinusHalf = num - numHalf;
-
-        ListNode* frontPrev = front->prev();
-        ListNode* nodeNext = node->next();
-
-        mergeSortImpl(front, node, numHalf, offset, cmp);
-
-        ListNode* frontPrevNext = frontPrev->next();
-        ListNode* nodeNextPrev = nodeNext->prev();
-
-        mergeSortImpl(nodeNext, back, numMinusHalf, offset, cmp);
-
-        ListNode* nodeNextPrevNext = nodeNextPrev->next();
-
-        while (numHalf > 0 || numMinusHalf > 0)
+        while (node != end)
         {
-            bool b;
+            ListNode* next = node->mNext;
+            ListNode* prev = node->mPrev;
 
-            if (numHalf == 0)
+            if (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) > 0)
             {
-                b = false;
-            }
-            else if (numMinusHalf == 0)
-            {
-                b = true;
-            }
-            else
-            {
-                s32 result = cmp(PtrUtil::addOffset(frontPrevNext, -offset), PtrUtil::addOffset(nodeNextPrevNext, -offset));
-                if (result < 1)
-                    b = true;
-                else
-                    b = false;
+                do
+                {
+                    prev = prev->mPrev;
+                    if (prev == start)
+                    {
+                        break;
+                    }
+                } while (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) > 0);
+
+                node->erase_();
+                prev->insertBack_(node);
             }
 
-            if (b)
-            {
-                nodeNext = frontPrevNext->next();
-                frontPrevNext->erase_();
-                frontPrev->insertBack_(frontPrevNext);
-                frontPrev = frontPrevNext;
-                numHalf--;
-                frontPrevNext = nodeNext;
-            }
-            else
-            {
-                nodeNext = nodeNextPrevNext->next();
-                nodeNextPrevNext->erase_();
-                frontPrev->insertBack_(nodeNextPrevNext);
-                frontPrev = nodeNextPrevNext;
-                numMinusHalf--;
-                nodeNextPrevNext = nodeNext;
-            }
+            node = next;
         }
     }
 }
