@@ -1,6 +1,5 @@
 #pragma once
 
-#include <basis/seadAssert.h>
 #include <container/seadListImpl.h>
 #include <prim/seadPtrUtil.h>
 
@@ -10,7 +9,7 @@ template <typename T>
 class OffsetList : public ListImpl
 {
 protected:
-    using CompareCallback = s32 (*)(const T*, const T*);
+    using CompareCallback = s32 (*)(const T* a, const T* b);
 
 public:
     OffsetList()
@@ -59,25 +58,31 @@ public:
 
     T* prev(const T* obj) const
     {
-        ListNode* node = objToListNode(obj)->prev();
-        if (node == &mStartEnd)
+        ListNode* prev = objToListNode(obj)->prev();
+        if (prev == &mStartEnd)
+        {
             return nullptr;
+        }
 
-        return listNodeToObj(node);
+        return listNodeToObj(prev);
     }
 
     T* next(const T* obj) const
     {
-        ListNode* node = objToListNode(obj)->next();
-        if (node == &mStartEnd)
+        ListNode* next = objToListNode(obj)->next();
+        if (next == &mStartEnd)
+        {
             return nullptr;
+        }
 
-        return listNodeToObj(node);
+        return listNodeToObj(next);
     }
 
     T* nth(s32 index) const { return listNodeToObjWithNullCheck(ListImpl::nth(index)); }
     s32 indexOf(const T* obj) const { return ListImpl::indexOf(objToListNode(obj)); }
+
     bool isNodeLinked(const T* obj) const { return objToListNode(obj)->isLinked(); }
+
     void swap(T* obj1, T* obj2) { ListImpl::swap(objToListNode(obj1), objToListNode(obj2)); }
     void moveAfter(T* basis, T* obj) { ListImpl::moveAfter(objToListNode(basis), objToListNode(obj)); }
     void moveBefore(T* basis, T* obj) { ListImpl::moveBefore(objToListNode(basis), objToListNode(obj)); }
@@ -123,25 +128,11 @@ public:
             return *this;
         }
 
-        T& operator*() const
-        {
-            return *mPtr;
-        }
+        T& operator*() const { return *mPtr; }
+        T* operator->() const { return mPtr; }
 
-        T* operator->() const
-        {
-            return mPtr;
-        }
-
-        friend bool operator==(const iterator& it1, const iterator& it2)
-        {
-            return it1.mPtr == it2.mPtr;
-        }
-
-        friend bool operator!=(const iterator& it1, const iterator& it2)
-        {
-            return it1.mPtr != it2.mPtr;
-        }
+        friend bool operator==(const iterator& lhs, const iterator& rhs) { return lhs.mPtr == rhs.mPtr; }
+        friend bool operator!=(const iterator& lhs, const iterator& rhs) { return lhs.mPtr != rhs.mPtr; }
 
     protected:
         T* mPtr;
@@ -172,25 +163,11 @@ public:
             return *this;
         }
 
-        const T& operator*() const
-        {
-            return *mPtr;
-        }
+        const T& operator*() const { return *mPtr; }
+        const T* operator->() const { return mPtr; }
 
-        const T* operator->() const
-        {
-            return mPtr;
-        }
-
-        friend bool operator==(const constIterator& it1, const constIterator& it2)
-        {
-            return it1.mPtr == it2.mPtr;
-        }
-
-        friend bool operator!=(const constIterator& it1, const constIterator& it2)
-        {
-            return it1.mPtr != it2.mPtr;
-        }
+        friend bool operator==(const constIterator& lhs, const constIterator& rhs) { return lhs.mPtr == rhs.mPtr; }
+        friend bool operator!=(const constIterator& lhs, const constIterator& rhs) { return lhs.mPtr != rhs.mPtr; }
 
     protected:
         const T* mPtr;
@@ -214,25 +191,11 @@ public:
             return *this;
         }
 
-        T& operator*() const
-        {
-            return *mPtr;
-        }
+        T& operator*() const { return *mPtr; }
+        T* operator->() const { return mPtr; }
 
-        T* operator->() const
-        {
-            return mPtr;
-        }
-
-        friend bool operator==(const robustIterator& it1, const robustIterator& it2)
-        {
-            return it1.mPtr == it2.mPtr;
-        }
-
-        friend bool operator!=(const robustIterator& it1, const robustIterator& it2)
-        {
-            return it1.mPtr != it2.mPtr;
-        }
+        friend bool operator==(const robustIterator& lhs, const robustIterator& rhs) { return lhs.mPtr == rhs.mPtr; }
+        friend bool operator!=(const robustIterator& lhs, const robustIterator& rhs) { return lhs.mPtr != rhs.mPtr; }
 
     protected:
         T* mPtr;
@@ -256,68 +219,124 @@ public:
             return *this;
         }
 
-        T& operator*() const
-        {
-            return *mPtr;
-        }
+        T& operator*() const { return *mPtr; }
+        T* operator->() const { return mPtr; }
 
-        T* operator->() const
-        {
-            return mPtr;
-        }
-
-        friend bool operator==(const reverseIterator& it1, const reverseIterator& it2)
-        {
-            return it1.mPtr == it2.mPtr;
-        }
-
-        friend bool operator!=(const reverseIterator& it1, const reverseIterator& it2)
-        {
-            return it1.mPtr != it2.mPtr;
-        }
+        friend bool operator==(const reverseIterator& lhs, const reverseIterator& rhs) { return lhs.mPtr == rhs.mPtr; }
+        friend bool operator!=(const reverseIterator& lhs, const reverseIterator& rhs) { return lhs.mPtr != rhs.mPtr; }
 
     protected:
         T* mPtr;
         s32 mOffset;
+
+        friend class reverseConstIterator;
     };
 
-    // TODO
-    class reverseConstIterator { };
+    class reverseConstIterator
+    {
+    public:
+        reverseConstIterator(const T* ptr, s32 offset)
+            : mPtr(ptr)
+            , mOffset(offset)
+        {
+        }
 
-    // TODO
-    class reverseRobustIterator { };
+        reverseConstIterator(const reverseIterator& it)
+            : mPtr(it.mPtr)
+            , mOffset(it.mOffset)
+        {
+        }
 
+        reverseConstIterator& operator++()
+        {
+            const ListNode* prev = static_cast<const ListNode*>(PtrUtil::addOffset(mPtr, mOffset))->prev();
+            mPtr = static_cast<const T*>(PtrUtil::addOffset(prev, -mOffset));
+            return *this;
+        }
+
+        const T& operator*() const { return *mPtr; }
+        const T* operator->() const { return mPtr; }
+
+        friend bool operator==(const reverseConstIterator& lhs, const reverseConstIterator& rhs) { return lhs.mPtr == rhs.mPtr; }
+        friend bool operator!=(const reverseConstIterator& lhs, const reverseConstIterator& rhs) { return lhs.mPtr != rhs.mPtr; }
+
+    protected:
+        const T* mPtr;
+        s32 mOffset;
+    };
+
+    class reverseRobustIterator
+    {
+    public:
+        reverseRobustIterator(T* ptr, s32 offset)
+            : mPtr(ptr)
+            , mPrev(static_cast<ListNode*>(PtrUtil::addOffset(ptr, offset))->prev())
+            , mOffset(offset)
+        {
+        }
+
+        reverseRobustIterator& operator++()
+        {
+            mPtr = static_cast<T*>(PtrUtil::addOffset(mPrev, -mOffset));
+            mPrev = mPrev->prev();
+            return *this;
+        }
+
+        T& operator*() const { return *mPtr; }
+        T* operator->() const { return mPtr; }
+
+        friend bool operator==(const reverseRobustIterator& lhs, const reverseRobustIterator& rhs) { return lhs.mPtr == rhs.mPtr; }
+        friend bool operator!=(const reverseRobustIterator& lhs, const reverseRobustIterator& rhs) { return lhs.mPtr != rhs.mPtr; }
+
+    protected:
+        T* mPtr;
+        ListNode* mPrev;
+        s32 mOffset;
+    };
+
+public:
     iterator begin() const { return iterator(listNodeToObj(mStartEnd.next()), mOffset); }
+    // constIterator begin() const { return constIterator(listNodeToObj(mStartEnd.next()), mOffset); }
     iterator end() const { return iterator(listNodeToObj(&mStartEnd), mOffset); }
-    iterator toIterator(T* obj) const;
+    // constIterator end() const { return constIterator(listNodeToObj(&mStartEnd), mOffset); }
+    iterator toIterator(T* obj) const { return iterator(obj, mOffset); }
+    // constIterator toIterator(const T* obj) const { return constIterator(obj, mOffset); }
 
     constIterator constBegin() const { return constIterator(listNodeToObj(mStartEnd.next()), mOffset); }
     constIterator constEnd() const { return constIterator(listNodeToObj(&mStartEnd), mOffset); }
-    constIterator toConstIterator(const T* obj) const;
+    constIterator toConstIterator(const T* obj) const { return constIterator(obj, mOffset); }
 
     robustIterator robustBegin() { return robustIterator(listNodeToObj(mStartEnd.next()), mOffset); }
     robustIterator robustEnd() { return robustIterator(listNodeToObj(&mStartEnd), mOffset); }
     robustIterator toRobustIterator(T* obj) { return robustIterator(obj, mOffset); }
 
     reverseIterator reverseBegin() const { return reverseIterator(listNodeToObj(mStartEnd.prev()), mOffset); }
+    // reverseConstIterator reverseBegin() const { return reverseConstIterator(listNodeToObj(mStartEnd.prev()), mOffset); }
     reverseIterator reverseEnd() const { return reverseIterator(listNodeToObj(&mStartEnd), mOffset); }
-    reverseIterator toReverseIterator(T* obj) const;
+    // reverseConstIterator reverseEnd() const { return reverseConstIterator(listNodeToObj(&mStartEnd), mOffset); }
+    reverseIterator toReverseIterator(T* obj) const { return reverseIterator(obj, mOffset); }
+    // reverseConstIterator toReverseIterator(const T* obj) const { return reverseConstIterator(obj, mOffset); }
 
-    reverseConstIterator reverseConstBegin() const;
-    reverseConstIterator reverseConstEnd() const;
-    reverseConstIterator toReverseConstIterator(const T* obj) const;
+    reverseConstIterator reverseConstBegin() const { return reverseConstIterator(listNodeToObj(mStartEnd.prev()), mOffset); }
+    reverseConstIterator reverseConstEnd() const { return reverseConstIterator(listNodeToObj(&mStartEnd), mOffset); }
+    reverseConstIterator toReverseConstIterator(const T* obj) const { return reverseConstIterator(obj, mOffset); }
 
-    reverseRobustIterator reverseRobustBegin();
-    reverseRobustIterator reverseRobustEnd();
-    reverseRobustIterator toReverseRobustIterator(T* obj);
+    reverseRobustIterator reverseRobustBegin() { return reverseRobustIterator(listNodeToObj(mStartEnd.prev()), mOffset); }
+    reverseRobustIterator reverseRobustEnd() { return reverseRobustIterator(listNodeToObj(&mStartEnd), mOffset); }
+    reverseRobustIterator toReverseRobustIterator(T* obj) { return reverseRobustIterator(obj, mOffset); }
 
 protected:
     static s32 compareT(const T* a, const T* b)
     {
         if (*a < *b)
+        {
             return -1;
+        }
+
         if (*b < *a)
+        {
             return 1;
+        }
 
         return 0;
     }
