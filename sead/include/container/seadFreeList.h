@@ -2,7 +2,6 @@
 
 #include <basis/seadAssert.h>
 #include <basis/seadNew.h> 
-#include <basis/seadTypes.h>
 
 namespace sead {
 
