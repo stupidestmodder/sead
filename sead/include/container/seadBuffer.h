@@ -1,6 +1,5 @@
 #pragma once
 
-#include <basis/seadAssert.h>
 #include <basis/seadNew.h>
 #include <basis/seadRawPrint.h>
 #include <math/seadMathCalcCommon.h>
@@ -396,15 +395,8 @@ public:
         T& operator*() const { return mBuffer[mIndex]; }
         T* operator->() const { return &(mBuffer[mIndex]); }
 
-        friend bool operator==(const iterator& lhs, const iterator& rhs)
-        {
-            return lhs.mIndex == rhs.mIndex;
-        }
-
-        friend bool operator!=(const iterator& lhs, const iterator& rhs)
-        {
-            return lhs.mIndex != rhs.mIndex;
-        }
+        friend bool operator==(const iterator& lhs, const iterator& rhs) { return lhs.mIndex == rhs.mIndex; }
+        friend bool operator!=(const iterator& lhs, const iterator& rhs) { return lhs.mIndex != rhs.mIndex; }
 
         s32 getIndex() const { return mIndex; }
 
@@ -436,7 +428,7 @@ public:
         {
         }
 
-        explicit constIterator(iterator it)
+        constIterator(iterator it)
             : mIndex(it.mIndex)
             , mBuffer(it.mBuffer)
         {
@@ -451,15 +443,8 @@ public:
         const T& operator*() const { return mBuffer[mIndex]; }
         const T* operator->() const { return &(mBuffer[mIndex]); }
 
-        friend bool operator==(const constIterator& lhs, const constIterator& rhs)
-        {
-            return lhs.mIndex == rhs.mIndex;
-        }
-
-        friend bool operator!=(const constIterator& lhs, const constIterator& rhs)
-        {
-            return lhs.mIndex != rhs.mIndex;
-        }
+        friend bool operator==(const constIterator& lhs, const constIterator& rhs) { return lhs.mIndex == rhs.mIndex; }
+        friend bool operator!=(const constIterator& lhs, const constIterator& rhs) { return lhs.mIndex != rhs.mIndex; }
 
         s32 getIndex() const { return mIndex; }
 
@@ -498,15 +483,8 @@ public:
         T& operator*() const { return mBuffer[mIndex]; }
         T* operator->() const { return &(mBuffer[mIndex]); }
 
-        friend bool operator==(const reverseIterator& lhs, const reverseIterator& rhs)
-        {
-            return lhs.mIndex == rhs.mIndex;
-        }
-
-        friend bool operator!=(const reverseIterator& lhs, const reverseIterator& rhs)
-        {
-            return lhs.mIndex != rhs.mIndex;
-        }
+        friend bool operator==(const reverseIterator& lhs, const reverseIterator& rhs) { return lhs.mIndex == rhs.mIndex; }
+        friend bool operator!=(const reverseIterator& lhs, const reverseIterator& rhs) { return lhs.mIndex != rhs.mIndex; }
 
         s32 getIndex() const { return mIndex; }
 
@@ -538,7 +516,7 @@ public:
         {
         }
 
-        explicit reverseConstIterator(reverseIterator it)
+        reverseConstIterator(reverseIterator it)
             : mIndex(it.mIndex)
             , mBuffer(it.mBuffer)
         {
@@ -553,15 +531,8 @@ public:
         const T& operator*() const { return mBuffer[mIndex]; }
         const T* operator->() const { return &(mBuffer[mIndex]); }
 
-        friend bool operator==(const reverseConstIterator& lhs, const reverseConstIterator& rhs)
-        {
-            return lhs.mIndex == rhs.mIndex;
-        }
-
-        friend bool operator!=(const reverseConstIterator& lhs, const reverseConstIterator& rhs)
-        {
-            return lhs.mIndex != rhs.mIndex;
-        }
+        friend bool operator==(const reverseConstIterator& lhs, const reverseConstIterator& rhs) { return lhs.mIndex == rhs.mIndex; }
+        friend bool operator!=(const reverseConstIterator& lhs, const reverseConstIterator& rhs) { return lhs.mIndex != rhs.mIndex; }
 
         s32 getIndex() const { return mIndex; }
 
@@ -661,7 +632,7 @@ protected:
             return -1;
         }
 
-        if (*a > *b)
+        if (*b < *a)
         {
             return 1;
         }
@@ -676,7 +647,7 @@ protected:
             return -1;
         }
 
-        if (a > b)
+        if (b < a)
         {
             return 1;
         }
