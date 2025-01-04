@@ -395,8 +395,8 @@ public:
         T& operator*() const { return mBuffer[mIndex]; }
         T* operator->() const { return &mBuffer[mIndex]; }
 
-        friend bool operator==(const iterator& lhs, const iterator& rhs) { return lhs.mIndex == rhs.mIndex; }
-        friend bool operator!=(const iterator& lhs, const iterator& rhs) { return lhs.mIndex != rhs.mIndex; }
+        friend bool operator==(const iterator& lhs, const iterator& rhs) { return lhs.mIndex == rhs.mIndex && lhs.mBuffer == rhs.mBuffer; }
+        friend bool operator!=(const iterator& lhs, const iterator& rhs) { return lhs.mIndex != rhs.mIndex || lhs.mBuffer != rhs.mBuffer; }
 
         s32 getIndex() const { return mIndex; }
 
@@ -443,8 +443,8 @@ public:
         const T& operator*() const { return mBuffer[mIndex]; }
         const T* operator->() const { return &mBuffer[mIndex]; }
 
-        friend bool operator==(const constIterator& lhs, const constIterator& rhs) { return lhs.mIndex == rhs.mIndex; }
-        friend bool operator!=(const constIterator& lhs, const constIterator& rhs) { return lhs.mIndex != rhs.mIndex; }
+        friend bool operator==(const constIterator& lhs, const constIterator& rhs) { return lhs.mIndex == rhs.mIndex && lhs.mBuffer == rhs.mBuffer; }
+        friend bool operator!=(const constIterator& lhs, const constIterator& rhs) { return lhs.mIndex != rhs.mIndex || lhs.mBuffer != rhs.mBuffer; }
 
         s32 getIndex() const { return mIndex; }
 
@@ -483,8 +483,8 @@ public:
         T& operator*() const { return mBuffer[mIndex]; }
         T* operator->() const { return &mBuffer[mIndex]; }
 
-        friend bool operator==(const reverseIterator& lhs, const reverseIterator& rhs) { return lhs.mIndex == rhs.mIndex; }
-        friend bool operator!=(const reverseIterator& lhs, const reverseIterator& rhs) { return lhs.mIndex != rhs.mIndex; }
+        friend bool operator==(const reverseIterator& lhs, const reverseIterator& rhs) { return lhs.mIndex == rhs.mIndex && lhs.mBuffer == rhs.mBuffer; }
+        friend bool operator!=(const reverseIterator& lhs, const reverseIterator& rhs) { return lhs.mIndex != rhs.mIndex || lhs.mBuffer != rhs.mBuffer; }
 
         s32 getIndex() const { return mIndex; }
 
@@ -531,8 +531,8 @@ public:
         const T& operator*() const { return mBuffer[mIndex]; }
         const T* operator->() const { return &mBuffer[mIndex]; }
 
-        friend bool operator==(const reverseConstIterator& lhs, const reverseConstIterator& rhs) { return lhs.mIndex == rhs.mIndex; }
-        friend bool operator!=(const reverseConstIterator& lhs, const reverseConstIterator& rhs) { return lhs.mIndex != rhs.mIndex; }
+        friend bool operator==(const reverseConstIterator& lhs, const reverseConstIterator& rhs) { return lhs.mIndex == rhs.mIndex && lhs.mBuffer == rhs.mBuffer; }
+        friend bool operator!=(const reverseConstIterator& lhs, const reverseConstIterator& rhs) { return lhs.mIndex != rhs.mIndex || lhs.mBuffer != rhs.mBuffer; }
 
         s32 getIndex() const { return mIndex; }
 
