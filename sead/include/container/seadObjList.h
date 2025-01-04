@@ -75,7 +75,6 @@ public:
         }
 
         setBuffer(limitNum, buf);
-
         return true;
     }
 
@@ -96,7 +95,6 @@ public:
         }
 
         setBuffer(limitNum, buf);
-
         return true;
     }
 
@@ -170,11 +168,37 @@ public:
         return &node->item;
     }
 
+    T* tryBirthBack()
+    {
+        if (isFull())
+        {
+            return nullptr;
+        }
+
+        Node* node = new(mFreeList.get()) Node();
+        ListImpl::pushBack(objToListNode(&node->item));
+
+        return &node->item;
+    }
+
     T* birthFront()
     {
         if (isFull())
         {
             SEAD_ASSERT_MSG(false, "buffer full.");
+            return nullptr;
+        }
+
+        Node* node = new(mFreeList.get()) Node();
+        ListImpl::pushFront(objToListNode(&node->item));
+
+        return &node->item;
+    }
+
+    T* tryBirthFront()
+    {
+        if (isFull())
+        {
             return nullptr;
         }
 
@@ -198,11 +222,37 @@ public:
         return &node->item;
     }
 
+    T* tryBirthBefore(const T* basis)
+    {
+        if (isFull())
+        {
+            return nullptr;
+        }
+
+        Node* node = new(mFreeList.get()) Node();
+        ListImpl::insertBefore(objToListNode(basis), objToListNode(&node->item));
+
+        return &node->item;
+    }
+
     T* birthAfter(const T* basis)
     {
         if (isFull())
         {
             SEAD_ASSERT_MSG(false, "buffer full.");
+            return nullptr;
+        }
+
+        Node* node = new(mFreeList.get()) Node();
+        ListImpl::insertAfter(objToListNode(basis), objToListNode(&node->item));
+
+        return &node->item;
+    }
+
+    T* tryBirthAfter(const T* basis)
+    {
+        if (isFull())
+        {
             return nullptr;
         }
 
