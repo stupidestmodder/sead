@@ -179,14 +179,13 @@ void ListImpl::sort(s32 offset, CompareCallbackImpl cmp)
 
         if (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) > 0)
         {
-            do
+            while ((prev = prev->mPrev) != &mStartEnd)
             {
-                prev = prev->mPrev;
-                if (prev == &mStartEnd)
+                if (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) <= 0)
                 {
                     break;
                 }
-            } while (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) > 0);
+            }
 
             node->erase_();
             prev->insertBack_(node);
@@ -372,7 +371,7 @@ void ListImpl::clear()
 
 void ListImpl::mergeSortImpl(ListNode* front, ListNode* back, s32 num, s32 offset, CompareCallbackImpl cmp)
 {
-    if (num >= 9)
+    if (num > 8)
     {
         s32 frontCount;
         ListNode* middle;
@@ -381,7 +380,8 @@ void ListImpl::mergeSortImpl(ListNode* front, ListNode* back, s32 num, s32 offse
         ListNode* backTop;
         bool takeFromFront;
 
-        frontCount = num / 2;
+        frontCount = num >> 1;
+
         middle = front;
         for (s32 i = 1; i < frontCount; i++)
         {
@@ -390,22 +390,13 @@ void ListImpl::mergeSortImpl(ListNode* front, ListNode* back, s32 num, s32 offse
 
         backCount = num - frontCount;
 
-        {
-            ListNode* temp = front->prev();
-
-            backTop = middle->next();
-
-            mergeSortImpl(front, middle, frontCount, offset, cmp);
-
-            middle = temp;
-            mergeTop = temp->next();
-
-            temp = backTop->prev();
-
-            mergeSortImpl(backTop, back, backCount, offset, cmp);
-
-            backTop = temp->next();
-        }
+        mergeTop = front->prev();
+        backTop = middle->next();
+        mergeSortImpl(front, middle, frontCount, offset, cmp);
+        front = mergeTop->next();
+        middle = backTop->prev();
+        mergeSortImpl(backTop, back, backCount, offset, cmp);
+        backTop = middle->next();
 
         while (frontCount > 0 || backCount > 0)
         {
@@ -417,33 +408,36 @@ void ListImpl::mergeSortImpl(ListNode* front, ListNode* back, s32 num, s32 offse
             {
                 takeFromFront = true;
             }
+            else if (cmp(PtrUtil::addOffset(front, -offset), PtrUtil::addOffset(backTop, -offset)) > 0)
+            {
+                takeFromFront = false;
+            }
             else
             {
-                takeFromFront = cmp(PtrUtil::addOffset(mergeTop, -offset), PtrUtil::addOffset(backTop, -offset)) < 1;
+                takeFromFront = true;
             }
 
-            ListNode* temp;
             if (takeFromFront)
             {
-                temp = mergeTop->next();
-                mergeTop->erase_();
-                middle->insertBack_(mergeTop);
-                middle = mergeTop;
+                ListNode* temp = front->next();
+                front->erase_();
+                mergeTop->insertBack_(front);
+                mergeTop = front;
+                front = temp;
                 frontCount--;
-                mergeTop = temp;
             }
             else
             {
-                temp = backTop->next();
+                ListNode* temp = backTop->next();
                 backTop->erase_();
-                middle->insertBack_(backTop);
-                middle = backTop;
-                backCount--;
+                mergeTop->insertBack_(backTop);
+                mergeTop = backTop;
                 backTop = temp;
+                backCount--;
             }
         }
     }
-    else if (num > 1)
+    else if (num >= 2)
     {
         ListNode* start = front->prev();
         ListNode* node = front->next();
@@ -456,14 +450,13 @@ void ListImpl::mergeSortImpl(ListNode* front, ListNode* back, s32 num, s32 offse
 
             if (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) > 0)
             {
-                do
+                while ((prev = prev->mPrev) != start)
                 {
-                    prev = prev->mPrev;
-                    if (prev == start)
+                    if (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) <= 0)
                     {
                         break;
                     }
-                } while (cmp(PtrUtil::addOffset(prev, -offset), PtrUtil::addOffset(node, -offset)) > 0);
+                }
 
                 node->erase_();
                 prev->insertBack_(node);
