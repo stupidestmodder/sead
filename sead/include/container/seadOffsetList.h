@@ -102,7 +102,7 @@ public:
     T* find(const T* obj) const { return find(obj, &compareT); }
     T* find(const T* obj, CompareCallback cmp) const
     {
-        return listNodeToObj(ListImpl::find(obj, mOffset, reinterpret_cast<CompareCallbackImpl>(cmp)));
+        return listNodeToObjWithNullCheck(ListImpl::find(obj, mOffset, reinterpret_cast<CompareCallbackImpl>(cmp)));
     }
 
     void uniq() { uniq(&compareT); }
