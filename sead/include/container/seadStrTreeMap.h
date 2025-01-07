@@ -62,7 +62,6 @@ public:
     template <typename T>
     struct ForEachConstContext
     {
-    public:
         ForEachConstContext(const T& afun)
             : fun(afun)
         {

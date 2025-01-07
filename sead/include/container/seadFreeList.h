@@ -7,6 +7,8 @@ namespace sead {
 
 class FreeList
 {
+    SEAD_NO_COPY(FreeList);
+
 public:
     FreeList()
         : mFree(nullptr)

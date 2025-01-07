@@ -10,6 +10,8 @@ namespace sead {
 template <typename T>
 class Buffer
 {
+    SEAD_NO_COPY(Buffer);
+
 protected:
     using CompareCallback = s32 (*)(const T* a, const T* b);
 

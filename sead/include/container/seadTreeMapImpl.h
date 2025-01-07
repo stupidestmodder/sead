@@ -10,6 +10,8 @@ class TreeMapImpl;
 template <typename Key>
 class TreeMapNode
 {
+    SEAD_NO_COPY(TreeMapNode);
+
 protected:
     static const bool cRed_ = true;
     static const bool cBlack_ = false;
@@ -42,6 +44,8 @@ protected:
 template <typename Key>
 class TreeMapImpl
 {
+    SEAD_NO_COPY(TreeMapImpl);
+
 public:
     using Node = TreeMapNode<Key>;
 
