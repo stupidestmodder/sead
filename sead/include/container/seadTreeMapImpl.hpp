@@ -110,12 +110,12 @@ TreeMapNode<Key>* TreeMapImpl<Key>::erase(Node* h, const Key& key)
 
         if (key.compare(h->mKey_) == 0)
         {
-            Node* node = find(h->mRight_, min(h->mRight_)->mKey_);
-            node->mRight_ = eraseMin(h->mRight_);
-            node->mLeft_ = h->mLeft_;
-            node->mColor_ = h->mColor_;
+            Node* newh = find(h->mRight_, getMin(h->mRight_)->mKey_);
+            newh->mRight_ = eraseMin(h->mRight_);
+            newh->mLeft_ = h->mLeft_;
+            newh->mColor_ = h->mColor_;
             h->erase_();
-            h = node;
+            h = newh;
         }
         else
         {
@@ -124,85 +124,6 @@ TreeMapNode<Key>* TreeMapImpl<Key>::erase(Node* h, const Key& key)
     }
 
     return fixUp(h);
-}
-
-template <typename Key>
-inline TreeMapNode<Key>* TreeMapImpl<Key>::min(Node* h)
-{
-    while (h->mLeft_)
-    {
-        h = h->mLeft_;
-    }
-
-    return h;
-}
-
-template <typename Key>
-inline TreeMapNode<Key>* TreeMapImpl<Key>::eraseMin(Node* h)
-{
-    if (!h->mLeft_)
-    {
-        return nullptr;
-    }
-
-    if (!isRed(h->mLeft_) && !isRed(h->mLeft_->mLeft_))
-    {
-        h = moveRedLeft(h);
-    }
-
-    h->mLeft_ = eraseMin(h->mLeft_);
-
-    return fixUp(h);
-}
-
-template <typename Key>
-inline TreeMapNode<Key>* TreeMapImpl<Key>::moveRedLeft(Node* h)
-{
-    flipColors(h);
-
-    if (isRed(h->mRight_->mLeft_))
-    {
-        h->mRight_ = rotateRight(h->mRight_);
-        h = rotateLeft(h);
-        flipColors(h);
-    }
-
-    return h;
-}
-
-template <typename Key>
-inline TreeMapNode<Key>* TreeMapImpl<Key>::moveRedRight(Node* h)
-{
-    flipColors(h);
-
-    if (isRed(h->mLeft_->mLeft_))
-    {
-        h = rotateRight(h);
-        flipColors(h);
-    }
-
-    return h;
-}
-
-template <typename Key>
-inline TreeMapNode<Key>* TreeMapImpl<Key>::fixUp(Node* h)
-{
-    if (isRed(h->mRight_))
-    {
-        h = rotateLeft(h);
-    }
-
-    if (isRed(h->mLeft_) && isRed(h->mLeft_->mLeft_))
-    {
-        h = rotateRight(h);
-    }
-
-    if (isRed(h->mLeft_) && isRed(h->mRight_))
-    {
-        flipColors(h);
-    }
-
-    return h;
 }
 
 template <typename Key>
@@ -244,6 +165,85 @@ inline bool TreeMapImpl<Key>::isRed(Node* h)
     }
 
     return h->mColor_ == Node::cRed_;
+}
+
+template <typename Key>
+inline TreeMapNode<Key>* TreeMapImpl<Key>::fixUp(Node* h)
+{
+    if (isRed(h->mRight_))
+    {
+        h = rotateLeft(h);
+    }
+
+    if (isRed(h->mLeft_) && isRed(h->mLeft_->mLeft_))
+    {
+        h = rotateRight(h);
+    }
+
+    if (isRed(h->mLeft_) && isRed(h->mRight_))
+    {
+        flipColors(h);
+    }
+
+    return h;
+}
+
+template <typename Key>
+inline TreeMapNode<Key>* TreeMapImpl<Key>::moveRedLeft(Node* h)
+{
+    flipColors(h);
+
+    if (isRed(h->mRight_->mLeft_))
+    {
+        h->mRight_ = rotateRight(h->mRight_);
+        h = rotateLeft(h);
+        flipColors(h);
+    }
+
+    return h;
+}
+
+template <typename Key>
+inline TreeMapNode<Key>* TreeMapImpl<Key>::moveRedRight(Node* h)
+{
+    flipColors(h);
+
+    if (isRed(h->mLeft_->mLeft_))
+    {
+        h = rotateRight(h);
+        flipColors(h);
+    }
+
+    return h;
+}
+
+template <typename Key>
+inline TreeMapNode<Key>* TreeMapImpl<Key>::eraseMin(Node* h)
+{
+    if (!h->mLeft_)
+    {
+        return nullptr;
+    }
+
+    if (!isRed(h->mLeft_) && !isRed(h->mLeft_->mLeft_))
+    {
+        h = moveRedLeft(h);
+    }
+
+    h->mLeft_ = eraseMin(h->mLeft_);
+
+    return fixUp(h);
+}
+
+template <typename Key>
+inline TreeMapNode<Key>* TreeMapImpl<Key>::getMin(Node* h)
+{
+    while (h->mLeft_)
+    {
+        h = h->mLeft_;
+    }
+
+    return h;
 }
 
 template <typename Key>

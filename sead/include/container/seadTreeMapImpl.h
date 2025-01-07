@@ -94,15 +94,15 @@ protected:
     Node* insert(Node* h, Node* node);
     Node* erase(Node* h, const Key& key);
 
-    static Node* min(Node* h);
-    static Node* eraseMin(Node* h);
-    static Node* moveRedLeft(Node* h);
-    static Node* moveRedRight(Node* h);
-    static Node* fixUp(Node* h);
     static Node* rotateLeft(Node* h);
     static Node* rotateRight(Node* h);
     static void flipColors(Node* h);
     static bool isRed(Node* h);
+    static Node* fixUp(Node* h);
+    static Node* moveRedLeft(Node* h);
+    static Node* moveRedRight(Node* h);
+    static Node* eraseMin(Node* h);
+    static Node* getMin(Node* h);
 
     template <typename T>
     static void forEach(Node* node, const T& fun);
