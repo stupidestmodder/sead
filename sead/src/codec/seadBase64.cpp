@@ -109,10 +109,10 @@ bool Base64::decode(void* dst, size_t dstSize, const char* src, size_t srcSize, 
             return false;
         }
 
-        u32 a = decodeChar_(*(src++)) & 0x3F;
-        u32 b = decodeChar_(*(src++)) & 0x3F;
-        u32 c = decodeChar_(*(src++)) & 0x7F;
-        u32 d = decodeChar_(*(src++)) & 0x7F;
+        u32 a = decodeChar_(*src++) & 0x3F;
+        u32 b = decodeChar_(*src++) & 0x3F;
+        u32 c = decodeChar_(*src++) & 0x7F;
+        u32 d = decodeChar_(*src++) & 0x7F;
 
         if (size >= dstSize)
         {
