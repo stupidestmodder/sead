@@ -5,6 +5,7 @@
 
 namespace sead {
 
+//? CRC-32/ISO-HDLC
 class HashCRC32
 {
 public:
