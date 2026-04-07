@@ -2,18 +2,23 @@
 
 #include <math/seadMathCalcCommon.h>
 
-static s32 rfindCharIndex(const sead::SafeString& src, char c)
+static s32 rfindCharIndex(const sead::SafeString& src, char token)
 {
     s32 length = src.calcLength();
     const char* cstr = src.cstr();
 
     for (s32 i = length; i >= 0; i--)
     {
-        if (cstr[i] == c)
+        if (cstr[i] == token)
             return i;
     }
 
     return -1;
+}
+
+static bool isIncludeChar(const sead::SafeString& str, char token)
+{
+    return str.include(token);
 }
 
 namespace sead {
@@ -29,6 +34,27 @@ bool Path::getDriveName(BufferedSafeString* dst, const SafeString& src)
         dst->copy(src, idx);
 
     return idx != -1;
+}
+
+bool Path::getExt(BufferedSafeString* dst, const SafeString& src)
+{
+    SEAD_ASSERT_MSG(dst, "destination buffer is null");
+
+    dst->trim(0);
+
+    s32 idx = rfindCharIndex(src, '.');
+    if (idx < 0)
+    {
+        return false;
+    }
+
+    if (isIncludeChar(src.getPart(idx), '/') || isIncludeChar(src.getPart(idx), '\\'))
+    {
+        return false;
+    }
+
+    dst->copy(src.getPart(idx + 1));
+    return true;
 }
 
 void Path::getPathExceptDrive(BufferedSafeString* dst, const SafeString& src)
