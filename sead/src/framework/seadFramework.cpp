@@ -18,7 +18,7 @@ Framework::CreateSystemTaskArg::CreateSystemTaskArg()
 }
 
 Framework::InitializeArg::InitializeArg()
-    : heap_size(0x3000000)
+    : heap_size(48 * 1024 * 1024) // 48 MB
     , arena(nullptr)
 {
 }
