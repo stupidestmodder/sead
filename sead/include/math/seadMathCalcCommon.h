@@ -52,7 +52,10 @@ public:
     static T ln2()    { return static_cast<T>(0.69314718055994530942); }
     static T ln2Inv() { return static_cast<T>(1.442695040888963407); }
 
-    static T neg(T);
+    static T neg(T t)
+    {
+        return -t;
+    }
 
     static T inv(T t)
     {
