@@ -169,7 +169,7 @@ void WinController::calcImpl_()
     {
         for (s32 i = 0; i <= PadIdx::eRight; i++)
         {
-            if (kbDevice->isVKeyHold(mVKeyConfig[i]))
+            if (kbDevice->isVkeyHold(mVKeyConfig[i]))
                 mPadHold.setBit(i);
         }
     }

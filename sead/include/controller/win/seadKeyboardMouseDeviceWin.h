@@ -3,6 +3,7 @@
 #include <controller/seadControlDevice.h>
 #include <math/seadVector.h>
 #include <prim/seadBitFlag.h>
+#include <prim/seadLongBitFlag.h>
 
 namespace sead {
 
@@ -18,17 +19,18 @@ public:
         eSub
     };
 
-    static const u32 cVKeyMax = 256;
+    static const s32 cVKeyMax = 256;
 
 public:
     explicit KeyboardMouseDevice(ControllerMgr* mgr);
 
     void calc() override;
 
-    bool isVKeyHold(s32 vkey) const { return mVKeyHold[vkey] == VKeyFlag::eOn; }
-    bool isVKeyTrig(s32 vkey) const { return mVKeyTrig[vkey] == VKeyFlag::eOn; }
-    bool isVKeyRepeat(s32 vkey) const { return mVKeyRepeat[vkey] == VKeyFlag::eOn; }
-    bool isVKeyTrigWithRepeat(s32 vkey) const { return isVKeyTrig(vkey) || isVKeyRepeat(vkey); }
+    bool isVkeyHold(s32 vkey) const { return mVkeyHold.isOnBit(vkey); }
+    bool isVkeyTrig(s32 vkey) const { return mVkeyTrig.isOnBit(vkey); }
+    bool isVkeyRelease(s32 vkey) const { return mVkeyRelease.isOnBit(vkey); }
+    bool isVkeyRepeat(s32 vkey) const { return mVkeyRepeat.isOnBit(vkey); }
+    bool isVkeyTrigWithRepeat(s32 vkey) const { return isVkeyTrig(vkey) || isVkeyRepeat(vkey); }
 
     bool isKeyEnable() const { return mFlags.isOn(FlagMask::eKeyEnable); }
     bool isCursorEnable() const { return mFlags.isOn(FlagMask::eCursorEnable); }
@@ -51,12 +53,6 @@ public:
     void* getSubWindowHandle() const { return mSubWindowHandle; }
 
 protected:
-    enum VKeyFlag
-    {
-        eOff = 0,
-        eOn
-    };
-
     enum FlagMask
     {
         eKeyEnable          = 1 << 0,
@@ -66,9 +62,10 @@ protected:
     };
 
 protected:
-    u8 mVKeyHold[cVKeyMax];
-    u8 mVKeyTrig[cVKeyMax];
-    u8 mVKeyRepeat[cVKeyMax];
+    LongBitFlag<cVKeyMax> mVkeyHold;
+    LongBitFlag<cVKeyMax> mVkeyTrig;
+    LongBitFlag<cVKeyMax> mVkeyRelease;
+    LongBitFlag<cVKeyMax> mVkeyRepeat;
     Vector2f mCursorClientAreaPos;
     Vector2f mCursorClientAreaPosCenterOrigin;
     Vector2f mCursorScreenPos;

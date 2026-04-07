@@ -24,6 +24,10 @@ namespace sead {
 
 KeyboardMouseDevice::KeyboardMouseDevice(ControllerMgr* mgr)
     : ControlDevice(mgr)
+    , mVkeyHold()
+    , mVkeyTrig()
+    , mVkeyRelease()
+    , mVkeyRepeat()
     , mCursorClientAreaPos(ControllerBase::cInvalidPointer)
     , mCursorClientAreaPosCenterOrigin(ControllerBase::cInvalidPointer)
     , mCursorScreenPos(ControllerBase::cInvalidPointer)
@@ -35,37 +39,44 @@ KeyboardMouseDevice::KeyboardMouseDevice(ControllerMgr* mgr)
     , mMouseWheel(0)
 {
     mId = ControllerDefine::DeviceId::eKeyboardMouse;
-
-    for (u32 i = 0; i < cVKeyMax; i++)
-    {
-        mVKeyHold[i] = 0;
-        mVKeyTrig[i] = 0;
-        mVKeyRepeat[i] = 0;
-    }
 }
 
 void KeyboardMouseDevice::calc()
 {
     mFlags.set(FlagMask::eKeyEnable);
 
-    MemUtil::fillZero(mVKeyTrig, cVKeyMax);
-    MemUtil::fillZero(mVKeyRepeat, cVKeyMax);
+    mVkeyTrig.makeAllZero();
+    mVkeyRelease.makeAllZero();
+    mVkeyRepeat.makeAllZero();
 
     for (s32 i = 0; i < cVKeyMax; i++)
     {
-        SHORT ret = GetAsyncKeyState(i);
+        SHORT keyState = GetAsyncKeyState(i);
 
-        // TODO: Actualy do this.........
+        bool held = mVkeyHold.isOnBit(i);
+        bool hold = (keyState & 0x8000) != 0;
 
-        if (ret & 1)
+        mVkeyHold.changeBit(i, hold);
+
+        if (hold)
         {
-            if (mVKeyHold[i] == VKeyFlag::eOn)
-                mVKeyRepeat[i] = VKeyFlag::eOn;
-            else
-                mVKeyTrig[i] = VKeyFlag::eOn;
+            if (!held)
+            {
+                mVkeyTrig.setBit(i);
+            }
+        }
+        else
+        {
+            if (held)
+            {
+                mVkeyRelease.setBit(i);
+            }
         }
 
-        mVKeyHold[i] = (ret & 0x8000) != 0 ? static_cast<u8>(VKeyFlag::eOn) : static_cast<u8>(VKeyFlag::eOff);
+        if ((keyState & 1) != 0 && held)
+        {
+            mVkeyRepeat.setBit(i);
+        }
     }
 
     {
