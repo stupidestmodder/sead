@@ -1,7 +1,6 @@
 #pragma once
 
 #include <basis/seadAssert.h>
-#include <basis/seadTypes.h>
 
 namespace sead {
 
@@ -22,7 +21,10 @@ template <typename T>
 class BitFlag
 {
 public:
-    static const u32 cBitNum = sizeof(T) * 8;
+    enum
+    {
+        cBitNum = sizeof(T) * 8
+    };
 
 public:
     BitFlag()
@@ -104,7 +106,7 @@ public:
             return BitFlagUtil::findOnBitFromRight64(mBits, num);
     }
 
-private:
+protected:
     T mBits;
 };
 
