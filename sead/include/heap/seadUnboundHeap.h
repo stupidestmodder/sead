@@ -40,7 +40,7 @@ public:
     void dump() const override;
     void dumpYAML(WriteStream& stream, s32 indent) const override;
 
-    u32 getAllocedSize() const
+    size_t getAllocedSize() const
     {
         return mAllocedSize;
     }
@@ -52,7 +52,7 @@ public:
 
 protected:
     MemBlockList mMemBlockList;
-    u32 mAllocedSize;
+    size_t mAllocedSize;
 };
 
 } // namespace sead
