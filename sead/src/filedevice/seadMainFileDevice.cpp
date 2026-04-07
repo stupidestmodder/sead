@@ -2,7 +2,7 @@
 
 #include <basis/seadRawPrint.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <filedevice/win/seadWinContentFileDeviceWin.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -12,7 +12,7 @@ MainFileDevice::MainFileDevice(Heap* heap)
     : FileDevice("main")
     , mFileDevice(nullptr)
 {
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     mFileDevice = new(heap) WinContentFileDevice();
 #else
 #error "Unsupported platform"

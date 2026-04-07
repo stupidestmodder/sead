@@ -92,7 +92,7 @@ public:
 
     static const s32 cDriveNameBufferSize = 32;
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     static const s32 cBufferMinAlignment = 32;
 #else
 #error "Unsupported platform"
@@ -105,10 +105,10 @@ public:
         , mDriveName()
         , mPermission(true)
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         if (defaultDriveName.include(':'))
             SEAD_WARNING("drive name should not include ':'. (in %s)", defaultDriveName.cstr());
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
         mDriveName.copy(defaultDriveName);
     }
@@ -122,10 +122,10 @@ public:
 
     void setDriveName(const SafeString& name)
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         if (name.include(':'))
             SEAD_WARNING("drive name should not include ':'. (in %s)", name.cstr());
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
         mDriveName.copy(name);
     }
