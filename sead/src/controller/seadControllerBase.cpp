@@ -94,7 +94,7 @@ void ControllerBase::setRightStickCrossThreshold(f32 hold, f32 release)
 void ControllerBase::setPointerBound(const BoundBox2f& bound)
 {
     mPointerBound = bound;
-    mPointerFlag.set(PointerFlagMask::eUnkFlag3);
+    mPointerFlag.set(PointerFlagMask::eBoundDirty);
 }
 
 void ControllerBase::setPointerWithBound_(bool isOn, bool touchkeyHold, const Vector2f& pos)
@@ -119,12 +119,12 @@ void ControllerBase::setPointerWithBound_(bool isOn, bool touchkeyHold, const Ve
     if (mTouchKeyBit >= 0)
         mPadHold.changeBit(mTouchKeyBit, isOn && touchkeyHold);
 
-    if (mPointerFlag.isOn(PointerFlagMask::eUnkFlag3))
+    if (mPointerFlag.isOn(PointerFlagMask::eBoundDirty))
     {
         if (mPointerFlag.isOff(PointerFlagMask::eOn))
             mPointer = cInvalidPointer;
 
-        mPointerFlag.reset(PointerFlagMask::eUnkFlag3);
+        mPointerFlag.reset(PointerFlagMask::eBoundDirty);
     }
 }
 

@@ -22,7 +22,7 @@ public:
 
     u32 getHoldMask() const { return mPadHold.getDirect(); }
     u32 getTrigMask() const { return mPadTrig.getDirect(); }
-    u32 getTrigMaskWithRepeat() const { return mPadRepeat.getDirect() | mPadTrig.getDirect(); }
+    u32 getTrigMaskWithRepeat() const { return mPadTrig.getDirect() | mPadRepeat.getDirect(); }
     u32 getReleaseMask() const { return mPadRelease.getDirect(); }
     u32 getRepeatMask() const { return mPadRepeat.getDirect(); }
 
@@ -36,18 +36,32 @@ public:
     const Vector2f& getPointer() const
     {
         if (isPointerOn())
+        {
             return mPointer;
+        }
         else
+        {
             return cInvalidPointer;
+        }
     }
 
-    // TODO: Does this also check isPointerOn() ?
-    const Vector2i& getPointerPrev() const { return mPointerS32; }
+    //? Uncertain if original implementation does this check, but matches getPointer()
+    const Vector2i& getPointerPrev() const
+    {
+        if ((isPointerOn() && !isPointerOnNow()) || isPointerOffNow())
+        {
+            return mPointerS32;
+        }
+        else
+        {
+            return cInvalidPointerS32;
+        }
+    }
 
     bool isPointerOn() const { return mPointerFlag.isOn(PointerFlagMask::eOn); }
     bool isPointerOnNow() const { return mPointerFlag.isOn(PointerFlagMask::eOnNow); }
     bool isPointerOffNow() const { return mPointerFlag.isOn(PointerFlagMask::eOffNow); }
-    bool isPointerUnkFlag3() const { return mPointerFlag.isOn(PointerFlagMask::eUnkFlag3); } // TODO: Proper enum name
+    bool isPointerBoundDirty() const { return mPointerFlag.isOn(PointerFlagMask::eBoundDirty); }
 
     bool isHold(u32 mask) const { return mask & getHoldMask(); }
     bool isTrig(u32 mask) const { return mask & getTrigMask(); }
@@ -80,10 +94,10 @@ protected:
 
     enum PointerFlagMask
     {
-        eOn       = 1 << 0,
-        eOnNow    = 1 << 1,
-        eOffNow   = 1 << 2,
-        eUnkFlag3 = 1 << 3 // TODO: Figure proper name
+        eOn         = 1 << 0,
+        eOnNow      = 1 << 1,
+        eOffNow     = 1 << 2,
+        eBoundDirty = 1 << 3  //? Name not official
     };
 
     enum
@@ -95,6 +109,8 @@ protected:
     };
 
 protected:
+    //? These are updated in updateDerivativeParams_() and setPointerWithBound_()
+
     BitFlag32 mPadTrig;
     BitFlag32 mPadRelease;
     BitFlag32 mPadRepeat;
@@ -112,6 +128,9 @@ protected:
     s32 mLeftStickCrossStartBit;
     s32 mRightStickCrossStartBit;
     s32 mTouchKeyBit;
+
+    //? These are updated in derived classes and used in updateDerivativeParams_() and setPointerWithBound_()
+
     s32 mIdleFrame;
     BitFlag32 mPadHold;
     Vector2f mPointer;
