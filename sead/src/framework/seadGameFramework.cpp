@@ -50,8 +50,6 @@ void GameFramework::initialize(const InitializeArg& arg)
 {
     Framework::initialize(arg);
 
-    SEAD_WARNING("GameFramework::initialize() is TODO");
-
     Heap* root = HeapMgr::instance()->getRootHeap(0);
 
     ExpHeap* heap = ExpHeap::create(root->getMaxAllocatableSize(), "sead::SystemManagers", root);
@@ -60,7 +58,7 @@ void GameFramework::initialize(const InitializeArg& arg)
         ExpHeap* mgrHeap = ExpHeap::create(heap->getMaxAllocatableSize(), "sead::ResourceMgr", heap);
 
         CurrentHeapSetter chs(mgrHeap);
-        //ResourceMgr::createInstance(mgrHeap); // TODO
+        ResourceMgr::createInstance(mgrHeap);
 
         mgrHeap->adjust();
     }
