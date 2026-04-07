@@ -70,17 +70,18 @@ void GameFrameworkWinGL::initializeGraphicsSystem(Heap* heap, const Vector2f& vi
 
     wglMakeCurrent(hdc, hglrc);
 
-    //gladLoadWGL(hdc);
-    wglewInit();
+    s32 ret = gladLoaderLoadWGL(hdc);
+    SEAD_ASSERT(ret != 0);
+    //wglewInit();
 
     {
         s32 attribs[] = {
             WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
             WGL_CONTEXT_MINOR_VERSION_ARB, 6,
             WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
             WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
             0
         };
 
@@ -101,10 +102,10 @@ void GameFrameworkWinGL::initializeGraphicsSystem(Heap* heap, const Vector2f& vi
 
     wglMakeCurrent(hdc, hglrc);
     {
-        //s32 result = gladLoadGL();
-        //SEAD_ASSERT(result != 0);
-        GLenum result = glewInit();
-        SEAD_ASSERT(result == GLEW_OK);
+        s32 result = gladLoaderLoadGL();
+        SEAD_ASSERT(result != 0);
+        //GLenum result = glewInit();
+        //SEAD_ASSERT(result == GLEW_OK);
     }
     wglMakeCurrent(nullptr, nullptr);
 
