@@ -32,6 +32,8 @@ enum class Command
     eForceSetFolderCache,
     eInputBox,
     eTextResut,
+    eSetLiteralEncoding,
+    eUnk, // TODO
     eNumCommand
 };
 
@@ -58,6 +60,12 @@ enum class PaletteEventType
 struct FileInfo
 {
     SafeString path;
+    u64 size;
+};
+
+struct TextResult
+{
+    SafeString text;
     u64 size;
 };
 

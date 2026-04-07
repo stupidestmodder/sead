@@ -17,7 +17,7 @@ public:
     {
     }
 
-    //void listenPropertyEvent(const hostio::PropertyEvent*) override; // TODO
+    void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
     void genMessage(hostio::Context* ctx) override;
 };
 

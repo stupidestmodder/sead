@@ -20,9 +20,9 @@ struct GenEvent
 struct PropertyEvent
 {
     u32 flag;
-    u32 id;
+    uintptr_t id;
     u32 eventListenerID;
-    u32 localNodeID;
+    uintptr_t localNodeID;
     u32 extFlg;
     s32 dataSize;
     const u8* data;

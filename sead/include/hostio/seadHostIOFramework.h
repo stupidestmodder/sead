@@ -11,6 +11,7 @@ namespace hostio {
 enum class Command;
 class Context;
 class Config;
+class Node;
 class Reflexible;
 
 class TmpContext
@@ -35,8 +36,11 @@ private:
 
 void Init(Heap* heap, const Config* argConfig);
 void Finalize();
+bool IsInitialized();
+
 void MessageLoop();
 
-void SetRootNode(const SafeString&, Reflexible*, const SafeString&);
+void AddNode(Node* parent, const SafeString& name, Node* node, const SafeString& meta);
+void SetRootNode(const SafeString& name, Reflexible* node, const SafeString& meta);
 
 } } // namespace sead::hostio

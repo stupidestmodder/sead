@@ -94,9 +94,19 @@ public:
         return false;
     }
 
+    void resetGenerated()
+    {
+        mIsGenerated = false;
+    }
+
     void callGenMessage(Context* mc, u32 createIdOR);
     void correctChildNodeInfo(Context* mc);
     void baseListen(const PropertyEvent* ev);
+
+    bool isGenerated() const
+    {
+        return mIsGenerated;
+    }
 
     const SafeString getNodeName() const
     {
