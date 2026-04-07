@@ -41,9 +41,9 @@ FrameHeap* FrameHeap::tryCreate(size_t size_, const SafeString& name, Heap* pare
     void* heapStart;
 
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         ScopedDebugFillSystemDisabler disabler(parent);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
         heapStart = parent->tryAlloc(size, static_cast<s32>(direction) * cMinAlignment);
     }
 
@@ -68,13 +68,13 @@ FrameHeap* FrameHeap::tryCreate(size_t size_, const SafeString& name, Heap* pare
 
     parent->pushBackChild_(result);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     {
         HeapMgr* mgr = HeapMgr::instance();
         if (mgr)
             mgr->callCreateCallback_(result);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     return result;
 }
@@ -97,30 +97,30 @@ FrameHeap::~FrameHeap()
 
 void FrameHeap::destroy()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
 
     HeapMgr* mgr = HeapMgr::instance();
     if (mgr)
         mgr->callDestroyCallback_(this);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     Heap* parent = mParent;
     void* start = mStart;
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     size_t size = mSize;
 
     void* headPtr = mState.mHeadPtr;
     void* tailPtr = mState.mTailPtr;
 
     bool isEnableFill = isEnableDebugFillHeapDestroy_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     this->~FrameHeap();
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (isEnableFill)
     {
         u8 fillValue = HeapMgr::cDefaultDebugFillHeapDestroy;
@@ -133,23 +133,23 @@ void FrameHeap::destroy()
         if (tailAreaSize != 0)
             MemUtil::fill(tailPtr, fillValue, tailAreaSize);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (parent && parent->isFreeable())
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         ScopedDebugFillSystemDisabler disabler(parent);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
         parent->free(start);
     }
 }
 
 size_t FrameHeap::adjust()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!mParent)
         return mSize;
@@ -180,16 +180,16 @@ void* FrameHeap::tryAlloc(size_t size, s32 alignment)
 {
     // TODO: Update this func
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     HeapMgr* mgr = HeapMgr::instance();
 
     SEAD_ASSERT_MSG(alignment != 0, "alignment must not be zero");
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     HeapMgr::AllocCallbackArg allocCallbackArg;
 
     HeapMgr::IAllocCallback* allocCallback = nullptr;
@@ -202,7 +202,7 @@ void* FrameHeap::tryAlloc(size_t size, s32 alignment)
         allocCallbackArg.request_size = size;
         allocCallbackArg.request_alignment = alignment;
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     HeapMgr::AllocFailedCallbackArg allocFailedCallbackArg;
 
@@ -241,13 +241,13 @@ void* FrameHeap::tryAlloc(size_t size, s32 alignment)
 
     alignment *= static_cast<s32>(mDirection);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (allocCallback)
     {
         allocCallbackArg.alloc_size = size;
         allocCallbackArg.alloc_alignment = alignment;
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (allocFailedCallback)
     {
@@ -307,7 +307,7 @@ void* FrameHeap::tryAlloc(size_t size, s32 alignment)
         alloced = alignedAddr;
     }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (isEnableDebugFillAlloc_())
     {
         if (mgr)
@@ -322,14 +322,14 @@ void* FrameHeap::tryAlloc(size_t size, s32 alignment)
 
         allocCallback->invoke(&allocCallbackArg);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     return alloced;
 }
 
 void FrameHeap::free(void* ptr)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
 
@@ -348,47 +348,47 @@ void FrameHeap::free(void* ptr)
 
     if (!mFlag.isOnBit(Flag::eDisposing) && isEnableWarning())
         SEAD_WARNING("Cannot free from FrameHeap [%s] 0x%p\n", getName().cstr(), ptr);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 }
 
 void* FrameHeap::resizeFront(void* ptr, size_t)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
 
     if (isEnableWarning())
         SEAD_WARNING("Cannot resizeFront from FrameHeap [%s] 0x%p\n", getName().cstr(), ptr);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     return nullptr;
 }
 
 void* FrameHeap::resizeBack(void* ptr, size_t)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
 
     if (isEnableWarning())
         SEAD_WARNING("Cannot resizeBack from FrameHeap [%s] 0x%p\n", getName().cstr(), ptr);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     return nullptr;
 }
 
 void FrameHeap::freeAll()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
     dispose_(nullptr, nullptr);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (isEnableDebugFillFree_())
     {
         HeapMgr* mgr = HeapMgr::instance();
@@ -397,7 +397,7 @@ void FrameHeap::freeAll()
         else
             MemUtil::fill(getAreaStart_(), HeapMgr::cDefaultDebugFillFree, getAreaSize_());
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     mState.mHeadPtr = getAreaStart_();
     mState.mTailPtr = getAreaEnd_();
@@ -420,10 +420,10 @@ size_t FrameHeap::getSize() const
 
 size_t FrameHeap::getFreeSize() const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -434,10 +434,10 @@ size_t FrameHeap::getFreeSize() const
 
 size_t FrameHeap::getMaxAllocatableSize(s32 alignment) const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     s32 absAlignment = Mathi::abs(alignment);
     if (!Mathi::isPow2(absAlignment))
@@ -498,11 +498,11 @@ void FrameHeap::initialize_()
     mState.mHeadPtr = getAreaStart_();
     mState.mTailPtr = getAreaEnd_();
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     HeapMgr* mgr = HeapMgr::instance();
     if (mgr && mgr->isEnableDebugFillHeapCreate())
         MemUtil::fill(getAreaStart_(), mgr->getDebugFillHeapCreate(), getAreaSize_());
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 }
 
 void* FrameHeap::getAreaStart_() const

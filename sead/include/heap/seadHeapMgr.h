@@ -94,7 +94,7 @@ public:
     static u32 getHeapCheckTag() { return sHeapCheckTag.increment(); }
     static u32 peekHeapCheckTag() { return sHeapCheckTag.getValue(); }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     void setDebugFillHeapCreate(u8 debugFill) { mDebugFillHeapCreate = debugFill; }
     void setDebugFillAlloc(u8 debugFill) { mDebugFillAlloc = debugFill; }
     void setDebugFillFree(u8 debugFill) { mDebugFillFree = debugFill; }
@@ -116,12 +116,12 @@ public:
 
     IAllocCallback* setAllocCallback(IAllocCallback* callback);
     IAllocCallback* getAllocCallback() { return mAllocCallback; }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     IAllocFailedCallback* setAllocFailedCallback(IAllocFailedCallback* callback);
     IAllocFailedCallback* getAllocFailedCallback() { return mAllocFailedCallback; }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     IFreeCallback* setFreeCallback(IFreeCallback* callback);
     IFreeCallback* getFreeCallback() { return mFreeCallback; }
 
@@ -164,18 +164,18 @@ public:
 
         mFreeCallback->invoke(&arg);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     static CriticalSection* getHeapTreeLockCS_() { return &sHeapTreeLockCS; }
 
     static void removeFromFindContainHeapCache_(Heap* heap);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     static void dumpFindContainHeapCacheStatistics();
     static void clearFindContainHeapCacheStatistics();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     static Heap* getUnboundHeap() { return sUnboundHeap; }
 
     static void createUnboundHeap();
@@ -203,12 +203,12 @@ protected:
     static CriticalSection sHeapTreeLockCS;
     static IndependentHeaps sIndependentHeaps;
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     static Heap* sUnboundHeap;
 #endif // SEAD_PLATFORM_WINDOWS
 
 protected:
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     u8 mDebugFillHeapCreate;
     u8 mDebugFillAlloc;
     u8 mDebugFillFree;
@@ -224,7 +224,7 @@ protected:
     IDestroyCallback* mDestroyCallback;
 #else
     IAllocFailedCallback* mAllocFailedCallback;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 class CurrentHeapSetter
@@ -259,14 +259,14 @@ private:
 public:
     FindContainHeapCache()
         : heap(0)
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         , miss(0)
         , hit(0)
         , nolockhit(0)
         , notfound(0)
         , call(0)
         , sleep(0)
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     {
     }
 
@@ -292,7 +292,7 @@ public:
         return true;
     }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     void dumpStatistics()
     {
         SEAD_PRINT("Miss:%d, Hit:%d, NoLockHit:%d, NotFound:%d, Call:%d, Sleep:%d\n",
@@ -308,17 +308,17 @@ public:
         call = 0;
         sleep = 0;
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     AtomicPtrValue heap;
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     s32 miss;
     s32 hit;
     s32 nolockhit;
     s32 notfound;
     s32 call;
     s32 sleep;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 class FindContainHeapCacheAccessor

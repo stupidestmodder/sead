@@ -5,7 +5,7 @@
 #include <prim/seadScopedLock.h>
 #include <thread/seadThread.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <heap/seadUnboundHeap.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -23,12 +23,12 @@ CriticalSection HeapMgr::sHeapTreeLockCS;
 HeapMgr::RootHeaps HeapMgr::sRootHeaps;
 HeapMgr::IndependentHeaps HeapMgr::sIndependentHeaps;
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 Heap* HeapMgr::sUnboundHeap = nullptr;
 #endif // SEAD_PLATFORM_WINDOWS
 
 HeapMgr::HeapMgr()
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     : mDebugFillHeapCreate(cDefaultDebugFillHeapCreate)
     , mDebugFillAlloc(cDefaultDebugFillAlloc)
     , mDebugFillFree(cDefaultDebugFillFree)
@@ -44,7 +44,7 @@ HeapMgr::HeapMgr()
     , mDestroyCallback(nullptr)
 #else
     : mAllocFailedCallback(nullptr)
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 {
 }
 
@@ -72,7 +72,7 @@ void HeapMgr::destroy()
 {
     ScopedLock<CriticalSection> lock(getHeapTreeLockCS_());
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     sInstance.mAllocCallback = nullptr;
     sInstance.mAllocFailedCallback = nullptr;
     sInstance.mFreeCallback = nullptr;
@@ -80,7 +80,7 @@ void HeapMgr::destroy()
     sInstance.mDestroyCallback = nullptr;
 #else
     sInstance.mAllocFailedCallback = nullptr;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     while (sIndependentHeaps.size() != 0)
     {
@@ -121,9 +121,9 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         Heap* heap = heapAccessor.getHeap();
         if (heap && heap->hasNoChild_() && heap->isInclude(memBlock))
         {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
             heapCache->nolockhit++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
             return heap;
         }
     }
@@ -132,9 +132,9 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
 
     if (heapCache)
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         heapCache->call++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
         Heap* heap = heapCache->getHeap();
         if (heap)
@@ -144,15 +144,15 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
             {
                 if (containHeap == heap)
                 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                     heapCache->hit++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
                 }
                 else
                 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                     heapCache->miss++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
                     heapCache->setHeap(containHeap);
                 }
 
@@ -168,9 +168,9 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         {
             if (heapCache)
             {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                 heapCache->miss++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
                 heapCache->setHeap(containHeap);
             }
 
@@ -185,9 +185,9 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         {
             if (heapCache)
             {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                 heapCache->miss++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
                 heapCache->setHeap(containHeap);
             }
 
@@ -195,7 +195,7 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         }
     }
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     if (sUnboundHeap)
     {
         Heap* containHeap = sUnboundHeap->findContainHeap_(memBlock);
@@ -203,9 +203,9 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         {
             if (heapCache)
             {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                 heapCache->miss++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
                 heapCache->setHeap(containHeap);
             }
 
@@ -214,10 +214,10 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
     }
 #endif // SEAD_PLATFORM_WINDOWS
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (heapCache)
         heapCache->notfound++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     return nullptr;
 }
@@ -294,20 +294,20 @@ void HeapMgr::dumpTreeYAML(WriteStream& stream)
         heap.dumpTreeYAML(stream, 0);
     }
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     if (sUnboundHeap)
         sUnboundHeap->dumpTreeYAML(stream, 0);
 #endif // SEAD_PLATFORM_WINDOWS
 }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 HeapMgr::IAllocCallback* HeapMgr::setAllocCallback(IAllocCallback* callback)
 {
     IAllocCallback* prev = mAllocCallback;
     mAllocCallback = callback;
     return prev;
 }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
 HeapMgr::IAllocFailedCallback* HeapMgr::setAllocFailedCallback(IAllocFailedCallback* callback)
 {
@@ -316,7 +316,7 @@ HeapMgr::IAllocFailedCallback* HeapMgr::setAllocFailedCallback(IAllocFailedCallb
     return prev;
 }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 HeapMgr::IFreeCallback* HeapMgr::setFreeCallback(IFreeCallback* callback)
 {
     IFreeCallback* prev = mFreeCallback;
@@ -337,7 +337,7 @@ HeapMgr::IDestroyCallback* HeapMgr::setDestroyCallback(IDestroyCallback* callbac
     mDestroyCallback = callback;
     return prev;
 }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
 void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
 {
@@ -355,9 +355,9 @@ void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
             if (success)
                 break;
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
             heapCache->sleep++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
             Thread::sleep(TickSpan::makeFromMicroSeconds(10));
         }
@@ -377,9 +377,9 @@ void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
                 bool success = heapCache->tryRemoveHeap(heap);
                 if (!success)
                 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                     heapCache->sleep++;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
                     operationFailed = true;
                     break;
@@ -394,7 +394,7 @@ void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
     }
 }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 void HeapMgr::dumpFindContainHeapCacheStatistics()
 {
     ThreadMgr* threadMgr = ThreadMgr::instance();
@@ -444,9 +444,9 @@ void HeapMgr::clearFindContainHeapCacheStatistics()
         cache->clearStatistics();
     }
 }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 void HeapMgr::createUnboundHeap()
 {
     SEAD_ASSERT(!sUnboundHeap);
@@ -480,7 +480,7 @@ void HeapMgr::createRootHeap_()
 
 void HeapMgr::initializeImpl_()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     sInstance.mAllocCallback = nullptr;
     sInstance.mAllocFailedCallback = nullptr;
     sInstance.mFreeCallback = nullptr;
@@ -488,7 +488,7 @@ void HeapMgr::initializeImpl_()
     sInstance.mDestroyCallback = nullptr;
 #else
     sInstance.mAllocFailedCallback = nullptr;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     HeapMgr::createRootHeap_();
 

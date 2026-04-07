@@ -16,7 +16,7 @@ class Heap : public IDisposer, public INamable
 {
     SEAD_RTTI_BASE(Heap);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 protected:
     class ScopedDebugFillSystemDisabler
     {
@@ -45,7 +45,7 @@ protected:
     private:
         Heap* mHeap;
     };
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
 public:
     enum HeapDirection
@@ -60,10 +60,10 @@ public:
         eEnableLock = 0,
         eDisposing,
         eEnableWarning,
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         eEnableDebugFillSystem,
         eEnableDebugFillUser
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     };
 
     static const s32 cMinAlignment = cDefaultAlignment;
@@ -157,25 +157,25 @@ public:
     void setEnableWarning(bool enable) { mFlag.changeBit(Flag::eEnableWarning, enable); }
     bool isEnableWarning() const { return mFlag.isOnBit(Flag::eEnableWarning); }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     void setAccessThread(Thread* thread) { mAccessThread = thread; }
     Thread* getAccessThread() const { return mAccessThread; }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     void setEnableDebugFill(bool enable)
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         mFlag.changeBit(Flag::eEnableDebugFillUser, enable);
 #else
         SEAD_UNUSED(enable);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     }
 
     bool isEnableDebugFill()
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         return mFlag.isOnBit(Flag::eEnableDebugFillUser);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     }
 
     void unsafeSetDisposingFlag(bool enable) { mFlag.changeBit(Flag::eDisposing, enable); }
@@ -183,28 +183,12 @@ public:
     void dumpTreeYAML(WriteStream& stream, s32 indent) const;
     virtual void dumpYAML(WriteStream& stream, s32 indent) const;
 
-    HeapList::constIterator childBegin() const { return mChildren.constBegin(); }
-    HeapList::constIterator childEnd() const { return mChildren.constEnd(); }
-    DisposerList::constIterator disposerBegin() const { return mDisposerList.constBegin(); }
-    DisposerList::constIterator disposerEnd() const { return mDisposerList.constEnd(); }
-
-    virtual void pushBackChild_(Heap* child);
 
 protected:
     Heap* findContainHeap_(const void* ptr);
     bool hasNoChild_() const { return mChildren.size() == 0; }
-    void destruct_();
-    void dispose_(const void* begin, const void* end);
-    void appendDisposer_(IDisposer* disposer);
-    void removeDisposer_(IDisposer* disposer);
-    void eraseChild_(Heap* child);
-    void checkAccessThread_() const;
 
-#ifdef SEAD_DEBUG
-    bool isEnableDebugFillAlloc_() const;
-    bool isEnableDebugFillFree_() const;
-    bool isEnableDebugFillHeapDestroy_() const;
-
+#if defined(SEAD_TARGET_DEBUG)
     static void setEnableDebugFillSystem_(Heap* heap, bool enable)
     {
         heap->mFlag.changeBit(Flag::eEnableDebugFillSystem, enable);
@@ -214,11 +198,30 @@ protected:
     {
         return heap->mFlag.isOnBit(Flag::eEnableDebugFillSystem);
     }
-#endif // SEAD_DEBUG
+
+    bool isEnableDebugFillAlloc_() const;
+    bool isEnableDebugFillFree_() const;
+    bool isEnableDebugFillHeapDestroy_() const;
+#endif // SEAD_TARGET_DEBUG
+
+    void destruct_();
+    void dispose_(const void* begin, const void* end);
+    void appendDisposer_(IDisposer* disposer);
+    void removeDisposer_(IDisposer* disposer);
+    void eraseChild_(Heap* child);
+    void checkAccessThread_() const;
 
     friend class IDisposer;
     friend class HeapMgr;
     friend class PrintFormatter;
+
+public:
+    HeapList::constIterator childBegin() const { return mChildren.constBegin(); }
+    HeapList::constIterator childEnd() const { return mChildren.constEnd(); }
+    DisposerList::constIterator disposerBegin() const { return mDisposerList.constBegin(); }
+    DisposerList::constIterator disposerEnd() const { return mDisposerList.constEnd(); }
+
+    virtual void pushBackChild_(Heap* child);
 
 protected:
     void* mStart;
@@ -231,9 +234,9 @@ protected:
     mutable CriticalSection mCS;
     BitFlag16 mFlag;
     u16 mHeapCheckTag;
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     Thread* mAccessThread;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 } // namespace sead

@@ -17,7 +17,7 @@ ExpHeap* ExpHeap::create(size_t size, const SafeString& name, Heap* parent, Heap
 {
     ExpHeap* heap = ExpHeap::tryCreate(size, name, parent, direction, enableLock);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (!heap)
     {
         if (!parent)
@@ -33,7 +33,7 @@ ExpHeap* ExpHeap::create(size_t size, const SafeString& name, Heap* parent, Heap
                             name.cstr(), size, parent->getName().cstr(), parent, parent->getMaxAllocatableSize());
         }
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     return heap;
 }
@@ -72,9 +72,9 @@ ExpHeap* ExpHeap::tryCreate(size_t size_, const SafeString& name, Heap* parent, 
     void* start;
 
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         ScopedDebugFillSystemDisabler disabler(parent);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
         start = parent->tryAlloc(size, static_cast<s32>(direction) * cMinAlignment);
     }
 
@@ -141,18 +141,18 @@ ExpHeap::~ExpHeap()
 
 void ExpHeap::destroy()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
 
     if (HeapMgr::instance())
         HeapMgr::instance()->callDestroyCallback_(this);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     Heap* parent = mParent;
     void* start = mStart;
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     size_t size = mSize;
 
     MemBlock* block = findFreeMemBlockFromHead_(0, FindMode::eMaxSize);
@@ -162,11 +162,11 @@ void ExpHeap::destroy()
         blockSize = block->getSizeWithManage();
 
     bool isEnableDebugFill = isEnableDebugFillHeapDestroy_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     this->~ExpHeap();
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (isEnableDebugFill)
     {
         u8 debugFill = HeapMgr::cDefaultDebugFillHeapDestroy;
@@ -187,23 +187,23 @@ void ExpHeap::destroy()
                 MemUtil::fill(addr, debugFill, remainSize);
         }
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (parent && parent->isFreeable())
     {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         ScopedDebugFillSystemDisabler disabler(parent);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
         parent->free(start);
     }
 }
 
 size_t ExpHeap::adjust()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!mParent)
         return mSize;
@@ -228,10 +228,10 @@ size_t ExpHeap::adjust()
 
 void* ExpHeap::tryAlloc(size_t size, s32 alignment)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     HeapMgr* heapMgr = HeapMgr::instance();
 
@@ -311,7 +311,7 @@ void* ExpHeap::tryAlloc(size_t size, s32 alignment)
         block->setHeapCheckTag(mHeapCheckTag);
         ret = block->memory();
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         if (isEnableDebugFillAlloc_())
         {
             if (heapMgr)
@@ -336,7 +336,7 @@ void* ExpHeap::tryAlloc(size_t size, s32 alignment)
                 callback->invoke(&arg);
             }
         }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     }
     else
     {
@@ -364,16 +364,16 @@ void* ExpHeap::tryAlloc(size_t size, s32 alignment)
 
 void ExpHeap::free(void* ptr)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!ptr)
         return;
 
     HeapMgr* heapMgr = HeapMgr::instance();
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (heapMgr)
     {
         HeapMgr::FreeCallbackArg arg;
@@ -382,7 +382,7 @@ void ExpHeap::free(void* ptr)
 
         heapMgr->callFreeCallback_(arg);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!isInclude(ptr))
     {
@@ -404,7 +404,7 @@ void ExpHeap::free(void* ptr)
         return;
     }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (block->memory() != ptr)
     {
         SEAD_PRINT("===================================\n");
@@ -418,7 +418,7 @@ void ExpHeap::free(void* ptr)
 
         SEAD_ASSERT_MSG(false, "Name:(%s) Invalid pointer: 0x%p\n", getName().cstr(), ptr);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (block->mHeapCheckTag != mHeapCheckTag)
     {
@@ -427,7 +427,7 @@ void ExpHeap::free(void* ptr)
         return;
     }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (isEnableDebugFillFree_())
     {
         heapMgr = HeapMgr::instance();
@@ -436,7 +436,7 @@ void ExpHeap::free(void* ptr)
         else
             block->fill(HeapMgr::cDefaultDebugFillFree);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     mUseList.erase(block);
 
@@ -450,10 +450,10 @@ void ExpHeap::free(void* ptr)
 
 void* ExpHeap::resizeFront(void* ptr, size_t newSize)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!isInclude(ptr))
     {
@@ -503,10 +503,10 @@ void* ExpHeap::resizeFront(void* ptr, size_t newSize)
 
 void* ExpHeap::resizeBack(void* ptr, size_t newSize)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!isInclude(ptr))
     {
@@ -549,10 +549,10 @@ void* ExpHeap::resizeBack(void* ptr, size_t newSize)
 
 void* ExpHeap::tryRealloc(void* ptr, size_t newSize, s32 alignment)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!ptr)
         return tryAlloc(newSize, alignment);
@@ -620,10 +620,10 @@ void* ExpHeap::tryRealloc(void* ptr, size_t newSize, s32 alignment)
 
 void ExpHeap::freeAll()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -652,10 +652,10 @@ size_t ExpHeap::getSize() const
 
 size_t ExpHeap::getFreeSize() const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -670,10 +670,10 @@ size_t ExpHeap::getFreeSize() const
 
 size_t ExpHeap::getMaxAllocatableSize(s32 alignment) const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!Mathi::isPow2(Mathi::abs(alignment)))
     {
@@ -768,21 +768,21 @@ bool ExpHeap::isAdjustable() const
 
 void ExpHeap::dump() const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     {
         BufferingPrintFormatter formatter;
 
         formatter << "%@", *this;
         formatter.flush();
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     dumpUseList();
     dumpFreeList();
@@ -790,10 +790,10 @@ void ExpHeap::dump() const
 
 void ExpHeap::dumpFreeList() const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -815,10 +815,10 @@ void ExpHeap::dumpFreeList() const
 
 void ExpHeap::dumpUseList() const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -840,10 +840,10 @@ void ExpHeap::dumpUseList() const
 
 bool ExpHeap::tryCheckFreeList() const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -864,10 +864,10 @@ bool ExpHeap::tryCheckFreeList() const
 
 bool ExpHeap::tryCheckUseList() const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -938,11 +938,11 @@ void ExpHeap::doCreate(ExpHeap* heap, Heap* parent)
     if (parent)
         parent->pushBackChild_(heap);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     HeapMgr* heapMgr = HeapMgr::instance();
     if (heapMgr)
         heapMgr->callCreateCallback_(heap);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 }
 
 void ExpHeap::createMaxSizeFreeMemBlock_(ExpHeap* heap)
@@ -958,11 +958,11 @@ void ExpHeap::createMaxSizeFreeMemBlock_(ExpHeap* heap)
     block->setSize(heap->mSize - sizeof(ExpHeap) - sizeof(MemBlock));
     heap->pushToFreeList_(block);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     HeapMgr* heapMgr = HeapMgr::instance();
     if (heapMgr && heapMgr->isEnableDebugFillHeapCreate())
         block->fill(heapMgr->getDebugFillHeapCreate());
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 }
 
 MemBlock* ExpHeap::findFreeMemBlockFromHead_(size_t size, FindMode mode) const
@@ -1120,9 +1120,9 @@ void ExpHeap::pushToFreeList_(MemBlock* memBlock)
                 if (PtrUtil::addOffset(prevBlock->memory(), prevBlock->getSize()) == mergedBlock)
                 {
                     prevBlock->setSize(prevBlock->getSize() + mergedBlock->getSizeWithManage());
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                     fillMemBlockDebugFillFree_(mergedBlock);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
                     mergedBlock = prevBlock;
                     merged = true;
                 }
@@ -1135,9 +1135,9 @@ void ExpHeap::pushToFreeList_(MemBlock* memBlock)
 
                 mergedBlock->setSize(mergedBlock->getSize() + currentBlock.getSizeWithManage());
                 mFreeList.erase(&currentBlock);
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                 fillMemBlockDebugFillFree_(&currentBlock);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
                 merged = true;
             }
 
@@ -1162,9 +1162,9 @@ void ExpHeap::pushToFreeList_(MemBlock* memBlock)
             if (PtrUtil::addOffset(prevBlock->memory(), prevBlock->getSize()) == memBlock)
             {
                 prevBlock->setSize(prevBlock->getSize() + memBlock->getSizeWithManage());
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
                 fillMemBlockDebugFillFree_(memBlock);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
             }
             else
             {
@@ -1174,7 +1174,7 @@ void ExpHeap::pushToFreeList_(MemBlock* memBlock)
     }
 }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 void ExpHeap::fillMemBlockDebugFillFree_(void* addr)
 {
     if (!isEnableDebugFillFree_())
@@ -1186,7 +1186,7 @@ void ExpHeap::fillMemBlockDebugFillFree_(void* addr)
     else
         MemUtil::fill(addr, HeapMgr::cDefaultDebugFillFree, sizeof(MemBlock));
 }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
 s32 ExpHeap::compareMemBlockAddr_(const MemBlock* a, const MemBlock* b)
 {

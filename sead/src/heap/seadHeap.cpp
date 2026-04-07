@@ -19,15 +19,15 @@ Heap::Heap(const SafeString& name, Heap* parent, void* start, size_t size, HeapD
     , mDisposerList()
     , mDirection(direction)
     , mCS(parent)
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     , mFlag((1 << Flag::eEnableWarning) | (1 << Flag::eEnableDebugFillSystem) | (1 << Flag::eEnableDebugFillUser))
 #else
     , mFlag(1 << Flag::eEnableWarning)
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     , mHeapCheckTag(static_cast<u16>(HeapMgr::getHeapCheckTag()))
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     , mAccessThread(nullptr)
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 {
     mFlag.changeBit(Flag::eEnableLock, enableLock);
 
@@ -131,6 +131,23 @@ Heap* Heap::findContainHeap_(const void* ptr)
     return this;
 }
 
+#if defined(SEAD_TARGET_DEBUG)
+bool Heap::isEnableDebugFillAlloc_() const
+{
+    return HeapMgr::instance()->isEnableDebugFillAlloc() && mFlag.isOnAll((1 << Flag::eEnableDebugFillSystem) | (1 << Flag::eEnableDebugFillUser));
+}
+
+bool Heap::isEnableDebugFillFree_() const
+{
+    return HeapMgr::instance()->isEnableDebugFillFree() && mFlag.isOnAll((1 << Flag::eEnableDebugFillSystem) | (1 << Flag::eEnableDebugFillUser));
+}
+
+bool Heap::isEnableDebugFillHeapDestroy_() const
+{
+    return HeapMgr::instance()->isEnableDebugFillHeapDestroy() && mFlag.isOn(1 << Flag::eEnableDebugFillUser);
+}
+#endif // SEAD_TARGET_DEBUG
+
 void Heap::destruct_()
 {
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
@@ -195,7 +212,7 @@ void Heap::eraseChild_(Heap* child)
 
 void Heap::checkAccessThread_() const
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (!mAccessThread)
         return;
 
@@ -208,25 +225,8 @@ void Heap::checkAccessThread_() const
         SEAD_ASSERT_MSG(false, "Current thread is %s(0x%p). This heap can access from %s(0x%p) only.",
                         currentThread->getName().cstr(), currentThread, mAccessThread->getName().cstr(), mAccessThread);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 }
-
-#ifdef SEAD_DEBUG
-bool Heap::isEnableDebugFillAlloc_() const
-{
-    return HeapMgr::instance()->isEnableDebugFillAlloc() && mFlag.isOnAll((1 << Flag::eEnableDebugFillSystem) | (1 << Flag::eEnableDebugFillUser));
-}
-
-bool Heap::isEnableDebugFillFree_() const
-{
-    return HeapMgr::instance()->isEnableDebugFillFree() && mFlag.isOnAll((1 << Flag::eEnableDebugFillSystem) | (1 << Flag::eEnableDebugFillUser));
-}
-
-bool Heap::isEnableDebugFillHeapDestroy_() const
-{
-    return HeapMgr::instance()->isEnableDebugFillHeapDestroy() && mFlag.isOn(1 << Flag::eEnableDebugFillUser);
-}
-#endif // SEAD_DEBUG
 
 template <>
 void PrintFormatter::out<Heap>(const Heap& obj, const char*, PrintOutput* output)

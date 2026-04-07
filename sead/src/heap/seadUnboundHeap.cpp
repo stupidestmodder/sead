@@ -30,13 +30,13 @@ UnboundHeap::~UnboundHeap()
 
 void UnboundHeap::destroy()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
 
     if (HeapMgr::instance())
         HeapMgr::instance()->callDestroyCallback_(this);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     freeAll();
 
@@ -54,14 +54,14 @@ size_t UnboundHeap::adjust()
 
 void* UnboundHeap::tryAlloc(size_t size, s32 alignment)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     HeapMgr* heapMgr = HeapMgr::instance();
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     HeapMgr::AllocCallbackArg allocCallbackArg;
 
     HeapMgr::IAllocCallback* allocCallback = nullptr;
@@ -75,7 +75,7 @@ void* UnboundHeap::tryAlloc(size_t size, s32 alignment)
             allocCallbackArg.heap = this;
         }
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     HeapMgr::AllocFailedCallbackArg allocFailedCallbackArg;
 
@@ -116,13 +116,13 @@ void* UnboundHeap::tryAlloc(size_t size, s32 alignment)
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (allocCallback)
     {
         allocCallbackArg.alloc_size = size;
         allocCallbackArg.alloc_alignment = alignment;
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (allocFailedCallback)
     {
@@ -147,12 +147,12 @@ void* UnboundHeap::tryAlloc(size_t size, s32 alignment)
     mMemBlockList.pushBack(memBlock);
 
     void* ret = PtrUtil::roundUpPow2(PtrUtil::addOffset(memBlock, sizeof(MemBlock)), alignment);
-    memBlock->setOffset(PtrUtil::diff(ret, PtrUtil::addOffset(memBlock, sizeof(MemBlock))));
+    memBlock->setOffset(static_cast<u16>(PtrUtil::diff(ret, PtrUtil::addOffset(memBlock, sizeof(MemBlock)))));
 
     mAllocedSize += memBlock->getSizeWithManage();
     //SEAD_PRINT("Alloced %d (0x%X)\n", memBlock->getSizeWithManage(), memBlock->getSizeWithManage());
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (isEnableDebugFillAlloc_())
     {
         if (heapMgr)
@@ -167,23 +167,23 @@ void* UnboundHeap::tryAlloc(size_t size, s32 alignment)
 
         allocCallback->invoke(&allocCallbackArg);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     return ret;
 }
 
 void UnboundHeap::free(void* ptr)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     if (!ptr)
         return;
 
     HeapMgr* heapMgr = HeapMgr::instance();
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (heapMgr)
     {
         HeapMgr::FreeCallbackArg arg;
@@ -192,7 +192,7 @@ void UnboundHeap::free(void* ptr)
 
         heapMgr->callFreeCallback_(arg);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     MemBlock* memBlock = MemBlock::FindManageArea(ptr);
     if (!memBlock)
@@ -215,7 +215,7 @@ void UnboundHeap::free(void* ptr)
     mAllocedSize -= memBlock->getSizeWithManage();
     //SEAD_PRINT("Freed %d (0x%X)\n", memBlock->getSizeWithManage(), memBlock->getSizeWithManage());
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (isEnableDebugFillFree_())
     {
         heapMgr = HeapMgr::instance();
@@ -224,17 +224,17 @@ void UnboundHeap::free(void* ptr)
         else
             memBlock->fill(HeapMgr::cDefaultDebugFillFree);
     }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ::free(memBlock);
 }
 
 void* UnboundHeap::resizeFront(void* ptr, size_t newSize)
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 
@@ -268,10 +268,10 @@ void* UnboundHeap::resizeBack(void* ptr, size_t newSize)
 
 void UnboundHeap::freeAll()
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     if (mAccessThread)
         checkAccessThread_();
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     ConditionalScopedLock<CriticalSection> lock(&mCS, isEnableLock());
 

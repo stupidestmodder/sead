@@ -114,9 +114,9 @@ protected:
     void pushToUseList_(MemBlock* memBlock);
     void pushToFreeList_(MemBlock* memBlock);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     void fillMemBlockDebugFillFree_(void* addr);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     static s32 compareMemBlockAddr_(const MemBlock* a, const MemBlock* b);
 

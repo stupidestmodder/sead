@@ -136,7 +136,7 @@ public:
         {
             block = reinterpret_cast<MemBlock*>(reinterpret_cast<intptr_t>(ptr) - sizeof(MemBlock));
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
             if (block->getOffset() != 0)
             {
                 SEAD_PRINT("===================================\n");
@@ -150,7 +150,7 @@ public:
 
                 SEAD_ASSERT_MSG(false, "Invalid pointer: 0x%p\n", ptr);
             }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
         }
         else
         {
