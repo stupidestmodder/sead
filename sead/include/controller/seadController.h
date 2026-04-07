@@ -92,6 +92,7 @@ public:
     virtual bool isConnected() const { return true; }
 
     ControllerDefine::ControllerId getId() const { return mId; }
+    ControllerMgr* getMgr() const { return mMgr; }
     ControllerAddon* getAddon(ControllerDefine::AddonId id) const;
     ControllerAddon* getAddonByOrder(ControllerDefine::AddonId id, s32 index) const;
 
