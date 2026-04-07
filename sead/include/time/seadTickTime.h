@@ -2,7 +2,7 @@
 
 #include <time/seadTickSpan.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -16,7 +16,7 @@ public:
         setNow();
     }
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     void setNow()
     {
         LARGE_INTEGER now;

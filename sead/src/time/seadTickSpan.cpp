@@ -2,13 +2,13 @@
 
 #include <basis/seadAssert.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
 static s64 getFrequency_()
 {
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     LARGE_INTEGER freq;
 
     bool ret = QueryPerformanceFrequency(&freq);
