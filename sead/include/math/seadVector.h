@@ -16,6 +16,7 @@ template <typename T>
 class Vector2 : public Policies<T>::Vec2Base
 {
 public:
+    using ValueType = T;
     using Self = Vector2<T>;
 
     static const Self zero;
@@ -45,16 +46,9 @@ public:
         return *this == zero;
     }
 
-    void set(T x_, T y_)
-    {
-        this->x = x_;
-        this->y = y_;
-    }
+    void makeZero();
 
-    bool operator==(const Self& v) const
-    {
-        return this->x == v.x && this->y == v.y;
-    }
+    // Self& operator=(const Self&);
 
     template <typename Vec>
     Self& operator=(const Vec& v)
@@ -64,6 +58,12 @@ public:
         return *this;
     }
 
+    void set(T x_, T y_)
+    {
+        this->x = x_;
+        this->y = y_;
+    }
+
     Self operator+(const Self& v) const
     {
         Self o;
@@ -71,6 +71,8 @@ public:
         o.y = this->y + v.y;
         return o;
     }
+
+    Self operator-(const Self& v) const;
 
     Self operator*(T t) const
     {
@@ -87,6 +89,15 @@ public:
         return *this;
     }
 
+    const Self& operator-=(const Self& v);
+
+    T length() const;
+    T squaredLength() const;
+    T distance(const Self&) const;
+    T squaredDistance(const Self&) const;
+    T normalize();
+    T dot(const Self&) const;
+
     void add(const Self& v)
     {
         this->x += v.x;
@@ -99,13 +110,23 @@ public:
         this->y /= v.y;
     }
 
+    void setAdd(const Self&, const Self&);
+
     void setSub(const Self& a, const Self& b)
     {
         this->x = a.x - b.x;
         this->y = a.y - b.y;
     }
 
-    T length() const;
+    void setScale(const Self&, T);
+    void setScaleAdd(T, const Self&, const Self&);
+    void setLerp(const Self&, const Self&, T); // Template ?
+    void negate();
+
+    bool operator==(const Self& v) const
+    {
+        return this->x == v.x && this->y == v.y;
+    }
 };
 
 // TODO
@@ -113,6 +134,8 @@ template <typename T>
 class Vector3 : public Policies<T>::Vec3Base
 {
 public:
+    using ValueType = T;
+    using Vec2 = Vector2<T>;
     using Self = Vector3<T>;
     using Mtx34 = Matrix34<T>;
     using Mtx44 = Matrix44<T>;
@@ -129,11 +152,21 @@ public:
     {
     }
 
+    Vector3(const Vec2& v, T z_)
+        : Policies<T>::Vec3Base(v.x, v.y, z_)
+    {
+    }
+
     Vector3(T x_, T y_, T z_)
         : Policies<T>::Vec3Base(x_, y_, z_)
     {
     }
 
+    // Self& operator=(const Self&);
+
+    T& operator()(s32);
+
+    void set(const Self&);
     void set(T x_, T y_, T z_)
     {
         this->x = x_;
@@ -141,15 +174,15 @@ public:
         this->z = z_;
     }
 
-    bool operator==(const Self& v) const
-    {
-        return this->x == v.x && this->y == v.y && this->z == v.z;
-    }
-
-    bool operator!=(const Self& v) const
-    {
-        return !operator==(v);
-    }
+    T length() const;
+    T squaredLength() const;
+    T distance(const Self&) const;
+    T squaredDistance(const Self&) const;
+    void setMul(const Mtx34& m, const Self& v);
+    void setMulAndDivByW(const Mtx44& m, const Self& v);
+    T normalize();
+    T dot(const Self&) const;
+    void setCross(const Self&, const Self&);
 
     Self operator+(const Self& v) const
     {
@@ -194,15 +227,28 @@ public:
         return *this;
     }
 
-    void add(const Self& a);
-    void multScalar(T t);
-    T normalize();
-    T dot(const Self&) const;
-    T length() const;
+    Self& operator*=(T t);
 
-    void setMul(const Mtx34& m, const Self& v);
-    void setMulAndDivByW(const Mtx44& m, const Self& v);
-    void setCross(const Self&, const Self&);
+    Self operator-() const;
+
+    void multScalar(T t);
+    void add(const Self& a);
+    void setAdd(const Self&, const Self&);
+    void setSub(const Self&, const Self&);
+    void setScale(const Self&, T);
+    void setScaleAdd(T, const Self&, const Self&);
+    void setLerp(const Self&, const Self&, T); // Template ?
+    void negate();
+
+    bool operator==(const Self& v) const
+    {
+        return this->x == v.x && this->y == v.y && this->z == v.z;
+    }
+
+    bool operator!=(const Self& v) const
+    {
+        return !operator==(v);
+    }
 };
 
 // TODO
@@ -210,6 +256,7 @@ template <typename T>
 class Vector4 : public Policies<T>::Vec4Base
 {
 public:
+    using ValueType = T;
     using Self = Vector4<T>;
 
     static const Self zero;
@@ -229,6 +276,18 @@ public:
         : Policies<T>::Vec4Base(x_, y_, z_, w_)
     {
     }
+
+    Self& operator=(const Self&);
+
+    void set(T x_, T y_, T z_, T w_);
+
+    T length() const;
+    T normalize();
+    T dot(const Self&) const;
+
+    Self operator-(const Self&) const;
+    Self operator*(T) const;
+    Self operator/(T) const;
 };
 
 using Vector2f = Vector2<f32>;

@@ -12,6 +12,21 @@ inline T Vector2<T>::length() const
 }
 
 template <typename T>
+inline Vector3<T>& Vector3<T>::operator*=(T t)
+{
+    Vector3CalcCommon<T>::multScalar(*this, *this, t);
+    return *this;
+}
+
+template <typename T>
+inline Vector3<T> Vector3<T>::operator-() const
+{
+    Self o;
+    Vector3CalcCommon<T>::neg(o, *this);
+    return o;
+}
+
+template <typename T>
 inline void Vector3<T>::multScalar(T t)
 {
     Vector3CalcCommon<T>::multScalar(*this, *this, t);

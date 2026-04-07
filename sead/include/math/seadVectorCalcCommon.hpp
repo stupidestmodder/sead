@@ -58,7 +58,15 @@ inline void Vector3CalcCommon<T>::multScalar(Base& o, const Base& v, T t)
 }
 
 template <typename T>
-T Vector3CalcCommon<T>::normalize(Base& v)
+inline void Vector3CalcCommon<T>::neg(Base& o, const Base& v)
+{
+    o.x = MathCalcCommon<T>::neg(v.x);
+    o.y = MathCalcCommon<T>::neg(v.y);
+    o.z = MathCalcCommon<T>::neg(v.z);
+}
+
+template <typename T>
+inline T Vector3CalcCommon<T>::normalize(Base& v)
 {
     const T len = length(v);
     if (len > 0)

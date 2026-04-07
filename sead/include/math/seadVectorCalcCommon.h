@@ -29,6 +29,7 @@ public:
     static T squaredLength(const Base& v);
     static T length(const Base& v);
     static void multScalar(Base& o, const Base& v, T t);
+    static void neg(Base& o, const Base& v);
     static T normalize(Base& v);
 };
 
