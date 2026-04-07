@@ -13,7 +13,7 @@ public:
         return NodeClassType::eNode;
     }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 public:
     Node();
     Node(Heap* disposerHeap, IDisposer::HeapNullOption option);
@@ -67,7 +67,7 @@ private:
 
 private:
     TTreeNode<Node*> mTreeNode;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 } } // namespace sead::hostio

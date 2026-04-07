@@ -42,11 +42,11 @@ void HostIORoot::genMessage(hostio::Context* ctx)
         r.append("<tr><td>endian</td><td>Little</td></tr>");
     }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     r.append("<tr><td>build target</td><td>Debug</td></tr>");
 #elif
     r.append("<tr><td>build target</td><td>Release</td></tr>");
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     t.format("<tr><td>data model</td><td>INT(%d), LONG(%d), PTR(%d)</td></tr>", sizeof(int) * 8, sizeof(long) * 8, sizeof(void*) * 8);
     r.append(t);

@@ -24,7 +24,7 @@ public:
         return NodeClassType::eReflexible;
     }
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 protected:
     enum AllocFlg
     {
@@ -126,7 +126,7 @@ private:
     const char* mMeta;
     bool mIsGenerated;
     u8 mAllocFlg;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 } } // namespace sead::hostio

@@ -11,7 +11,7 @@ struct PropertyEvent;
 
 class LifeCheckable
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     SEAD_NO_COPY(LifeCheckable);
 
 private:
@@ -110,12 +110,12 @@ private:
     LifeCheckable* mNext;
     DisposeHostIOCaller* mDisposeCaller;
     std::aligned_storage_t<sizeof(DisposeHostIOCaller), alignof(DisposeHostIOCaller)> mDisposeCallerBuf;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 class PropertyEventListener : public LifeCheckable
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 public:
     PropertyEventListener()
         : LifeCheckable()
@@ -128,12 +128,12 @@ public:
     }
 
     virtual void listenPropertyEvent(const PropertyEvent* event) = 0;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 class NodeEventListener : public PropertyEventListener
 {
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 public:
     NodeEventListener()
         : PropertyEventListener()
@@ -151,7 +151,7 @@ public:
     }
 
     virtual void listenNodeEvent(const NodeEvent* event) = 0;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 // TODO
