@@ -2,7 +2,7 @@
 
 #include <basis/seadTypes.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -20,7 +20,7 @@ public:
     uintptr_t getValue() const;
 
 private:
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     DWORD mTlsInner;
 #else
 #error "Unsupported platform"
@@ -29,7 +29,7 @@ private:
 
 } // namespace sead
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <thread/win/seadThreadLocalStorageWin.hpp>
 #else
 #error "Unsupported platform"

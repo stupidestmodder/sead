@@ -3,7 +3,7 @@
 #include <heap/seadDisposer.h>
 #include <time/seadTickSpan.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -28,15 +28,15 @@ public:
     void resetSignal();
 
 protected:
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     HANDLE mEventInner;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     bool mIsInitialized;
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 };
 
 } // namespace sead

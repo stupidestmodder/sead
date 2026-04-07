@@ -45,7 +45,7 @@ public:
            MessageQueue::Element quitMsg = cDefaultQuitMsg, s32 stackSize = cDefaultStackSize, s32 msgQueueSize = cDefaultMsgQueueSize);
 
 protected:
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     Thread(Heap* heap, HANDLE thread, u32 id);
 #else
 #error "Unsupported platform"
@@ -100,7 +100,7 @@ protected:
 
     virtual u32* getStackCheckStartAddress_() const;
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     static u32 __stdcall winThreadFunc_(void* param);
 #else
 #error "Unsupported platform"
@@ -119,7 +119,8 @@ protected:
     MessageQueue::Element mQuitMsg;
     u32 mID;
     State mState;
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
+    CoreIdMask mCoreIdMask;
     HANDLE mHandle;
 #else
 #error "Unsupported platform"
@@ -188,7 +189,7 @@ protected:
 class MainThread : public Thread
 {
 public:
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     MainThread(Heap* heap, HANDLE thread, u32 id)
         : Thread(heap, thread, id)
     {

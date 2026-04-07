@@ -2,7 +2,7 @@
 
 #include <basis/seadTypes.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -18,7 +18,7 @@ public:
 
     static void PlaceMemoryBarrier()
     {
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
         MemoryBarrier();
 #else
 #error "Unsupported platform"

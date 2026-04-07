@@ -2,7 +2,7 @@
 
 #include <heap/seadDisposer.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -24,7 +24,7 @@ public:
     void unlock();
 
 protected:
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     CRITICAL_SECTION mMutexInner;
 #else
 #error "Unsupported platform"
