@@ -189,7 +189,7 @@ void GameFrameworkBaseWin::mainLoop_()
         if (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            DispatchMessageA(&msg);
         }
         else
         {
@@ -275,6 +275,12 @@ LRESULT GameFrameworkBaseWin::msgProcImpl_(HWND hWnd, u32 msg, WPARAM wParam, LP
 
                 return 1;
             }
+
+        //! Temp
+        case WM_PAINT:
+            //SEAD_PRINT("proc\n");
+            procFrame_();
+            break;
     }
 
     return DefWindowProcA(hWnd, msg, wParam, lParam);
