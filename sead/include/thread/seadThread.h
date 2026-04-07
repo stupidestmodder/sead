@@ -120,7 +120,6 @@ protected:
     u32 mID;
     State mState;
 #if defined(SEAD_PLATFORM_WINDOWS)
-    CoreIdMask mCoreIdMask;
     HANDLE mHandle;
 #else
 #error "Unsupported platform"
