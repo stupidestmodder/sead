@@ -35,8 +35,8 @@ public:
     };
 
 public:
-    explicit ControllerMgr(const TaskConstructArg& arg);
     ControllerMgr();
+    explicit ControllerMgr(const TaskConstructArg& arg);
 
     void prepare() override;
 

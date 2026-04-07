@@ -15,7 +15,7 @@ public:
     ControllerWrapperBase();
     ~ControllerWrapperBase() override;
 
-    void registerWith(Controller* controller, bool copyRepeatSetting);
+    void registerWith(Controller* controller, bool copyRepeatSetting = true);
     void unregister();
     void copyRepeatSetting(const Controller* controller);
 

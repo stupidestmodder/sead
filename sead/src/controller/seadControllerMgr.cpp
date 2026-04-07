@@ -3,7 +3,7 @@
 #include <controller/seadControlDevice.h>
 #include <controller/seadController.h>
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <controller/win/seadKeyboardMouseDeviceWin.h>
 #include <controller/win/seadWinControllerWin.h>
 #include <controller/win/seadWinJoyPadDeviceWin.h>
@@ -30,16 +30,16 @@ namespace sead {
 
 SEAD_TASK_SINGLETON_DISPOSER_IMPL(ControllerMgr);
 
-ControllerMgr::ControllerMgr(const TaskConstructArg& arg)
-    : CalculateTask(arg, "sead::ControllerMgr")
+ControllerMgr::ControllerMgr()
+    : CalculateTask(TemporallyTaskConstructArg().getArg(), "sead::ControllerMgr")
     , mDevices()
     , mControllers()
 {
     mDevices.initOffset(offsetof(ControlDevice, mListNode));
 }
 
-ControllerMgr::ControllerMgr()
-    : CalculateTask(TemporallyTaskConstructArg().getArg(), "sead::ControllerMgr")
+ControllerMgr::ControllerMgr(const TaskConstructArg& arg)
+    : CalculateTask(arg, "sead::ControllerMgr")
     , mDevices()
     , mControllers()
 {
@@ -52,8 +52,11 @@ void ControllerMgr::prepare()
     if (param)
     {
         initialize(param->controllerMax, nullptr);
+
         if (param->proc)
+        {
             param->proc->invoke(this);
+        }
     }
     else
     {
@@ -73,7 +76,7 @@ void ControllerMgr::finalize()
 
 void ControllerMgr::initializeDefault(Heap* heap)
 {
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     initialize(5, heap);
 
     {
@@ -97,7 +100,7 @@ void ControllerMgr::initializeDefault(Heap* heap)
 
 void ControllerMgr::finalizeDefault()
 {
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
     // TODO
 #else
 #error "Unsupported platform"
