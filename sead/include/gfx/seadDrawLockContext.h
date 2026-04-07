@@ -4,7 +4,7 @@
 
 namespace sead {
 
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
 class Thread;
 #endif
 
@@ -22,7 +22,7 @@ public:
 protected:
     CriticalSection mContextLock;
 
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
     Thread* mContextHolderThread;
     s32 mContextRefCounter;
     void* mHGLRC; //* GL Context Handle

@@ -2,7 +2,7 @@
 
 #include <basis/seadTypes.h>
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(push)
 #pragma warning(disable : 4201)
 #endif // SEAD_COMPILER_MSVC
@@ -65,6 +65,6 @@ public:
 
 } // namespace sead
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(pop)
 #endif // SEAD_COMPILER_MSVC

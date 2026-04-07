@@ -1,6 +1,6 @@
 #include <gfx/seadDrawLockContext.h>
 
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
 #include <gfx/gl/seadGraphicsGL.h>
 #include <thread/seadThread.h>
 #endif
@@ -9,7 +9,7 @@ namespace sead {
 
 DrawLockContext::DrawLockContext()
     : mContextLock()
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
     , mContextHolderThread(nullptr)
     , mContextRefCounter(0)
     , mHGLRC(nullptr)
@@ -24,7 +24,7 @@ DrawLockContext::~DrawLockContext()
 
 void DrawLockContext::initialize(Heap*)
 {
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
     mHGLRC = GraphicsGL::instance()->getHGLRC();
     mHDC = GraphicsGL::instance()->getHDC();
 #endif
@@ -34,7 +34,7 @@ void DrawLockContext::lock()
 {
     mContextLock.lock();
 
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
     Thread* currThread = ThreadMgr::instance()->getCurrentThread();
     if (mContextHolderThread == currThread && mContextRefCounter > 0)
     {
@@ -55,7 +55,7 @@ void DrawLockContext::lock()
 
 void DrawLockContext::unlock()
 {
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
     Thread* currThread = ThreadMgr::instance()->getCurrentThread();
     SEAD_ASSERT(mContextHolderThread == currThread);
     SEAD_ASSERT(mContextRefCounter > 0);

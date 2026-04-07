@@ -5,7 +5,7 @@
 namespace sead {
 
 class Camera;
-class Color4f;
+struct Color4f;
 class DrawContext;
 class Projection;
 

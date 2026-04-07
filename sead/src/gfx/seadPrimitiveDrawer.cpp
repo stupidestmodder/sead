@@ -4,7 +4,7 @@
 #include <gfx/seadProjection.h>
 #include <math/seadQuat.h>
 
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
 #include <gfx/gl/seadPrimitiveDrawMgrGL.h>
 #endif
 
@@ -144,14 +144,14 @@ void PrimitiveDrawer::drawLine(const Vector3f& from, const Vector3f& to, const C
 
 PrimitiveDrawMgrBase* PrimitiveDrawer::createDrawMgrInstance_(Heap* heap)
 {
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
     return PrimitiveDrawMgrGL::createInstance(heap);
 #endif
 }
 
 PrimitiveDrawMgrBase* PrimitiveDrawer::getDrawMgr_()
 {
-#if SEAD_GFX_BACKEND == SEAD_GFX_GL
+#if defined(SEAD_USE_GL)
     return PrimitiveDrawMgrGL::instance();
 #endif
 }

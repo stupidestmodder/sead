@@ -207,7 +207,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
         glShaderSource(mVertShader, 1, &vertShaderCode, &vertShaderCodeSize);
         glCompileShader(mVertShader);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         GLint success = 0;
         glGetShaderiv(mVertShader, GL_COMPILE_STATUS, &success);
         if (success == GL_FALSE)
@@ -222,7 +222,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
 
             delete[] log;
         }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     }
 
     {
@@ -246,7 +246,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
         glShaderSource(mFragShader, 1, &fragShaderCode, &fragShaderCodeSize);
         glCompileShader(mFragShader);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         GLint success = 0;
         glGetShaderiv(mFragShader, GL_COMPILE_STATUS, &success);
         if (success == GL_FALSE)
@@ -261,7 +261,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
 
             delete[] log;
         }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     }
 
     {
@@ -272,7 +272,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
         glAttachShader(mProgram, mFragShader);
         glLinkProgram(mProgram);
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
         GLint success = 0;
         glGetProgramiv(mProgram, GL_LINK_STATUS, &success);
         if (success == GL_FALSE)
@@ -287,7 +287,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
 
             delete[] log;
         }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
     }
 
     {

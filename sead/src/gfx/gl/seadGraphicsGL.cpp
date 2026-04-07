@@ -6,7 +6,7 @@
 #include <gfx/seadGraphicsContext.h>
 #include <thread/seadThread.h>
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
 static void __stdcall GLDebugCallback(GLenum source, GLenum type, u32 id, GLenum severity, GLsizei, const char* message, const void*)
 {
     if (id == 131169 || id == 131185 || id == 131204 || id == 131218)
@@ -59,7 +59,7 @@ static void __stdcall GLDebugCallback(GLenum source, GLenum type, u32 id, GLenum
 
     //sead::system::DebugBreak();
 }
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
 namespace sead {
 
@@ -80,12 +80,12 @@ void GraphicsGL::initializeImpl(Heap*)
 {
     SEAD_PRINT("OpenGL Initialized: %s\n", glGetString(GL_VERSION));
 
-#ifdef SEAD_DEBUG
+#if defined(SEAD_TARGET_DEBUG)
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); 
     glDebugMessageCallback(&GLDebugCallback, nullptr);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-#endif // SEAD_DEBUG
+#endif // SEAD_TARGET_DEBUG
 
     glEnable(GL_SCISSOR_TEST);
     //glClipControl(GL_UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE);
