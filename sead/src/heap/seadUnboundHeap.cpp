@@ -318,7 +318,6 @@ size_t UnboundHeap::getMaxAllocatableSize(s32 alignment) const
 
 bool UnboundHeap::isInclude(const void* ptr) const
 {
-/*
     for (const MemBlock& memBlock : mMemBlockList)
     {
         if (memBlock.isInclude(ptr))
@@ -326,22 +325,21 @@ bool UnboundHeap::isInclude(const void* ptr) const
     }
 
     return false;
-*/
 
-    for (Heap& heap : mChildren)
-    {
-        if (heap.isInclude(ptr))
-            return true;
-    }
+    // for (Heap& heap : mChildren)
+    // {
+    //     if (heap.isInclude(ptr))
+    //         return true;
+    // }
 
-    MemBlock* memBlock = MemBlock::FindManageArea(const_cast<void*>(ptr));
-    if (!memBlock)
-        return false;
+    // MemBlock* memBlock = MemBlock::FindManageArea(const_cast<void*>(ptr));
+    // if (!memBlock)
+    //     return false;
 
-    if (memBlock->mHeapCheckTag != mHeapCheckTag)
-        return false;
+    // if (memBlock->mHeapCheckTag != mHeapCheckTag)
+    //     return false;
 
-    return true;
+    // return true;
 }
 
 bool UnboundHeap::isEmpty() const
