@@ -3,7 +3,7 @@
 #include <basis/seadAssert.h>
 #include <basis/seadTypes.h>
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(push)
 #pragma warning(disable : 6011)
 #endif // SEAD_COMPILER_MSVC
@@ -121,6 +121,6 @@ private:
 
 } // namespace sead
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(pop)
 #endif // SEAD_COMPILER_MSVC

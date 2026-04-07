@@ -20,7 +20,7 @@ public:
 
 } // namespace sead
 
-#ifdef SEAD_PLATFORM_WINDOWS
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <prim/win/seadMemUtilWin.hpp>
 #else
 #error "Unsupported platform"
