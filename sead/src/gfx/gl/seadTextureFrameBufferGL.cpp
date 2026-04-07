@@ -237,7 +237,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
             "in vec2 vFragCoord; "
             "void main(void) "
             "{ "
-            "    vec4 color = texture2D(uTexture, vFragCoord); "
+            "    vec4 color = texture(uTexture, vFragCoord); "
             "    oFragColor = pow(color, vec4(uGamma, uGamma, uGamma, 1.0f)); "
             "} ";
 

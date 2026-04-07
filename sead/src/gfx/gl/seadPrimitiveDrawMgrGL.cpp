@@ -131,7 +131,7 @@ void PrimitiveDrawMgrGL::prepareFromBinaryImpl(Heap* heap, const void*, u32)
                 "in vec2 vTexCoord; "
                 "void main() "
                 "{ "
-                "    vec4 color0 = texture2D(uTexture0, vTexCoord); "
+                "    vec4 color0 = texture(uTexture0, vTexCoord); "
                 "    oFragColor.r = color0.r * vColor.r * uRate + vColor.r * (1.0f - uRate); "
                 "    oFragColor.g = color0.g * vColor.g * uRate + vColor.g * (1.0f - uRate); "
                 "    oFragColor.b = color0.b * vColor.b * uRate + vColor.b * (1.0f - uRate); "
