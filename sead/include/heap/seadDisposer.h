@@ -85,7 +85,7 @@ protected:                                                                      
             SEAD_ASSERT_MSG(false, "Create Singleton Twice (%s) : addr 0x%p", #CLASS, sInstance);           \
         }                                                                                                   \
                                                                                                             \
-        return sInstance;                                                                                   \
+        return static_cast<CLASS*>(sInstance);                                                              \
     }
 
 #define SEAD_DELETE_SINGLETON_INSTANCE(CLASS)                                           \
