@@ -43,7 +43,11 @@ void Halt()
 
     if (sEnableExceptionOnHalt)
     {
-        throw sExceptionStrBuf;
+        //throw sExceptionStrBuf;
+        if (IsDebuggerPresent())
+        {
+            SEAD_BREAKPOINT();
+        }
     }
     else
     {

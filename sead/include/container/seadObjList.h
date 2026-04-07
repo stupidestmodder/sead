@@ -104,7 +104,7 @@ public:
         {
             clear();
 
-            delete[] mFreeList.work();
+            delete[] (T*)mFreeList.work();
 
             mLimitNum = 0;
             mFreeList.cleanup();

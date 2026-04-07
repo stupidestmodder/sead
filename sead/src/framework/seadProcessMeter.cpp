@@ -290,6 +290,7 @@ void ProcessMeter::drawHorizontalMode_(const Viewport& viewport, PrimitiveDrawer
         {
             // TODO
             SEAD_UNUSED(bar);
+            SEAD_UNUSED(count);
             count++;
         }
     }

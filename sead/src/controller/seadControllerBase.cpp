@@ -150,7 +150,7 @@ void ControllerBase::updateDerivativeParams_(u32 prevHold, bool prevPointerOn)
             if (mPadRepeatPulses[i])
             {
                 if (mPadRepeatDelays[i] == mPadHoldCounts[i] ||
-                    mPadRepeatDelays[i] < mPadHoldCounts[i] && (mPadHoldCounts[i] - mPadRepeatDelays[i]) % mPadRepeatPulses[i] == 0)
+                   (mPadRepeatDelays[i] < mPadHoldCounts[i] && (mPadHoldCounts[i] - mPadRepeatDelays[i]) % mPadRepeatPulses[i] == 0))
                 {
                     mPadRepeat.setBit(i);
                 }

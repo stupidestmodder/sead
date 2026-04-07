@@ -29,10 +29,30 @@ void TextureFrameBufferGL::copyToDisplayBuffer(DrawContext* drawContext, const D
     Graphics::instance()->setScissorRealPosition(0, 0, w, h);
 
     //! TODO: Copy framebuffer without using glBlit
-    glBlitNamedFramebuffer(mFBO, displayBufferGL->getHandle(),
-                           0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
-                           0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
-                           GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    if (glBlitNamedFramebuffer != nullptr)
+    {
+        glBlitNamedFramebuffer(mFBO, displayBufferGL->getHandle(),
+            0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
+            0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
+            GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    }
+    else
+    {
+        GLint previousReadFBO = 0;
+        GLint previousDrawFBO = 0;
+        glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &previousReadFBO);
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &previousDrawFBO);
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, mFBO);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, displayBufferGL->getHandle());
+
+        glBlitFramebuffer(0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
+            0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
+            GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, previousReadFBO);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, previousDrawFBO);
+    }
 
     displayBufferGL->copyToDisplay();
 }
@@ -194,7 +214,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
         SEAD_ASSERT(mVertShader != GL_NONE);
 
         const char* vertShaderCode = 
-            "#version 460 core\n "
+            "#version 410 core\n "
             "out vec2 vFragCoord; "
             "void main(void) "
             "{ "
@@ -230,7 +250,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
         SEAD_ASSERT(mFragShader != GL_NONE);
 
         const char* fragShaderCode =
-            "#version 460 core\n "
+            "#version 410 core\n "
             "out vec4 oFragColor; "
             "uniform sampler2D uTexture; "
             "uniform float uGamma; "
