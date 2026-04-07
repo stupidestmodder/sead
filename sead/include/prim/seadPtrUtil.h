@@ -13,16 +13,20 @@ public:
         return reinterpret_cast<void*>(uintptr_t(ptr) + uintptr_t(alignment - 1) & ~uintptr_t(alignment - 1));
     }
 
-    // TODO
-    static void* roundUpN(const void*, u32);
+    static void* roundUpN(const void* ptr, u32 alignment)
+    {
+        return reinterpret_cast<void*>(uintptr_t(ptr) + uintptr_t(alignment - 1) / uintptr_t(alignment) * uintptr_t(alignment));
+    }
 
     static void* roundDownPow2(const void* ptr, u32 alignment)
     {
         return reinterpret_cast<void*>(uintptr_t(ptr) & ~uintptr_t(alignment - 1));
     }
 
-    // TODO
-    static void* roundDownN(const void*, u32);
+    static void* roundDownN(const void* ptr, u32 alignment)
+    {
+        return reinterpret_cast<void*>(uintptr_t(ptr) / uintptr_t(alignment) * uintptr_t(alignment));
+    }
 
     static void* addOffset(const void* ptr, intptr_t offset)
     {
@@ -50,8 +54,10 @@ public:
         return (uintptr_t(ptr) & uintptr_t(alignment - 1)) == 0;
     }
 
-    // TODO
-    static bool isAlignedN(const void*, s32);
+    static bool isAlignedN(const void* ptr, s32 alignment)
+    {
+        return uintptr_t(ptr) % alignment == 0;
+    }
 };
 
 } // namespace sead
