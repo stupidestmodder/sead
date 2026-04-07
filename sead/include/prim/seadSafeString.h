@@ -421,7 +421,7 @@ template <typename CharType>
 class HeapSafeStringBase : public BufferedSafeStringBase<CharType>
 {
 public:
-    HeapSafeStringBase(Heap* heap, const SafeStringBase<CharType>& string, s32 alignment = alignof(void*))
+    HeapSafeStringBase(Heap* heap, const SafeStringBase<CharType>& string, s32 alignment = cDefaultAlignment)
         : BufferedSafeStringBase<CharType>(new(heap, alignment) CharType[string.calcLength() + 1](),
                                            string.calcLength() + 1)
     {
