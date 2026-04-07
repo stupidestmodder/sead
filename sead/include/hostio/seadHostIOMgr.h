@@ -44,6 +44,11 @@ public:
     void exit() override;
     void calc() override;
 
+    HostIORoot* getSeadRoot()
+    {
+        return mSeadRoot;
+    }
+
 private:
     HostIORoot* mSeadRoot;
 };
