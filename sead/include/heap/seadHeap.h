@@ -120,7 +120,7 @@ public:
     virtual const void* getEndAddress() const = 0;
     virtual size_t getSize() const = 0;
     virtual size_t getFreeSize() const = 0;
-    virtual size_t getMaxAllocatableSize(s32 alignment = alignof(void*)) const = 0;
+    virtual size_t getMaxAllocatableSize(s32 alignment = cMinAlignment) const = 0;
 
     virtual bool isInclude(const void* ptr) const = 0;
     virtual bool isEmpty() const = 0;
