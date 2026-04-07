@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(push)
 #pragma warning(disable : 4201)
 #endif // SEAD_COMPILER_MSVC
@@ -258,6 +258,6 @@ struct BaseMtx44
 
 } // namespace sead
 
-#ifdef SEAD_COMPILER_MSVC
+#if defined(SEAD_COMPILER_MSVC)
 #pragma warning(pop)
 #endif // SEAD_COMPILER_MSVC
