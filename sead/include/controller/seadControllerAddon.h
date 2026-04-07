@@ -28,6 +28,7 @@ public:
     virtual bool calc() = 0;
 
     ControllerDefine::AddonId getId() const { return mId; }
+    Controller* getController() const { return mController; }
 
 protected:
     ListNode mListNode;
