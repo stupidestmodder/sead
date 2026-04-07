@@ -341,7 +341,7 @@ public:
         return reverseConstIterator(mBuffer, idx);
     }
 
-private:
+// private:
     T mBuffer[N];
 };
 
@@ -576,7 +576,7 @@ public:
     reverseConstIterator reverseConstEnd() const { return reverseConstIterator(mBuffer, -1); }
     reverseConstIterator toReverseConstIterator(s32 idx) const{ return reverseConstIterator(mBuffer, idx); }
 
-private:
+// private:
     T mBuffer[N];
 };
 
