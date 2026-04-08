@@ -46,7 +46,8 @@ void TextureFrameBufferGL::copyToDisplayBuffer(DrawContext* drawContext, const D
         glBindFramebuffer(GL_READ_FRAMEBUFFER, mFBO);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, displayBufferGL->getHandle());
 
-        glBlitFramebuffer(0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
+        glBlitFramebuffer(
+            0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
             0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
             GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
@@ -214,7 +215,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
         SEAD_ASSERT(mVertShader != GL_NONE);
 
         const char* vertShaderCode = 
-            "#version 410 core\n "
+            "#version 400 core\n "
             "out vec2 vFragCoord; "
             "void main(void) "
             "{ "
@@ -250,7 +251,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
         SEAD_ASSERT(mFragShader != GL_NONE);
 
         const char* fragShaderCode =
-            "#version 410 core\n "
+            "#version 400 core\n "
             "out vec4 oFragColor; "
             "uniform sampler2D uTexture; "
             "uniform float uGamma; "
