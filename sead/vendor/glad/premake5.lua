@@ -1,7 +1,7 @@
 project "glad"
     kind "StaticLib"
     language "C"
-    staticruntime "off"
+    staticruntime "on"
     systemversion "latest"
 
     targetdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out")

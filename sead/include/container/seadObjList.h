@@ -104,7 +104,7 @@ public:
         {
             clear();
 
-            delete[] mFreeList.work();
+            delete[] static_cast<u8*>(mFreeList.work());
 
             mLimitNum = 0;
             mFreeList.cleanup();

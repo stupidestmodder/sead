@@ -43,7 +43,14 @@ void Halt()
 
     if (sEnableExceptionOnHalt)
     {
+#if defined(SEAD_COMPILER_MSVC)
         throw sExceptionStrBuf;
+#else
+        if (IsDebuggerPresent())
+        {
+            SEAD_BREAKPOINT();
+        }
+#endif
     }
     else
     {

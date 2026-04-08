@@ -591,6 +591,24 @@ public:
     }
 };
 
+template <>
+s32 BufferedSafeStringBase<char>::formatV(const char* formatString, std::va_list varg);
+
+template <>
+s32 BufferedSafeStringBase<char16>::formatV(const char16* formatString, std::va_list varg);
+
+template <>
+s32 BufferedSafeStringBase<char>::appendWithFormatV(const char* formatString, std::va_list varg);
+
+template <>
+s32 BufferedSafeStringBase<char16>::appendWithFormatV(const char16* formatString, std::va_list varg);
+
+template <>
+s32 BufferedSafeStringBase<char>::formatImpl_(char* dst, s32 dstSize, const char* formatString, std::va_list varg);
+
+template <>
+s32 BufferedSafeStringBase<char16>::formatImpl_(char16* dst, s32 dstSize, const char16* formatString, std::va_list varg);
+
 } // namespace sead
 
 #include <prim/seadSafeString.hpp>

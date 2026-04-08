@@ -15,7 +15,7 @@ public:
 public:
     ControllerWrapper();
 
-    virtual void calc(u32 prevHold, bool prevPointerOn);
+    void calc(u32 prevHold, bool prevPointerOn) override;
 
     void setPadConfig(s32 padbitMax, const u8* padConfig, bool enableStickcrossEmulation);
 

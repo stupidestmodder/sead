@@ -175,6 +175,12 @@ using Mathd = MathCalcCommon<f64>;
 
 using MathSizeT = MathCalcCommon<size_t>;
 
+template <>
+const MathCalcCommon<f32>::SinCosSample MathCalcCommon<f32>::cSinCosTbl[256 + 1];
+
+template <>
+u32 MathCalcCommon<f32>::atanIdx_(f32 t);
+
 } // namespace sead
 
 #include <math/seadMathCalcCommon.hpp>
