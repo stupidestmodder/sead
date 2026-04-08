@@ -12,15 +12,15 @@
     #error "No graphics backend defined"
 #endif
 
-#if defined(_MSC_VER)
-    #define SEAD_COMPILER_MSVC
-#elif defined(__clang__)
+#if defined(__clang__)
     #define SEAD_COMPILER_CLANG
+#elif defined(_MSC_VER)
+    #define SEAD_COMPILER_MSVC
 #elif defined(__GNUC__)
     #define SEAD_COMPILER_GCC
 #else
     #error "Unsupported compiler"
-#endif // _MSC_VER
+#endif // __clang__
 
 #define SEAD_NO_COPY(CLASS)                  \
 public:                                      \
