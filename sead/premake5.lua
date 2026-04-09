@@ -33,19 +33,20 @@ project "sead"
         "ShadowedVariables",
         "FatalCompileWarnings"
     }
-	
-	buildoptions {
-	-- suppressed errors
-		"-Wno-invalid-offsetof",
-		"-Wno-undefined-var-template",
-		"-Wno-missing-braces",
-	-- keep, but as warnings
-		"-Wno-error=switch",
-		"-Wno-error=unused-private-field",
-		"-Wno-error=unused-const-variable",
-		"-Wno-error=logical-op-parentheses",
-		"-Wno-error=bitwise-op-parentheses",
-	}
+
+	filter { "toolset:clang" }
+		buildoptions {
+		-- suppressed errors
+			"-Wno-invalid-offsetof",
+			"-Wno-undefined-var-template",
+			"-Wno-missing-braces",
+		-- keep, but as warnings
+			"-Wno-error=switch",
+			"-Wno-error=unused-private-field",
+			"-Wno-error=unused-const-variable",
+			"-Wno-error=logical-op-parentheses",
+			"-Wno-error=bitwise-op-parentheses",
+		}
 
     filter "system:windows"
         defines {
