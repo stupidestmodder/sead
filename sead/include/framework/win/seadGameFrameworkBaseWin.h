@@ -100,6 +100,11 @@ public:
         return mExit;
     }
 
+    void requestExit()
+    {
+        mExit = true;
+    }
+
 protected:
     void runImpl_() override;
     MethodTreeMgr* createMethodTreeMgr_(Heap* heap) override;
