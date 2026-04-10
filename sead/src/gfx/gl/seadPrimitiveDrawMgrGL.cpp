@@ -88,7 +88,7 @@ void PrimitiveDrawMgrGL::prepareFromBinaryImpl(Heap* heap, const void*, u32)
             mVS = glCreateShader(GL_VERTEX_SHADER);
 
             const char* vsShader = 
-                "#version 460 core\n "
+                "#version 400 core\n "
                 "in vec3 aVertex; "
                 "in vec2 aTexCoord0; "
                 "in vec4 aColorRate; "
@@ -123,7 +123,7 @@ void PrimitiveDrawMgrGL::prepareFromBinaryImpl(Heap* heap, const void*, u32)
             mFS = glCreateShader(GL_FRAGMENT_SHADER);
 
             const char* fsShader = 
-                "#version 460 core\n "
+                "#version 400 core\n "
                 "out vec4 oFragColor; "
                 "uniform sampler2D uTexture0; "
                 "uniform float uRate; "
