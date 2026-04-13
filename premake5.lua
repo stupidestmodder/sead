@@ -3,7 +3,7 @@ workspace "sead"
     configurations { "Debug", "Release", "Dist" }
     platforms { "Win32", "Win64" }
 	
-	toolset "clang"
+	-- toolset "clang"
 	staticruntime "on"
 
     startproject "Sandbox"
