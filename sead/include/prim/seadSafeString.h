@@ -18,7 +18,7 @@ public:
     static const CharType cNullChar;
     static const CharType cLineBreakChar;
     static const SafeStringBase cEmptyString;
-    static const s32 cMaximumLength = 512*1024;
+    static const s32 cMaximumLength = 8*1024*1024;
 
 public:
     class iterator
