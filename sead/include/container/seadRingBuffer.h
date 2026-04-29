@@ -224,7 +224,54 @@ public:
     bool isEmpty() const { return mNum == 0; }
     bool isFull() const { return mNum >= mNumMax; }
 
+public:
+    class iterator
+    {
+    public:
+        explicit iterator(RingBuffer* buffer, s32 index = 0)
+            : mIndex(index)
+            , mBuffer(buffer)
+        {
+        }
+
+        friend bool operator==(const iterator& lhs, const iterator& rhs)
+        {
+            return lhs.mBuffer == rhs.mBuffer && lhs.mIndex == rhs.mIndex;
+        }
+
+        friend bool operator!=(const iterator& lhs, const iterator& rhs)
+        {
+            return lhs.mBuffer != rhs.mBuffer || lhs.mIndex != rhs.mIndex;
+        }
+
+        iterator& operator++()
+        {
+            mIndex++;
+            return *this;
+        }
+
+        T& operator*() const { return *mBuffer->unsafeGet(mIndex); }
+        T* operator->() const { return mBuffer->unsafeGet(mIndex); }
+
+        s32 getIndex() const { return mIndex; }
+
+    private:
+        s32 mIndex;
+        RingBuffer* mBuffer;
+    };
+
     // TODO: Iterators
+
+public:
+    iterator begin()
+    {
+        return iterator(this);
+    }
+
+    iterator end()
+    {
+        return iterator(this, size());
+    }
 
 protected:
     s32 getIndex(s32 i) const
