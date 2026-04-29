@@ -183,7 +183,16 @@ public:
         return true;
     }
 
-    void forcePushFront(const T&);
+    void forcePushFront(const T& t)
+    {
+        mStart = (mStart < 1 ? mNumMax : mStart) - 1;
+        if (mNum < mNumMax)
+        {
+            mNum++;
+        }
+
+        *unsafeGet(0) = t;
+    }
 
     T* unsafeBirthBack();
     T* unsafeBirthFront();
