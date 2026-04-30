@@ -18,6 +18,7 @@ public:
             , wait_vblank(1)
             , fps(60.0f)
             , window_name("GameFrameworkWin")
+            , window_ex_style(0)
             , clear_color(Color4f::cGray)
             , create_default_framebuffer(true)
         {
@@ -28,6 +29,7 @@ public:
         u32 wait_vblank;
         f32 fps;
         SafeString window_name;
+        DWORD window_ex_style;
         Color4f clear_color;
         bool create_default_framebuffer;
     };

@@ -160,7 +160,7 @@ void GameFrameworkBaseWin::createWindow_()
             return;
         }
 
-        mHWnd = CreateWindowExA(0, mArg.window_name.cstr(), mArg.window_name.cstr(), style,
+        mHWnd = CreateWindowExA(mArg.window_ex_style, mArg.window_name.cstr(), mArg.window_name.cstr(), style,
                                         CW_USEDEFAULT, CW_USEDEFAULT, width, height,
                                         nullptr, nullptr, wndClass.hInstance, nullptr);
         if (!mHWnd)
