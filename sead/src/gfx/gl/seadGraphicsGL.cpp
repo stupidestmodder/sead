@@ -81,10 +81,13 @@ void GraphicsGL::initializeImpl(Heap*)
     SEAD_PRINT("OpenGL Initialized: %s\n", glGetString(GL_VERSION));
 
 #if defined(SEAD_TARGET_DEBUG)
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); 
-    glDebugMessageCallback(&GLDebugCallback, nullptr);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+    if (glDebugMessageCallback)
+    {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); 
+        glDebugMessageCallback(&GLDebugCallback, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+    }
 #endif // SEAD_TARGET_DEBUG
 
     glEnable(GL_SCISSOR_TEST);
