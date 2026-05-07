@@ -318,28 +318,42 @@ size_t UnboundHeap::getMaxAllocatableSize(s32 alignment) const
 
 bool UnboundHeap::isInclude(const void* ptr) const
 {
-    for (const MemBlock& memBlock : mMemBlockList)
+    for (Heap& heap : mChildren)
     {
-        if (memBlock.isInclude(ptr))
+        if (heap.isInclude(ptr))
             return true;
     }
 
-    return false;
+    // Inline FindManageArea logic so we can do a structural sanity check
+    // before touching any MemBlock field. Reading ptr - cPtrSize is safe:
+    // the caller handed us this address, so the word just before it is
+    // within a valid allocation (or the check below will reject it).
+    //
+    // Layout written by tryAlloc / setOffset:
+    //    [MemBlock][optional padding, last word = this|1][user data]
+    //                                                     ^ ptr
+    // When mOffset == 0: ptr - cPtrSize overlaps the tail of MemBlock (mSize).
+    //    mSize is always pointer-aligned, so bit 0 == 0 → block = ptr - sizeof(MemBlock).
+    // When mOffset > 0:  ptr - cPtrSize holds (MemBlock* this)|1, bit 0 == 1.
 
-    // for (Heap& heap : mChildren)
-    // {
-    //     if (heap.isInclude(ptr))
-    //         return true;
-    // }
+    uintptr_t word = *reinterpret_cast<uintptr_t*>(PtrUtil::addOffset(ptr, -static_cast<intptr_t>(cPtrSize)));
 
-    // MemBlock* memBlock = MemBlock::FindManageArea(const_cast<void*>(ptr));
-    // if (!memBlock)
-    //     return false;
+    const MemBlock* memBlock;
+    if ((word & 1) == 0)
+        memBlock = reinterpret_cast<const MemBlock*>(PtrUtil::addOffset(ptr, -static_cast<intptr_t>(sizeof(MemBlock))));
+    else
+        memBlock = reinterpret_cast<const MemBlock*>(word - 1);
 
-    // if (memBlock->mHeapCheckTag != mHeapCheckTag)
-    //     return false;
+    // Structural pre-screen: for any legitimately malloc'd block,
+    // the MemBlock header must end at or before ptr. A garbage decoded
+    // address that violates this is an immediate false-negative
+    if (PtrUtil::addOffset(memBlock, sizeof(MemBlock)) > ptr)
+        return false;
 
-    // return true;
+    if (memBlock->mHeapCheckTag != mHeapCheckTag)
+        return false;
+
+    return memBlock->isInclude(ptr);
 }
 
 bool UnboundHeap::isEmpty() const
