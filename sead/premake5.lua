@@ -75,7 +75,7 @@ project "sead"
         flags { "LinkTimeOptimization" }
 
     filter "configurations:Dist"
-        defines { "NDEBUG" }
+        defines { "SEAD_TARGET_DEBUG", "NDEBUG" }
         runtime "Release"
         symbols "off"
         optimize "speed"
