@@ -457,11 +457,14 @@ u8* FileDevice::doLoad_(LoadArg& arg)
         return nullptr;
 
     u32 bufferSize = arg.buffer_size;
+    u32 unalignBufferSize = arg.buffer_size;
     if (!arg.buffer || arg.check_read_whole)
     {
         u32 fileSize = 0;
         if (!tryGetFileSize(&fileSize, &handle))
             return nullptr;
+
+        unalignBufferSize = fileSize;
 
         if (fileSize == 0)
         {
@@ -516,7 +519,7 @@ u8* FileDevice::doLoad_(LoadArg& arg)
     }
 
     u32 readSize = 0;
-    if (!tryRead(&readSize, &handle, buffer, bufferSize))
+    if (!tryRead(&readSize, &handle, buffer, unalignBufferSize))
     {
         if (needUnload)
             delete[] buffer;

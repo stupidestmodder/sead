@@ -9,6 +9,12 @@
 #include <controller/win/seadWinJoyPadDeviceWin.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
+#if defined(SEAD_PLATFORM_SDL)
+#include <controller/sdl/seadKeyboardMouseDeviceSDL.h>
+#include <controller/sdl/seadSDLControllerSDL.h>
+#include <controller/sdl/seadSDLJoyPadDeviceSDL.h>
+#endif // SEAD_PLATFORM_SDL
+
 class TemporallyTaskConstructArg
 {
 public:
@@ -93,6 +99,24 @@ void ControllerMgr::initializeDefault(Heap* heap)
         // TODO
         //ctrl->mAddons.pushBack(new(heap) WinPseudoAccelerometerAddon(ctrl));
     }
+    
+#elif defined(SEAD_PLATFORM_SDL)
+    initialize(5, heap);
+
+    {
+        mDevices.pushBack(new(heap) KeyboardMouseDevice(this));
+
+        // WinJoyPadDevice* jpDevice = new(heap) WinJoyPadDevice(this);
+        // jpDevice->initialize(heap);
+        // mDevices.pushBack(jpDevice);
+    }
+
+    {
+        // WinController* ctrl = new(heap) WinController(this, 0);
+        // mControllers.pushBack(ctrl);
+        // TODO
+        //ctrl->mAddons.pushBack(new(heap) WinPseudoAccelerometerAddon(ctrl));
+    }
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -101,6 +125,8 @@ void ControllerMgr::initializeDefault(Heap* heap)
 void ControllerMgr::finalizeDefault()
 {
 #if defined(SEAD_PLATFORM_WINDOWS)
+    // TODO
+#elif defined(SEAD_PLATFORM_SDL)
     // TODO
 #else
 #error "Unsupported platform"

@@ -21,7 +21,8 @@ public:
         eAdrInput,
         eInputCapture,
         eNinGenericPad,
-        eUserDefine
+        eUserDefine,
+        eSDLJoyPad
     };
 
     enum class ControllerId

@@ -71,13 +71,17 @@ s32 sw16printf(char16* dst, size_t dstLen, const char16* format, ...)
 
 s32 vsw16printf(char16* dst, size_t dstLen, const char16* format, std::va_list args)
 {
+#if defined(SEAD_PLATFORM_SDL)
+    SEAD_ASSERT(false);
+    return -1;
+#else
     if (dstLen == 0)
         return -1;
 
     //* Nintendo made their own implementation here
     // TODO: Implement this
-
     return std::vswprintf(dst, dstLen, format, args);
+#endif
 }
 
 s32 convertUtf8ToSjis(char* dst, u32 dstLen, const char* src, s32 srcLen)

@@ -6,6 +6,8 @@
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
+#include <basis/sdl/seadSDL.h>
+
 namespace sead {
 
 class StackSymbolResolver;
@@ -24,6 +26,7 @@ public:
     void unlock();
 
 protected:
+    SDL_mutex* mMutexInner;
 #if defined(SEAD_PLATFORM_WINDOWS)
     CRITICAL_SECTION mMutexInner;
 #else

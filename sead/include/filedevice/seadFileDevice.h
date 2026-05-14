@@ -92,7 +92,7 @@ public:
 
     static const s32 cDriveNameBufferSize = 32;
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
     static const s32 cBufferMinAlignment = 32;
 #else
 #error "Unsupported platform"

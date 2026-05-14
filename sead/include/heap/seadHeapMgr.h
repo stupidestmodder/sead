@@ -175,11 +175,14 @@ public:
     static void clearFindContainHeapCacheStatistics();
 #endif // SEAD_TARGET_DEBUG
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
     static Heap* getUnboundHeap() { return sUnboundHeap; }
 
     static void createUnboundHeap();
+
 #endif // SEAD_PLATFORM_WINDOWS
+
+    void setAllocFromNotSeadThreadHeap(Heap* heap);
 
 protected:
     Heap* setCurrentHeap_(Heap* heap);
@@ -203,7 +206,7 @@ protected:
     static CriticalSection sHeapTreeLockCS;
     static IndependentHeaps sIndependentHeaps;
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
     static Heap* sUnboundHeap;
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -225,6 +228,7 @@ protected:
 #else
     IAllocFailedCallback* mAllocFailedCallback;
 #endif // SEAD_TARGET_DEBUG
+    Heap* mAllocFromNotSeadThreadHeap;
 };
 
 class CurrentHeapSetter

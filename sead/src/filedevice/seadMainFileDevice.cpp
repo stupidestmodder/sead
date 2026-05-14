@@ -6,6 +6,10 @@
 #include <filedevice/win/seadWinContentFileDeviceWin.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
+#if defined(SEAD_PLATFORM_SDL)
+#include <filedevice/sdl/seadSDLContentFileDeviceSDL.h>
+#endif // SEAD_PLATFORM_SDL
+
 namespace sead {
 
 MainFileDevice::MainFileDevice(Heap* heap)
@@ -14,6 +18,8 @@ MainFileDevice::MainFileDevice(Heap* heap)
 {
 #if defined(SEAD_PLATFORM_WINDOWS)
     mFileDevice = new(heap) WinContentFileDevice();
+#elif defined(SEAD_PLATFORM_SDL)
+    mFileDevice = new(heap) SDLContentFileDevice();
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

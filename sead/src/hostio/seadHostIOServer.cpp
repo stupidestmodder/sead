@@ -59,6 +59,8 @@ void Server::createPortDirectConnect(const Config* config)
 
 #if defined(SEAD_PLATFORM_WINDOWS)
     mPort = new(mHeap) WinPortDirectConnect(mHeap, config->getRecvBufferSize(), config->getWinTCPPortNumber(), "HostIO RecvThread");
+#elif defined(SEAD_PLATFORM_SDL)
+    SEAD_ASSERT(false);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

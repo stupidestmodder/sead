@@ -32,7 +32,7 @@ public:
 
     static const Element cNullElement = 0;
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
 private:
     bool push_(Element message);
     Element pop_();
@@ -41,7 +41,7 @@ private:
 #endif // SEAD_PLATFORM_WINDOWS
 
 private:
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
     mutable CriticalSection mCriticalSection;
     mutable Event mEvent;
     RingBuffer<Element> mBuffer;

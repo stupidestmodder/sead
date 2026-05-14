@@ -7,21 +7,31 @@ project "glad"
     targetdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out")
     objdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int")
 
-    links {
-        "opengl32.lib"
-    }
-
     includedirs {
         "include"
     }
 
     files {
-        "src/**.c"
+        "src/gl.c"
     }
 
     flags {
         "MultiProcessorCompile"
     }
+
+    filter "system:windows"
+        systemversion "latest"
+        
+        links {
+        "opengl32.lib"
+        }
+
+    filter "system:macosx"
+        systemversion "11.0"
+        
+        links {
+        "OpenGL.framework"
+        }
 
     filter "configurations:Debug"
         defines "DEBUG"

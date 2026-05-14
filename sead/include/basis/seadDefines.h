@@ -4,11 +4,11 @@
     #error "No build target defined"
 #endif
 
-#if !defined(SEAD_PLATFORM_WINDOWS)
+#if !defined(SEAD_PLATFORM_WINDOWS) && !defined(SEAD_PLATFORM_SDL)
     #error "No plaform defined"
 #endif
 
-#if !defined(SEAD_USE_GL) && !defined(SEAD_USE_VK)
+#if !defined(SEAD_USE_GL) && !defined(SEAD_USE_VK) && !defined(SEAD_USE_SDL)
     #error "No graphics backend defined"
 #endif
 

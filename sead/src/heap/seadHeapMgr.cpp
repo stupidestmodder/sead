@@ -5,7 +5,7 @@
 #include <prim/seadScopedLock.h>
 #include <thread/seadThread.h>
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
 #include <heap/seadUnboundHeap.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -23,7 +23,7 @@ CriticalSection HeapMgr::sHeapTreeLockCS;
 HeapMgr::RootHeaps HeapMgr::sRootHeaps;
 HeapMgr::IndependentHeaps HeapMgr::sIndependentHeaps;
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
 Heap* HeapMgr::sUnboundHeap = nullptr;
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -45,6 +45,7 @@ HeapMgr::HeapMgr()
 #else
     : mAllocFailedCallback(nullptr)
 #endif // SEAD_TARGET_DEBUG
+    , mAllocFromNotSeadThreadHeap(nullptr)
 {
 }
 
@@ -195,7 +196,7 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         }
     }
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
     if (sUnboundHeap)
     {
         Heap* containHeap = sUnboundHeap->findContainHeap_(memBlock);
@@ -249,7 +250,10 @@ Heap* HeapMgr::getCurrentHeap() const
     SEAD_ASSERT(threadMgr);
 
     Thread* currentThread = threadMgr->getCurrentThread();
-    return currentThread->getCurrentHeap();
+    if (currentThread)
+        return currentThread->getCurrentHeap();
+
+    return mAllocFromNotSeadThreadHeap;
 }
 
 void HeapMgr::removeRootHeap(Heap* heap)
@@ -294,7 +298,7 @@ void HeapMgr::dumpTreeYAML(WriteStream& stream)
         heap.dumpTreeYAML(stream, 0);
     }
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
     if (sUnboundHeap)
         sUnboundHeap->dumpTreeYAML(stream, 0);
 #endif // SEAD_PLATFORM_WINDOWS
@@ -446,7 +450,7 @@ void HeapMgr::clearFindContainHeapCacheStatistics()
 }
 #endif // SEAD_TARGET_DEBUG
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
 void HeapMgr::createUnboundHeap()
 {
     SEAD_ASSERT(!sUnboundHeap);
@@ -454,6 +458,11 @@ void HeapMgr::createUnboundHeap()
     sUnboundHeap = UnboundHeap::create("UnboundHeap");
 }
 #endif // SEAD_PLATFORM_WINDOWS
+
+void HeapMgr::setAllocFromNotSeadThreadHeap(Heap* heap)
+{
+    mAllocFromNotSeadThreadHeap = heap;
+}
 
 Heap* HeapMgr::setCurrentHeap_(Heap* heap)
 {

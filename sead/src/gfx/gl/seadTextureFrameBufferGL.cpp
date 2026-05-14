@@ -29,6 +29,25 @@ void TextureFrameBufferGL::copyToDisplayBuffer(DrawContext* drawContext, const D
     Graphics::instance()->setScissorRealPosition(0, 0, w, h);
 
     //! TODO: Copy framebuffer without using glBlit
+#if defined(SEAD_PLATFORM_SDL)
+    {
+        GLint previousReadFBO = 0;
+        GLint previousDrawFBO = 0;
+        glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &previousReadFBO);
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &previousDrawFBO);
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, mFBO);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, displayBufferGL->getHandle());
+
+        glBlitFramebuffer(
+            0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
+            0, 0, static_cast<GLint>(w), static_cast<GLint>(h),
+            GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, previousReadFBO);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, previousDrawFBO);
+    }
+#else
     if (glBlitNamedFramebuffer != nullptr)
     {
         glBlitNamedFramebuffer(mFBO, displayBufferGL->getHandle(),
@@ -54,6 +73,7 @@ void TextureFrameBufferGL::copyToDisplayBuffer(DrawContext* drawContext, const D
         glBindFramebuffer(GL_READ_FRAMEBUFFER, previousReadFBO);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, previousDrawFBO);
     }
+#endif
 
     displayBufferGL->copyToDisplay();
 }
