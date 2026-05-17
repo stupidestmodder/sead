@@ -3,6 +3,7 @@
 #include <container/seadTList.h>
 #include <heap/seadDisposer.h>
 #include <heap/seadHeapMgr.h>
+#include <hostio/seadHostIONode.h>
 #include <prim/seadNamable.h>
 #include <prim/seadScopedLock.h>
 #include <thread/seadCriticalSection.h>
@@ -16,7 +17,7 @@ class Thread;
 using ThreadList = TList<Thread*>;
 using ThreadListNode = TListNode<Thread*>;
 
-class Thread : public IDisposer, public INamable
+class Thread : public IDisposer, public INamable, public hostio::Reflexible
 {
     SEAD_NO_COPY(Thread);
 
@@ -80,6 +81,11 @@ public:
     virtual s32 getStackSize() const { return mStackSize; }
     virtual s32 calcStackUsedSizePeak() const;
 
+#if defined(SEAD_TARGET_DEBUG)
+    void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
+    void genMessage(hostio::Context* context) override;
+#endif // SEAD_TARGET_DEBUG
+
     void checkStackOverFlow(const char* pos, s32 line) const;
     void checkStackEndCorruption(const char* pos, s32 line) const;
     void checkStackPointerOverFlow(const char* pos, s32 line) const;
@@ -127,7 +133,7 @@ protected:
 
 };
 
-class ThreadMgr
+class ThreadMgr : public hostio::Node
 {
     SEAD_SINGLETON_DISPOSER(ThreadMgr);
 
@@ -137,6 +143,13 @@ public:
 
     void initialize(Heap* heap);
     void destroy();
+
+    void initHostIO();
+
+#if defined(SEAD_TARGET_DEBUG)
+    void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
+    void genMessage(hostio::Context* context) override;
+#endif // SEAD_TARGET_DEBUG
 
     Thread* getCurrentThread() const { return reinterpret_cast<Thread*>(mThreadPtrTLS.getValue()); }
     Thread* getMainThread() const { return mMainThread; }
