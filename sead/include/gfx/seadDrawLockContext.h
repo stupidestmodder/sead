@@ -1,5 +1,6 @@
 #pragma once
 
+#include <hostio/seadHostIONode.h>
 #include <thread/seadCriticalSection.h>
 
 namespace sead {
@@ -8,13 +9,18 @@ namespace sead {
 class Thread;
 #endif
 
-class DrawLockContext
+class DrawLockContext : public hostio::Node
 {
 public:
     DrawLockContext();
     virtual ~DrawLockContext();
 
     void initialize(Heap* heap);
+
+#if defined(SEAD_TARGET_DEBUG)
+    // TODO
+    //void genMessage(hostio::Context* context) override;
+#endif // SEAD_TARGET_DEBUG
 
     void lock();
     void unlock();

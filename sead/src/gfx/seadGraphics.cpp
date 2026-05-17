@@ -1,6 +1,9 @@
 #include <gfx/seadGraphics.h>
 
 #include <gfx/seadDrawLockContext.h>
+#include <hostio/seadHostIOFramework.h>
+#include <hostio/seadHostIOMgr.h>
+#include <hostio/seadHostIORoot.h>
 
 namespace sead {
 
@@ -29,6 +32,14 @@ void Graphics::initialize(Heap* heap)
     mDrawLockContext->lock();
     initializeImpl(heap);
     mDrawLockContext->unlock();
+}
+
+void Graphics::initHostIO()
+{
+#if defined(SEAD_TARGET_DEBUG)
+  //hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "描画ロック", mDrawLockContext, "Icon=NOTE");
+    hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "DrawLock", mDrawLockContext, "Icon=NOTE");
+#endif // SEAD_TARGET_DEBUG
 }
 
 void Graphics::lockDrawContext()
