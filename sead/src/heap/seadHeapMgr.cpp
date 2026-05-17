@@ -2,7 +2,13 @@
 
 #include <heap/seadExpHeap.h>
 #include <heap/seadHeap.h>
+#include <hostio/seadHostIOContext.h>
+#include <hostio/seadHostIOEvent.h>
+#include <hostio/seadHostIOFramework.h>
+#include <hostio/seadHostIOMgr.h>
+#include <hostio/seadHostIORoot.h>
 #include <prim/seadScopedLock.h>
+#include <stream/seadPrintStream.h>
 #include <thread/seadThread.h>
 
 #if defined(SEAD_PLATFORM_WINDOWS)
@@ -101,6 +107,61 @@ void HeapMgr::destroy()
     sArena->destroy();
     sArena = nullptr;
 }
+
+void HeapMgr::initHostIO()
+{
+#if defined(SEAD_TARGET_DEBUG)
+    hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "HeapMgr", this, "$SEAD_META_HEAPMGR");
+#endif // SEAD_TARGET_DEBUG
+}
+
+#if defined(SEAD_TARGET_DEBUG)
+void HeapMgr::listenPropertyEvent(const hostio::PropertyEvent* ev)
+{
+    switch (ev->id)
+    {
+        case 'ytcd':
+        {
+            PrintWriteStream stream(Stream::Modes::eText);
+            ScopedLock<CriticalSection> lock(&sHeapTreeLockCS);
+
+            for (auto it = sRootHeaps.begin(); it != sRootHeaps.end(); ++it)
+            {
+                it->dumpTreeYAML(stream, 0);
+            }
+
+            for (auto it = sIndependentHeaps.begin(); it != sIndependentHeaps.end(); ++it)
+            {
+                it->dumpTreeYAML(stream, 0);
+            }
+
+            break;
+        }
+    }
+}
+
+void HeapMgr::genMessage(hostio::Context* context)
+{
+    //context->genButton("YAML形式でツリーをコンソールにダンプ", 'ytcd', "", nullptr);
+    context->genButton("Dump tree in YAML format to console", 'ytcd', "", nullptr);
+
+    //context->genLabel(FormatFixedSafeString<64>("次のHeapCheckTag: %u", sHeapCheckTag.getValue()), 0, "");
+    context->genLabel(FormatFixedSafeString<64>("Next HeapCheckTag: %u", sHeapCheckTag.getValue()), 0, "");
+
+    FixedSafeString<64> meta;
+    for (auto it = sRootHeaps.begin(); it != sRootHeaps.end(); ++it)
+    {
+        it->makeMetaString_(&meta);
+        context->genNode(it->getName(), &(*it), meta);
+    }
+
+    for (auto it = sIndependentHeaps.begin(); it != sIndependentHeaps.end(); ++it)
+    {
+        it->makeMetaString_(&meta);
+        context->genNode(it->getName(), &(*it), meta);
+    }
+}
+#endif // SEAD_TARGET_DEBUG
 
 Heap* HeapMgr::findContainHeap(const void* memBlock) const
 {

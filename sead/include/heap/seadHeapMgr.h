@@ -3,6 +3,7 @@
 #include <basis/seadRawPrint.h>
 #include <container/seadPtrArray.h>
 #include <heap/seadArena.h>
+#include <hostio/seadHostIONode.h>
 #include <prim/seadDelegate.h>
 #include <prim/seadSafeString.h>
 #include <thread/seadAtomic.h>
@@ -15,7 +16,7 @@ namespace sead {
 
 class WriteStream;
 
-class HeapMgr
+class HeapMgr : public hostio::Node
 {
 public:
     struct AllocCallbackArg
@@ -75,6 +76,13 @@ public:
     static void initialize(size_t size);
     static void initialize(Arena* arena);
     static void destroy();
+
+    void initHostIO();
+
+#if defined(SEAD_TARGET_DEBUG)
+    void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
+    void genMessage(hostio::Context* context) override;
+#endif // SEAD_TARGET_DEBUG
 
     static bool isInitialized() { return sInstancePtr != nullptr; }
     static HeapMgr* instance() { return sInstancePtr; }
