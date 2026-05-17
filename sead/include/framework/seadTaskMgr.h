@@ -4,6 +4,7 @@
 #include <container/seadObjList.h>
 #include <framework/seadMethodTree.h>
 #include <framework/seadTaskBase.h>
+#include <hostio/seadHostIONode.h>
 #include <prim/seadDelegateEventSlot.h>
 #include <thread/seadCriticalSection.h>
 #include <thread/seadMessageQueue.h>
@@ -29,7 +30,7 @@ private:
     friend class TaskMgr;
 };
 
-class TaskMgr
+class TaskMgr : public hostio::Node
 {
 public:
     struct InitializeArg
@@ -69,6 +70,13 @@ public:
 
     static TaskMgr* initialize(const InitializeArg& arg);
     void finalize();
+
+    void initHostIO();
+
+#if defined(SEAD_TARGET_DEBUG)
+    void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
+    void genMessage(hostio::Context* context) override;
+#endif // SEAD_TARGET_DEBUG
 
     Framework* getFramework() const
     {

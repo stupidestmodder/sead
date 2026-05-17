@@ -142,6 +142,11 @@ void PrimitiveDrawer::drawLine(const Vector3f& from, const Vector3f& to, const C
     drawLine(from, to, color, color);
 }
 
+void PrimitiveDrawer::drawSphere8x16(const Color4f& north, const Color4f& south)
+{
+    getDrawMgr_()->drawSphere8x16Impl(mDrawContext, *mModelMtx, north, south);
+}
+
 PrimitiveDrawMgrBase* PrimitiveDrawer::createDrawMgrInstance_(Heap* heap)
 {
 #if defined(SEAD_USE_GL)

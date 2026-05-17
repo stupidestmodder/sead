@@ -13,9 +13,19 @@ class WinJoyPadDevice : public ControlDevice
 public:
     struct PadStatus
     {
+        PadStatus()
+            : isEnable(false)
+            , id(0)
+        {
+        }
+
+        u32 info[1];
+        u32 caps[1];
+        bool isEnable;
+        u32 id;
     };
 
-    static const u32 cNumMax = 4;
+    static const s32 cNumMax = 4;
 
 public:
     explicit WinJoyPadDevice(ControllerMgr* mgr);
@@ -23,6 +33,9 @@ public:
     void initialize(Heap* heap);
 
     void calc() override;
+
+    const PadStatus& getPads(s32 joyPadNumber) { return mPads[joyPadNumber]; }
+    s32 getPadNum() const { return mPads.size(); }
 
 protected:
     Buffer<PadStatus> mPads;

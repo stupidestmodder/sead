@@ -1,6 +1,11 @@
 #include <thread/seadThread.h>
 
 #include <basis/seadWarning.h>
+#include <hostio/seadHostIOContext.h>
+#include <hostio/seadHostIOEvent.h>
+#include <hostio/seadHostIOFramework.h>
+#include <hostio/seadHostIOMgr.h>
+#include <hostio/seadHostIORoot.h>
 #include <thread/seadThreadUtil.h>
 
 namespace sead {
@@ -85,6 +90,38 @@ s32 Thread::calcStackUsedSizePeak() const
     return 0;
 #endif // SEAD_TARGET_DEBUG
 }
+
+#if defined(SEAD_TARGET_DEBUG)
+void Thread::listenPropertyEvent(const hostio::PropertyEvent* ev)
+{
+    SEAD_UNUSED(ev);
+
+    // switch (ev->id)
+    // {
+    //     case 'soex':
+    //     {
+    //         SEAD_WARNING("This platform cannot set stack overflow exception.");
+    //         break;
+    //     }
+    // }
+}
+
+void Thread::genMessage(hostio::Context* context)
+{
+    hostio::Context::ContextBufferAccessor* ctxBuf = context->beginHTMLLabel("");
+    if (ctxBuf)
+    {
+        BufferedSafeString buf(static_cast<char*>(ctxBuf->getBuffer()), ctxBuf->getMaxSize());
+        buf.format(
+            "<font face=\"ＭＳ ゴシック\"><table><tr><th>Name</th><td>%s</td></tr><tr><th>ID</th><td>%d</td></tr><tr><th>Priority</th><td>%d</td></tr><tr><th>BlockType</th><td>%s</td></tr><tr><th>QuitMessage</th><td>%d</td></tr><tr><th>StackSize</th><td>%d</td></tr><tr><th>StackUsedSizePeak</th><td>%d (%d%%)</td></tr><tr><th>State</th><td>%s</td></tr></table></font>",
+            getName().cstr(), mID, getPriority(), getBlockType() == MessageQueue::BlockType::eBlock ? "Block" : "NoBlock", mQuitMsg, getStackSize(),
+            calcStackUsedSizePeak(), 0, ""//mState.text()
+        );
+
+        context->endHTMLLabel(buf.calcLength());
+    }
+}
+#endif // SEAD_TARGET_DEBUG
 
 void Thread::checkStackOverFlow(const char* pos, s32 line) const
 {
@@ -253,6 +290,32 @@ void ThreadMgr::destroy()
 {
     destroyMainThread_();
 }
+
+void ThreadMgr::initHostIO()
+{
+#if defined(SEAD_TARGET_DEBUG)
+    hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "ThreadMgr", this, "$SEAD_META_THREADMGR");
+#endif // SEAD_TARGET_DEBUG
+}
+
+#if defined(SEAD_TARGET_DEBUG)
+void ThreadMgr::listenPropertyEvent(const hostio::PropertyEvent* ev)
+{
+    SEAD_UNUSED(ev);
+}
+
+void ThreadMgr::genMessage(hostio::Context* context)
+{
+    context->genNode(mMainThread->getName(), mMainThread, "$SEAD_META_THREAD");
+
+    ScopedLock<CriticalSection> lock(&mIterateLockCS);
+    for (auto it = mList.begin(); it != mList.end(); ++it)
+    {
+        Thread* thread = *it;
+        context->genNode(thread->getName(), thread, "$SEAD_META_THREAD");
+    }
+}
+#endif // SEAD_TARGET_DEBUG
 
 bool ThreadMgr::isMainThread() const
 {

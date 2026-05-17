@@ -1,6 +1,8 @@
 #include <heap/seadHeap.h>
 
 #include <heap/seadHeapMgr.h>
+#include <hostio/seadHostIOContext.h>
+#include <hostio/seadHostIOEvent.h>
 #include <prim/seadFormatPrint.h>
 #include <prim/seadScopedLock.h>
 #include <stream/seadStream.h>
@@ -116,6 +118,61 @@ void Heap::dumpYAML(WriteStream& stream, s32 indent) const
     buf.appendWithFormat("  max_allocatable_size: %zu\n", getMaxAllocatableSize());
     stream.writeDecorationText(buf);
 }
+
+#if defined(SEAD_TARGET_DEBUG)
+void Heap::listenPropertyEvent(const hostio::PropertyEvent* ev)
+{
+    switch (ev->id)
+    {
+        case 'dmpc':
+        {
+            dump();
+            break;
+        }
+    }
+}
+
+void Heap::genMessage(hostio::Context* context)
+{
+    //context->genButton("コンソールにダンプ", 'dmpc', "$SEAD_META_HEAP_DMPC", nullptr);
+    context->genButton("Dump to console", 'dmpc', "$SEAD_META_HEAP_DMPC", nullptr);
+
+    genInformation_(context);
+
+    for (auto it = mChildren.begin(); it != mChildren.end(); ++it)
+    {
+        Heap* heap = &(*it);
+
+        FixedSafeString<64> meta;
+        heap->makeMetaString_(&meta);
+
+        context->genNode(heap->getName(), heap, meta);
+    }
+}
+
+void Heap::genInformation_(hostio::Context* context)
+{
+    hostio::Context::ContextBufferAccessor* ctxBuf = context->beginHTMLLabel("");
+    if (ctxBuf)
+    {
+        BufferedSafeString buf(static_cast<char*>(ctxBuf->getBuffer()), ctxBuf->getMaxSize());
+        buf.format(
+            "<font face=\"ＭＳ ゴシック\"><table><tr><th>Name</th><td>%s</td></tr><tr><th>Range</th><td>" SEAD_FMT_UINTPTR " - " SEAD_FMT_UINTPTR "</td></tr><tr><th>Parent</th><td>%s (0x%08X)</td></tr><tr><th>Direction</th><td>%s</td></tr><tr><th>Size</th><td>%d</td></tr><tr><th>FreeSize</th><td>%d</td></tr><tr><th>MaxAllocatableSize</th><td>%d</td></tr></table></font>",
+            //"<font face=\"ＭＳ ゴシック\"><table><tr><th>Name</th><td>%s</td></tr><tr><th>Range</th><td>0x%016llX - 0x%016llX</td></tr><tr><th>Parent</th><td>%s (0x%016llX)</td></tr><tr><th>Direction</th><td>%s</td></tr><tr><th>Size</th><td>%llu</td></tr><tr><th>FreeSize</th><td>%llu</td></tr><tr><th>MaxAllocatableSize</th><td>%llu</td></tr><tr><th>HeapCheckTag</th><td>%d</td></tr></table></font>"
+            getName().cstr(), getStartAddress(), getEndAddress(), getParent() ? getParent()->getName().cstr() : "--", getParent(),
+            getDirection() == HeapDirection::eForward ? "Forward" : "Reverse", getSize(), getFreeSize(), getMaxAllocatableSize()
+        );
+
+        context->endHTMLLabel(buf.calcLength());
+    }
+}
+
+void Heap::makeMetaString_(BufferedSafeString* dst)
+{
+    dst->format("$SEAD_META_HEAP_%03d", static_cast<s32>((1.0f - static_cast<f32>(getFreeSize()) / static_cast<f32>(getSize())) * 10.0f) * 10);
+}
+
+#endif // SEAD_TARGET_DEBUG
 
 Heap* Heap::findContainHeap_(const void* ptr)
 {

@@ -154,6 +154,8 @@ public:
 
     void initialize(Heap* heap);
 
+    void initHostIO();
+
     void lockDrawContext();
     void unlockDrawContext();
 

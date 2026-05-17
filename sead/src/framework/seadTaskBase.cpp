@@ -4,6 +4,7 @@
 #include <framework/seadMethodTreeMgr.h>
 #include <framework/seadTaskMgr.h>
 #include <heap/seadHeap.h>
+#include <hostio/seadHostIOContext.h>
 #include <prim/seadMemUtil.h>
 #include <prim/seadScopedLock.h>
 
@@ -123,6 +124,63 @@ TaskBase::TaskBase(const TaskConstructArg& arg, const char* name)
 
     setName(name);
 }
+
+#if defined(SEAD_TARGET_DEBUG)
+void TaskBase::taskListenPropertyEvent(const hostio::PropertyEvent* ev)
+{
+    taskDoListenPropertyEvent(ev);
+}
+
+void TaskBase::taskGenMessage(hostio::Context* context)
+{
+    taskDoGenMessage(context);
+
+    //context->startTab("タスク情報", "");
+    context->startTab("Task Info", "");
+    {
+    }
+    context->endTab();
+
+    //context->startTab("タスクヒープ", "");
+    context->startTab("Task Heap", "");
+    {
+        for (s32 i = 0; i < HeapMgr::getRootHeapNum(); i++)
+        {
+            Heap* heap = mHeapArray.getHeap(i);
+            HeapPolicy& policy = mHeapPoliciesForHIO[i];
+
+            if (!heap)
+            {
+                continue;
+            }
+
+            {
+                FixedSafeString<128> s;
+                if (policy.parent)
+                {
+                    //s.format("指定ヒープ(%s)から確保", policy.parent->getName().cstr());
+                    s.format("Allocated from specified heap (%s)", policy.parent->getName().cstr());
+                }
+                else if (getParentTask())
+                {
+                    //s.format("親タスクヒープ(%s)から確保", getParentTask()->mHeapArray.getHeap(i)->getName().cstr());
+                    s.format("Allocated from parent task heap (%s)", getParentTask()->mHeapArray.getHeap(i)->getName().cstr());
+                }
+                else
+                {
+                    //s.format("タスクマネージャヒープから確保");
+                    s.format("Allocated from TaskMgr heap");
+                }
+
+                context->genLabel(s.cstr(), 0, "");
+            }
+
+            heap->genMessage(context);
+        }
+    }
+    context->endTab();
+}
+#endif // SEAD_TARGET_DEBUG
 
 void TaskBase::attachCalc()
 {

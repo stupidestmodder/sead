@@ -2,6 +2,7 @@
 
 #include <container/seadOffsetList.h>
 #include <heap/seadDisposer.h>
+#include <hostio/seadHostIOReflexible.h>
 #include <prim/seadBitFlag.h>
 #include <prim/seadNamable.h>
 #include <prim/seadRuntimeTypeInfo.h>
@@ -12,7 +13,7 @@ namespace sead {
 class Thread;
 class WriteStream;
 
-class Heap : public IDisposer, public INamable
+class Heap : public IDisposer, public INamable, public hostio::Reflexible
 {
     SEAD_RTTI_BASE(Heap);
 
@@ -183,8 +184,17 @@ public:
     void dumpTreeYAML(WriteStream& stream, s32 indent) const;
     virtual void dumpYAML(WriteStream& stream, s32 indent) const;
 
+#if defined(SEAD_TARGET_DEBUG)
+    void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
+    void genMessage(hostio::Context* context) override;
+#endif // SEAD_TARGET_DEBUG
 
 protected:
+#if defined(SEAD_TARGET_DEBUG)
+    virtual void genInformation_(hostio::Context* context);
+    virtual void makeMetaString_(BufferedSafeString* dst);
+#endif // SEAD_TARGET_DEBUG
+
     Heap* findContainHeap_(const void* ptr);
     bool hasNoChild_() const { return mChildren.size() == 0; }
 

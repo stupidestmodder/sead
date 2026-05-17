@@ -24,7 +24,11 @@ public:
                       const Color4f& colorL, const Color4f& colorR,
                       const Vector2f& uvSrc, const Vector2f& uvSize) override;
     void drawBoxImpl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& colorL, const Color4f& colorR) override;
+    // drawCubeImpl()
+    // drawWireCubeImpl()
     void drawLineImpl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& c0, const Color4f& c1) override;
+    void drawSphere4x8Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south) override;
+    void drawSphere8x16Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south) override;
 
 protected:
     void drawVertexBuffer_(const Matrix34f& modelMtx, GLuint* vb, const Color4f& color0, const Color4f& color1);
@@ -52,7 +56,12 @@ protected:
 
     GLuint mQuadBuf[2];
     GLuint mBoxBuf[2];
+    //GLuint mCubeBuf[2];
+    //GLuint mWireCubeBuf[2];
     GLuint mLineBuf[2];
+    GLuint mSphereSBuf[2];
+    GLuint mSphereLBuf[2];
+    // ...
 };
 
 } // namespace sead

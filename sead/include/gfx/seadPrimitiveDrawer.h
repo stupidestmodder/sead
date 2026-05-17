@@ -95,6 +95,12 @@ public:
     void drawLine(const Color4f& c0, const Color4f& c1);
     void drawLine(const Vector3f& from, const Vector3f& to, const Color4f& c0, const Color4f& c1);
     void drawLine(const Vector3f& from, const Vector3f& to, const Color4f& color);
+    void drawSphere4x8(const Color4f&, const Color4f&);
+    void drawSphere4x8(const Vector3f&, f32, const Color4f&, const Color4f&);
+    void drawSphere4x8(const Vector3f&, f32, const Color4f&);
+    void drawSphere8x16(const Color4f& north, const Color4f& south);
+    void drawSphere8x16(const Vector3f&, f32, const Color4f&, const Color4f&);
+    void drawSphere8x16(const Vector3f&, f32, const Color4f&);
 
     // TODO: Add draw methods
 
