@@ -7,55 +7,55 @@
 #include <thread/seadThread.h>
 
 #if defined(SEAD_TARGET_DEBUG)
-static void __stdcall GLDebugCallback(GLenum source, GLenum type, u32 id, GLenum severity, GLsizei, const char* message, const void*)
+static void GLDebugCallback(GLenum source, GLenum type, u32 id, GLenum severity, GLsizei, const char* message, const void*)
 {
-    if (id == 131169 || id == 131185 || id == 131204 || id == 131218)
-        return;
+    // if (id == 131169 || id == 131185 || id == 131204 || id == 131218)
+    //     return;
 
-    sead::Thread* thread = sead::ThreadMgr::instance() ? sead::ThreadMgr::instance()->getCurrentThread() : nullptr;
-    const char* threadName = thread ? thread->getName().cstr() : "null";
+    // sead::Thread* thread = sead::ThreadMgr::instance() ? sead::ThreadMgr::instance()->getCurrentThread() : nullptr;
+    // const char* threadName = thread ? thread->getName().cstr() : "null";
 
-    const char* sourceStr = nullptr;
-    switch (source)
-    {
-        case GL_DEBUG_SOURCE_API:             sourceStr = "API"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   sourceStr = "Window System"; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: sourceStr = "Shader Compiler"; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY:     sourceStr = "Third Party"; break;
-        case GL_DEBUG_SOURCE_APPLICATION:     sourceStr = "Application"; break;
-        case GL_DEBUG_SOURCE_OTHER:           sourceStr = "Other"; break;
-    }
+    // const char* sourceStr = nullptr;
+    // switch (source)
+    // {
+    //     case GL_DEBUG_SOURCE_API:             sourceStr = "API"; break;
+    //     case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   sourceStr = "Window System"; break;
+    //     case GL_DEBUG_SOURCE_SHADER_COMPILER: sourceStr = "Shader Compiler"; break;
+    //     case GL_DEBUG_SOURCE_THIRD_PARTY:     sourceStr = "Third Party"; break;
+    //     case GL_DEBUG_SOURCE_APPLICATION:     sourceStr = "Application"; break;
+    //     case GL_DEBUG_SOURCE_OTHER:           sourceStr = "Other"; break;
+    // }
 
-    const char* typeStr = nullptr;
-    switch (type)
-    {
-        case GL_DEBUG_TYPE_ERROR:               typeStr = "Error"; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: typeStr = "Deprecated Behaviour"; break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  typeStr = "Undefined Behaviour"; break; 
-        case GL_DEBUG_TYPE_PORTABILITY:         typeStr = "Portability"; break;
-        case GL_DEBUG_TYPE_PERFORMANCE:         typeStr = "Performance"; break;
-        case GL_DEBUG_TYPE_MARKER:              typeStr = "Marker"; break;
-        case GL_DEBUG_TYPE_PUSH_GROUP:          typeStr = "Push Group"; break;
-        case GL_DEBUG_TYPE_POP_GROUP:           typeStr = "Pop Group"; break;
-        case GL_DEBUG_TYPE_OTHER:               typeStr = "Other"; break;
-    }
+    // const char* typeStr = nullptr;
+    // switch (type)
+    // {
+    //     case GL_DEBUG_TYPE_ERROR:               typeStr = "Error"; break;
+    //     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: typeStr = "Deprecated Behaviour"; break;
+    //     case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  typeStr = "Undefined Behaviour"; break; 
+    //     case GL_DEBUG_TYPE_PORTABILITY:         typeStr = "Portability"; break;
+    //     case GL_DEBUG_TYPE_PERFORMANCE:         typeStr = "Performance"; break;
+    //     case GL_DEBUG_TYPE_MARKER:              typeStr = "Marker"; break;
+    //     case GL_DEBUG_TYPE_PUSH_GROUP:          typeStr = "Push Group"; break;
+    //     case GL_DEBUG_TYPE_POP_GROUP:           typeStr = "Pop Group"; break;
+    //     case GL_DEBUG_TYPE_OTHER:               typeStr = "Other"; break;
+    // }
 
-    const char* severityStr = nullptr;
-    switch (severity)
-    {
-        case GL_DEBUG_SEVERITY_HIGH:         severityStr = "High"; break;
-        case GL_DEBUG_SEVERITY_MEDIUM:       severityStr = "Medium"; break;
-        case GL_DEBUG_SEVERITY_LOW:          severityStr = "Low"; break;
-        case GL_DEBUG_SEVERITY_NOTIFICATION: severityStr = "Notification"; break;
-    }
+    // const char* severityStr = nullptr;
+    // switch (severity)
+    // {
+    //     case GL_DEBUG_SEVERITY_HIGH:         severityStr = "High"; break;
+    //     case GL_DEBUG_SEVERITY_MEDIUM:       severityStr = "Medium"; break;
+    //     case GL_DEBUG_SEVERITY_LOW:          severityStr = "Low"; break;
+    //     case GL_DEBUG_SEVERITY_NOTIFICATION: severityStr = "Notification"; break;
+    // }
 
-    SEAD_PRINT("GL Debug Callback:\n");
-    SEAD_PRINT("  thread:   %s\n", threadName);
-    SEAD_PRINT("  source:   %s\n", sourceStr);
-    SEAD_PRINT("  type:     %s\n", typeStr);
-    SEAD_PRINT("  id:       %u\n", id);
-    SEAD_PRINT("  severity: %s\n", severityStr);
-    SEAD_PRINT("  message:  %s\n", message);
+    // SEAD_PRINT("GL Debug Callback:\n");
+    // SEAD_PRINT("  thread:   %s\n", threadName);
+    // SEAD_PRINT("  source:   %s\n", sourceStr);
+    // SEAD_PRINT("  type:     %s\n", typeStr);
+    // SEAD_PRINT("  id:       %u\n", id);
+    // SEAD_PRINT("  severity: %s\n", severityStr);
+    // SEAD_PRINT("  message:  %s\n", message);
 
     //sead::system::DebugBreak();
 }
@@ -81,13 +81,13 @@ void GraphicsGL::initializeImpl(Heap*)
     SEAD_PRINT("OpenGL Initialized: %s\n", glGetString(GL_VERSION));
 
 #if defined(SEAD_TARGET_DEBUG)
-    if (glDebugMessageCallback)
-    {
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); 
-        glDebugMessageCallback(&GLDebugCallback, nullptr);
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-    }
+    // if (glDebugMessageCallback)
+    // {
+    //     glEnable(GL_DEBUG_OUTPUT);
+    //     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); 
+    //     glDebugMessageCallback(&GLDebugCallback, nullptr);
+    //     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+    // }
 #endif // SEAD_TARGET_DEBUG
 
     glEnable(GL_SCISSOR_TEST);
@@ -132,11 +132,16 @@ bool GraphicsGL::setVBlankWaitIntervalImpl(u32 interval)
 {
     mVBlankWaitInterval = interval;
 
+    #if defined(SEAD_PLATFORM_WINDOWS)
     if (wglSwapIntervalEXT)
     {
         wglSwapIntervalEXT(interval);
         return true;
     }
+    #elif defined(SEAD_PLATFORM_SDL)
+    SDL_GL_SetSwapInterval(interval);
+    return true;
+    #endif 
 
     return false;
 }

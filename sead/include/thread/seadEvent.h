@@ -7,6 +7,10 @@
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
+#if defined(SEAD_PLATFORM_SDL)
+#include <basis/sdl/seadSDL.h>
+#endif // SEAD_PLATFORM_SDL
+
 namespace sead {
 
 class Event : public IDisposer
@@ -30,6 +34,11 @@ public:
 protected:
 #if defined(SEAD_PLATFORM_WINDOWS)
     HANDLE mEventInner;
+#elif defined(SEAD_PLATFORM_SDL)
+    SDL_Condition* mCond;
+    SDL_Mutex* mMutex;
+    volatile bool mManualReset;
+    volatile bool mIsSignal;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

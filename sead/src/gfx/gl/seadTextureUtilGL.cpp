@@ -7,6 +7,34 @@
 #include <math/seadMathCalcCommon.h>
 #include <stream/seadStream.h>
 
+#if !defined(SEAD_PLATFORM_WINDOWS)
+#pragma pack(push, 1)
+// https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
+// TODO: Replace?
+struct BITMAPFILEHEADER {
+    uint16_t bfType;
+    uint32_t bfSize;
+    uint16_t bfReserved1;
+    uint16_t bfReserved2;
+    uint32_t bfOffBits;
+};
+
+struct BITMAPINFOHEADER {
+    uint32_t biSize;
+    int32_t  biWidth;
+    int32_t  biHeight;
+    uint16_t biPlanes;
+    uint16_t biBitCount;
+    uint32_t biCompression;
+    uint32_t biSizeImage;
+    int32_t  biXPelsPerMeter;
+    int32_t  biYPelsPerMeter;
+    uint32_t biClrUsed;
+    uint32_t biClrImportant;
+};
+#pragma pack(pop)
+#endif
+
 namespace sead {
 
 bool TextureUtil::createTextureImage2DGL(

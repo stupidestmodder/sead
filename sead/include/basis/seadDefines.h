@@ -4,7 +4,7 @@
     #error "No build target defined"
 #endif
 
-#if !defined(SEAD_PLATFORM_WINDOWS)
+#if !defined(SEAD_PLATFORM_WINDOWS) && !defined(SEAD_PLATFORM_SDL)
     #error "No plaform defined"
 #endif
 

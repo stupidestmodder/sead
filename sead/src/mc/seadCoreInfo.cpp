@@ -30,6 +30,8 @@ void CoreInfo::configure()
     {
         sPlatformCoreId[i] = i;
     }
+#elif defined(SEAD_PLATFORM_SDL)
+    return; //stub
 #else
     #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

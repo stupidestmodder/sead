@@ -35,3 +35,5 @@
 *.sln
 *.vcxproj*
 *.user
+*.DS_Store
+*Makefile

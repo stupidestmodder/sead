@@ -48,6 +48,8 @@ public:
 protected:
 #if defined(SEAD_PLATFORM_WINDOWS)
     Thread(Heap* heap, HANDLE thread, u32 id);
+#elif defined(SEAD_PLATFORM_SDL)
+    Thread(Heap* heap, u32 id);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -108,8 +110,10 @@ protected:
 
 #if defined(SEAD_PLATFORM_WINDOWS)
     static u32 __stdcall winThreadFunc_(void* param);
+#elif defined(SEAD_PLATFORM_SDL)
+    static s32 sdlThreadFunc_(void* param);
 #else
-#error "Unsupported platform"
+//#error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 
     friend class ThreadMgr;
@@ -127,6 +131,9 @@ protected:
     State mState;
 #if defined(SEAD_PLATFORM_WINDOWS)
     HANDLE mHandle;
+#elif defined(SEAD_PLATFORM_SDL)
+    SDL_Thread* mHandle;
+    sead::FixedSafeString<32> mNameBuffer;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -205,6 +212,11 @@ public:
     MainThread(Heap* heap, HANDLE thread, u32 id)
         : Thread(heap, thread, id)
     {
+    }
+#elif defined(SEAD_PLATFORM_SDL)
+    MainThread(Heap* heap, u32 id)
+        : Thread(heap, id)
+    {  
     }
 #else
 #error "Unsupported platform"

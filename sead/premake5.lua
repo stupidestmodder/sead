@@ -25,7 +25,9 @@ project "sead"
     }
 
     removefiles {
-        "src/**Win.cpp"
+        "src/**Win.cpp",
+       -- "src/**seadHostIO**.cpp",
+        "src/**WinGL.cpp"
     }
 
     flags {
@@ -61,11 +63,55 @@ project "sead"
             "Ws2_32.lib"
         }
 
+    filter "system:macosx"
+        defines {
+            "SEAD_PLATFORM_SDL",
+            "SEAD_USE_GL"
+        }
+
+        systemversion "11.0"
+
+        includedirs {
+        "/opt/homebrew/include"
+        }
+
+        libdirs {
+            "/opt/homebrew/lib"
+        }
+
+        files {
+            "src/**SDL.cpp"
+        }
+
+        links {
+            "SDL3",
+            "OpenGL.framework"
+        }
+        
+filter "system:linux"
+    defines {
+        "SEAD_PLATFORM_SDL",
+        "SEAD_USE_GL"
+    }
+
+    files {
+        "src/**SDL.cpp"
+    }
+
+    links {
+        "SDL3",
+        "GL",
+        "dl",
+        "pthread"
+    }
+        
+
     filter "configurations:Debug"
         defines { "SEAD_TARGET_DEBUG" }
         runtime "Debug"
         symbols "on"
         optimize "off"
+       -- sanitize "address"
 
     filter "configurations:Release"
         defines { "SEAD_TARGET_DEBUG" }

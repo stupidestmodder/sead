@@ -20,7 +20,7 @@ template <>
 const char16 SafeStringBase<char16>::cLineBreakChar = L'\n';
 
 template <>
-const SafeStringBase<char16> SafeStringBase<char16>::cEmptyString(L"");
+const SafeStringBase<char16> SafeStringBase<char16>::cEmptyString(u"");
 
 template <>
 SafeStringBase<char>& SafeStringBase<char>::operator=(const SafeStringBase<char>& rhs)

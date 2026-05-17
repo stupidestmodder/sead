@@ -6,6 +6,10 @@
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
+#if defined(SEAD_PLATFORM_SDL)
+#include <basis/sdl/seadSDL.h>
+#endif // SEAD_PLATFORM_SDL
+
 namespace sead {
 
 class TickTime
@@ -23,6 +27,11 @@ public:
         QueryPerformanceCounter(&now);
 
         mTick = now.QuadPart;
+    }
+#elif defined(SEAD_PLATFORM_SDL)
+    void setNow()
+    {
+        mTick = SDL_GetTicks();
     }
 #else
 #error "Unsupported platform"

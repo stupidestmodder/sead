@@ -6,6 +6,10 @@
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
+#if defined(SEAD_PLATFORM_SDL)
+#include <basis/sdl/seadSDL.h>
+#endif // SEAD_PLATFORM_SDL
+
 static s64 getFrequency_()
 {
 #if defined(SEAD_PLATFORM_WINDOWS)
@@ -19,6 +23,9 @@ static s64 getFrequency_()
     }
 
     return freq.QuadPart;
+
+#elif defined(SEAD_PLATFORM_SDL)
+    return SDL_GetPerformanceFrequency();
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

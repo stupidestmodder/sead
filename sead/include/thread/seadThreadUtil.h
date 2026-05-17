@@ -6,6 +6,10 @@
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
+#if defined(SEAD_PLATFORM_SDL)
+#include <basis/sdl/seadSDL.h>
+#endif // SEAD_PLATFORM_SDL
+
 namespace sead {
 
 // TODO
@@ -20,6 +24,10 @@ public:
     {
 #if defined(SEAD_PLATFORM_WINDOWS)
         MemoryBarrier();
+#elif defined(SEAD_PLATFORM_SDL)
+    // Acts as a memory barrier
+    static SDL_AtomicInt dummy = {0};
+    SDL_AddAtomicInt(&dummy, 0);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
