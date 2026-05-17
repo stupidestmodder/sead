@@ -103,6 +103,14 @@ public:
     virtual void pauseCalcChild(bool b) { SEAD_UNUSED(b); }
     virtual void pauseDrawChild(bool b) { SEAD_UNUSED(b); }
 
+#if defined(SEAD_TARGET_DEBUG)
+    virtual void taskListenPropertyEvent(const hostio::PropertyEvent* ev);
+    virtual void taskGenMessage(hostio::Context* context);
+
+    virtual void taskDoGenMessage(hostio::Context* context) { SEAD_UNUSED(context); }
+    virtual void taskDoListenPropertyEvent(const hostio::PropertyEvent* ev) { SEAD_UNUSED(ev); }
+#endif // SEAD_TARGET_DEBUG
+
     void attachCalc();
     void attachDraw();
     void attachCalcDraw();
@@ -228,6 +236,9 @@ protected:
     BitFlag32 mInternalFlag;
     ListNode mTaskListNode;
     HeapArray mHeapArray;
+#if defined(SEAD_TARGET_DEBUG)
+    HeapPolicies mHeapPoliciesForHIO;
+#endif // SEAD_TARGET_DEBUG
     TaskMgr* mTaskMgr;
     State mState;
     Tag mTag;

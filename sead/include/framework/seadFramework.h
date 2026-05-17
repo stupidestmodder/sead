@@ -3,6 +3,7 @@
 #include <framework/seadTaskBase.h>
 #include <gfx/seadFrameBuffer.h>
 #include <hostio/seadHostIOMgr.h>
+#include <hostio/seadHostIONode.h>
 #include <prim/seadDelegateEventSlot.h>
 #include <prim/seadRuntimeTypeInfo.h>
 #include <thread/seadThread.h>
@@ -15,7 +16,7 @@ class Heap;
 class MethodTreeMgr;
 class TaskMgr;
 
-class Framework
+class Framework : public hostio::Node
 {
     SEAD_RTTI_BASE(Framework);
 

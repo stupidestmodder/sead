@@ -11,8 +11,14 @@
 #include <framework/seadTaskBase.h>
 #include <framework/seadTaskMgr.h>
 #include <heap/seadExpHeap.h>
+#include <hostio/seadHostIOFramework.h>
+#include <hostio/seadHostIORoot.h>
 #include <resource/seadResourceMgr.h>
 #include <thread/seadThreadUtil.h>
+
+#if defined(SEAD_PLATFORM_WINDOWS)
+#include <WinSock2.h>
+#endif // SEAD_PLATFORM_WINDOWS
 
 static void DefaultLockFunc(bool isLock)
 {
@@ -72,6 +78,28 @@ void GameFramework::initialize(const InitializeArg& arg)
         mgrHeap->adjust();
     }
 
+#if defined(SEAD_TARGET_DEBUG)
+    {
+#if defined(SEAD_PLATFORM_WINDOWS)
+        WSADATA wsaData;
+
+        s32 result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+        if (result != 0)
+        {
+            SEAD_WARNING("WSAStartup failed: %d", result);
+        }
+#else
+#error "Unsupported platform"
+
+        //ExpHeap* mgrHeap = ExpHeap::create(heap->getMaxAllocatableSize(), "sead::HostIO", heap);
+
+        // Init...
+
+        //mgrHeap->adjust();
+#endif // SEAD_PLATFORM_WINDOWS
+    }
+#endif // SEAD_TARGET_DEBUG
+
     heap->adjust();
 }
 
@@ -121,13 +149,11 @@ void GameFramework::createHostIOMgr(TaskBase* rootTask, HostIOMgr::Parameter* pa
 
     mTaskMgr->createSingletonTaskSync<HostIOMgr>(arg);
 
-    SEAD_WARNING("GameFramework::createHostIOMgr() is TODO");
-
-    //HeapMgr::instance()->initHostIO();
-    //ThreadMgr::instance()->initHostIO();
-    //getTaskMgr()->initHostIO();
+    HeapMgr::instance()->initHostIO();
+    ThreadMgr::instance()->initHostIO();
+    getTaskMgr()->initHostIO();
     initHostIO_();
-    //Graphics::instance()->initHostIO();
+    Graphics::instance()->initHostIO();
 }
 
 void GameFramework::createProcessMeter(TaskBase* rootTask)
@@ -193,7 +219,10 @@ void GameFramework::waitStartDisplayLoop_()
 
 void GameFramework::initHostIO_()
 {
-    // TODO
+#if defined(SEAD_TARGET_DEBUG)
+  //hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "フレームワーク", this, "");
+    hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "Framework", this, "");
+#endif // SEAD_TARGET_DEBUG
 }
 
 } // namespace sead

@@ -6,6 +6,11 @@
 #include <framework/seadMethodTreeMgr.h>
 #include <framework/seadTaskEvent.h>
 #include <heap/seadExpHeap.h>
+#include <hostio/seadHostIOContext.h>
+#include <hostio/seadHostIOEvent.h>
+#include <hostio/seadHostIOFramework.h>
+#include <hostio/seadHostIOMgr.h>
+#include <hostio/seadHostIORoot.h>
 #include <prim/seadScopedLock.h>
 #include <thread/seadDelegateThread.h>
 
@@ -119,6 +124,52 @@ void TaskMgr::finalize()
         }
     }
 }
+
+void TaskMgr::initHostIO()
+{
+#if defined(SEAD_TARGET_DEBUG)
+  //hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "タスクマネージャ", this, "");
+    hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "TaskMgr", this, "");
+#endif // SEAD_TARGET_DEBUG
+}
+
+#if defined(SEAD_TARGET_DEBUG)
+void TaskMgr::listenPropertyEvent(const hostio::PropertyEvent* ev)
+{
+    TaskBase* task = reinterpret_cast<TaskBase*>(ev->localNodeID);
+    if (task)
+    {
+        task->taskListenPropertyEvent(ev);
+    }
+}
+
+void TaskMgr::genMessage(hostio::Context* context)
+{
+    for (auto it = mActiveList.begin(); it != mActiveList.end(); ++it)
+    {
+        TaskBase* task = *it;
+
+        context->startNode(task->getName(), "", static_cast<u32>(reinterpret_cast<uintptr_t>(task)), this); // TODO: bad u32 cast
+        {
+            task->taskGenMessage(context);
+        }
+        context->endNode();
+    }
+
+    //context->startTab("情報", "");
+    context->startTab("Info", "");
+    {
+        FixedSafeString<128> s;
+
+        s.format("CreateQueue Size : %d\n", mMaxCreateQueueSize);
+        context->genLabel(s.cstr(), 0, "");
+
+        s.format("Active : %d", mActiveList.size());
+        context->genLabel(s.cstr(), 0, "");
+    }
+    context->endTab();
+}
+#endif // SEAD_TARGET_DEBUG
 
 bool TaskMgr::requestCreateTask(const TaskBase::CreateArg& arg)
 {
