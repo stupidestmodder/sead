@@ -19,6 +19,7 @@ public:
 
 protected:
 #if SEAD_GFX_BACKEND == GL_GFX_GL
+    // Nothing
 #else
 #error "Unsupported GFX backend"
 #endif

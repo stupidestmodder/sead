@@ -46,6 +46,11 @@ static void CreateVertexBuffer_(GLuint* vertexBuffer, const sead::PrimitiveDrawU
 
 namespace sead {
 
+const s32 cMaxSphereX = 16;
+const s32 cMaxSphereY = 8;
+const s32 cMaxSphereVtxNum = cMaxSphereX * cMaxSphereY + 2;
+const s32 cMaxSphereIdxNum = 3 * (cMaxSphereX + cMaxSphereX * 2 * (cMaxSphereY - 1) + cMaxSphereX);
+
 SEAD_SINGLETON_DISPOSER_IMPL(PrimitiveDrawMgrGL);
 
 PrimitiveDrawMgrGL::PrimitiveDrawMgrGL()
@@ -189,6 +194,8 @@ void PrimitiveDrawMgrGL::prepareFromBinaryImpl(Heap* heap, const void*, u32)
             glGenSamplers(1, &mSampler);
             glSamplerParameteri(mSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glSamplerParameteri(mSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glSamplerParameteri(mSampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glSamplerParameteri(mSampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         }
@@ -228,11 +235,45 @@ void PrimitiveDrawMgrGL::prepareFromBinaryImpl(Heap* heap, const void*, u32)
             }
 
             {
+            }
+
+            {
+            }
+
+            {
                 PrimitiveDrawUtil::Vertex vtx[2];
                 u16 idx[2];
 
                 PrimitiveDrawUtil::setLineVertex(vtx, idx);
                 CreateVertexBuffer_(mLineBuf, vtx, 2, idx, 2);
+            }
+
+            {
+                PrimitiveDrawUtil::Vertex vtx[cMaxSphereVtxNum];
+                u16 idx[cMaxSphereIdxNum];
+
+                PrimitiveDrawUtil::setSphereVertex(vtx, idx, cMaxSphereX / 2, cMaxSphereY / 2);
+                CreateVertexBuffer_(
+                    mSphereSBuf,
+                    vtx,
+                    PrimitiveDrawUtil::calcSphereVertexNum(cMaxSphereX / 2, cMaxSphereY / 2),
+                    idx,
+                    PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX / 2, cMaxSphereY / 2)
+                );
+            }
+
+            {
+                PrimitiveDrawUtil::Vertex vtx[cMaxSphereVtxNum];
+                u16 idx[cMaxSphereIdxNum];
+
+                PrimitiveDrawUtil::setSphereVertex(vtx, idx, cMaxSphereX, cMaxSphereY);
+                CreateVertexBuffer_(
+                    mSphereLBuf,
+                    vtx,
+                    PrimitiveDrawUtil::calcSphereVertexNum(cMaxSphereX, cMaxSphereY),
+                    idx,
+                    PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX, cMaxSphereY)
+                );
             }
         }
     }
@@ -303,9 +344,10 @@ void PrimitiveDrawMgrGL::drawQuadImpl(
     glUniform2fv(mParamUVSrc, 1, uvSrc.e);
     glUniform2fv(mParamUVSize, 1, uvSize.e);
 
-    glActiveTexture(GL_TEXTURE0);
+    // glActiveTexture(GL_TEXTURE0);
     glBindSampler(0, mSampler);
-    glBindTexture(GL_TEXTURE_2D, textureGL->getID());
+    // glBindTexture(GL_TEXTURE_2D, textureGL->getID());
+    glBindTextureUnit(0, textureGL->getID());
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
@@ -322,6 +364,20 @@ void PrimitiveDrawMgrGL::drawLineImpl(DrawContext* drawContext, const Matrix34f&
     SEAD_UNUSED(drawContext);
 
     drawLines_(modelMtx, GL_LINES, mLineBuf, 2, c0, c1);
+}
+
+void PrimitiveDrawMgrGL::drawSphere4x8Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south)
+{
+    SEAD_UNUSED(drawContext);
+
+    drawPolygon_(modelMtx, mSphereSBuf, PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX / 2, cMaxSphereY / 2), north, south);
+}
+
+void PrimitiveDrawMgrGL::drawSphere8x16Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south)
+{
+    SEAD_UNUSED(drawContext);
+
+    drawPolygon_(modelMtx, mSphereLBuf, PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX, cMaxSphereY), north, south);
 }
 
 void PrimitiveDrawMgrGL::drawVertexBuffer_(const Matrix34f& modelMtx, GLuint* vb, const Color4f& color0, const Color4f& color1)

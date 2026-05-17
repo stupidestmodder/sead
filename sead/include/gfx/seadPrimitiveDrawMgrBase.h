@@ -22,7 +22,11 @@ public:
                               const Color4f& colorL, const Color4f& colorR,
                               const Vector2f& uvSrc, const Vector2f& uvSize) = 0;
     virtual void drawBoxImpl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& colorL, const Color4f& colorR) = 0;
+    // drawCubeImpl()
+    // drawWireCubeImpl()
     virtual void drawLineImpl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& c0, const Color4f& c1) = 0;
+    virtual void drawSphere4x8Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south) = 0;
+    virtual void drawSphere8x16Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south) = 0;
     // TODO: Add draw methods
     virtual ~PrimitiveDrawMgrBase() { }
 };
