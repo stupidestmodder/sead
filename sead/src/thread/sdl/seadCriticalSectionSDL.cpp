@@ -28,7 +28,7 @@ void CriticalSection::lock()
 
 bool CriticalSection::tryLock()
 {
-    return SDL_TryLockMutex(mMutexInner) == 0;
+    return SDL_TryLockMutex(mMutexInner) == 1;
 }
 
 void CriticalSection::unlock()

@@ -25,7 +25,7 @@ private:
 #if defined(SEAD_PLATFORM_WINDOWS)
     DWORD mTlsInner;
 #elif defined(SEAD_PLATFORM_SDL) 
-    SDL_TLSID mTlsHandle;
+    mutable SDL_TLSID mTlsHandle;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

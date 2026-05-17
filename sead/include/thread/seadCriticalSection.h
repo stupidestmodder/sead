@@ -26,11 +26,11 @@ public:
     void unlock();
 
 protected:
-    SDL_mutex* mMutexInner;
+    SDL_Mutex* mMutexInner;
 #if defined(SEAD_PLATFORM_WINDOWS)
     CRITICAL_SECTION mMutexInner;
 #else
-#error "Unsupported platform"
+//s#error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 };
 

@@ -49,17 +49,16 @@ void GameFrameworkSDLGL::initializeGraphicsSystem(Heap* heap, const Vector2f& vi
     #endif
 
     SDL_GLContext glContext = SDL_GL_CreateContext(mWindow);
-    //assert
+    mGLContext = glContext;
 
     SDL_GL_MakeCurrent(mWindow, glContext);
-    //asser
 
     s32 ret = gladLoaderLoadGL();
     SEAD_ASSERT(ret != 0);
 
     SDL_GL_SetSwapInterval(0); 
 
-    SDL_GL_MakeCurrent(nullptr, nullptr);
+   // SDL_GL_MakeCurrent(nullptr, nullptr);
 
     GraphicsGL::CreateArg arg;
     arg.hdc = mWindow;

@@ -35,8 +35,8 @@ protected:
 #if defined(SEAD_PLATFORM_WINDOWS)
     HANDLE mEventInner;
 #elif defined(SEAD_PLATFORM_SDL)
-    SDL_cond* mCond;
-    SDL_mutex* mMutex;
+    SDL_Condition* mCond;
+    SDL_Mutex* mMutex;
     volatile bool mManualReset;
     volatile bool mIsSignal;
 #else

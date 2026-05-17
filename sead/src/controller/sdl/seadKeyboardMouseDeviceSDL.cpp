@@ -36,7 +36,7 @@ void KeyboardMouseDevice::calc()
     mVkeyRepeat.makeAllZero();
 
     s32 numKeys;
-    const u8* keyArray = SDL_GetKeyboardState(&numKeys);
+    const bool* keyArray = SDL_GetKeyboardState(&numKeys);
 
     for (s32 i = 0; i < numKeys; i++)
     {
@@ -74,7 +74,7 @@ void KeyboardMouseDevice::calc()
         mMouseWheelDelta = 0;
         mMouseWheel = 0;
 
-        int mouseX, mouseY;
+        float mouseX, mouseY;
         u32 mouseButtons = SDL_GetGlobalMouseState(&mouseX, &mouseY);
 
         mFlags.set(FlagMask::eCursorEnable);

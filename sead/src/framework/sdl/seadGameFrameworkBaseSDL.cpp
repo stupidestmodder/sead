@@ -56,7 +56,7 @@ GameFrameworkBaseSDL::GameFrameworkBaseSDL(const CreateArg& arg)
     SEAD_ASSERT(!sInstance);
     sInstance = this;
 
-    mSDLHeap = sead::ExpHeap::create(50 * 1024 * 1024, "SDLHeap", sead::HeapMgr::instance()->findContainHeap(this));
+    mSDLHeap = sead::ExpHeap::create(50 * 1024 * 1024, "SDLHeap", sead::HeapMgr::instance()->findContainHeap(this), sead::Heap::eForward, true);
 
     // SDL_SetMemoryFunctions(&SDLAlloc, &SDLCalloc, &SDLRealloc, &SDLFree);
 
@@ -165,12 +165,15 @@ void GameFrameworkBaseSDL::createWindow_()
 
     //* Window creation
     {
-        if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+        if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD))
         {
             SEAD_ASSERT_MSG(false, "Failed to init SDL! Error: %s", SDL_GetError());
         }   
 
-        mWindow = SDL_CreateWindow(mArg.window_name.cstr(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mArg.width, mArg.height, SDL_WINDOW_OPENGL);
+        mWindow = SDL_CreateWindow(mArg.window_name.cstr(), mArg.width,
+                                   mArg.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+
+        SEAD_ASSERT_MSG( mWindow, "SDL_CreateWindow failed: %s", SDL_GetError());
     }
 
     setFps(mArg.fps);
@@ -201,14 +204,14 @@ void GameFrameworkBaseSDL::mainLoop_()
                // break;
 
                 switch (event.type) {
-                    case SDL_QUIT:
+                    case SDL_EVENT_QUIT :
                         mExit = true;
                         isEventPolled = true;
                         break;
 
-                    case SDL_MOUSEWHEEL:
+                    case SDL_EVENT_MOUSE_WHEEL :
                         mMouseWheel = event.wheel.y;
-                        mMouseWheelDelta = event.wheel.preciseY;
+                        mMouseWheelDelta = event.wheel.y;
                         isEventPolled = true;
                         break;
 
@@ -218,13 +221,14 @@ void GameFrameworkBaseSDL::mainLoop_()
                 }
             }
         }
+        
         procFrame_();
 
         TickSpan dt = mLastUpdateTime.diffToNow();
 
     if (dt < mFrameTime)
     {
-        SDL_Delay(0);
+        SDL_Delay(16);
         continue;
     }
 

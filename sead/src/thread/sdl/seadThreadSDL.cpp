@@ -135,7 +135,7 @@ void Thread::yield()
 
 void Thread::setPriority(s32 platformPriority)
 {
-    SDL_SetThreadPriority(static_cast<SDL_ThreadPriority>(platformPriority));
+    SDL_SetCurrentThreadPriority(static_cast<SDL_ThreadPriority>(platformPriority));
     // TODO
     // SEAD_UNUSED(platformPriority);
     // SEAD_ASSERT(false);

@@ -12,27 +12,25 @@ static inline void TlsDtorCallback(void* value)
 
 }
 inline ThreadLocalStorage::ThreadLocalStorage()
-    : mTlsHandle(SDL_TLSCreate())
+    : mTlsHandle(0)
 {
-    SEAD_ASSERT_MSG(mTlsHandle != 0, "SDL_TLSCreate failed");
-    setValue(reinterpret_cast<uintptr_t>(nullptr));
 }
 
 inline ThreadLocalStorage::~ThreadLocalStorage()
 {
-    SDL_TLSCleanup();
+    SDL_CleanupTLS();
    // SEAD_ASSERT_MSG(success, "TlsFree failed");
 }
 
 inline void ThreadLocalStorage::setValue(uintptr_t value)
 {
-    s32 ret = SDL_TLSSet(mTlsHandle, reinterpret_cast<void*>(value), nullptr);
-    SEAD_ASSERT_MSG(ret == 0, "SDL_TLSSet failed");
+    bool ret = SDL_SetTLS(&mTlsHandle, reinterpret_cast<void*>(value), nullptr);
+    SEAD_ASSERT_MSG(ret == 1, "SDL_SetTLS failed");
 }
 
 inline uintptr_t ThreadLocalStorage::getValue() const
 {
-    return reinterpret_cast<uintptr_t>(SDL_TLSGet(mTlsHandle));
+    return reinterpret_cast<uintptr_t>(SDL_GetTLS(&mTlsHandle));
 }
 
 } // namespace sead

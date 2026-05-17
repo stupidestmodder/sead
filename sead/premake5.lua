@@ -84,7 +84,7 @@ project "sead"
         }
 
         links {
-            "SDL2",
+            "SDL3",
             "OpenGL.framework"
         }
         
@@ -99,7 +99,7 @@ filter "system:linux"
     }
 
     links {
-        "SDL2",
+        "SDL3",
         "GL",
         "dl",
         "pthread"

@@ -31,7 +31,7 @@ public:
 #elif defined(SEAD_PLATFORM_SDL)
     void setNow()
     {
-        mTick = SDL_GetTicks64();
+        mTick = SDL_GetTicks();
     }
 #else
 #error "Unsupported platform"

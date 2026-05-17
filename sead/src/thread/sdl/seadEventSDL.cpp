@@ -62,7 +62,7 @@ Event::~Event()
 #endif // SEAD_TARGET_DEBUG
 
     SDL_DestroyMutex(mMutex);
-    SDL_DestroyCond(mCond);
+    SDL_DestroyCondition(mCond);
 }
 
 void Event::initialize(bool manualReset)
@@ -71,8 +71,8 @@ void Event::initialize(bool manualReset)
     SEAD_ASSERT_MSG(!mIsInitialized, "Event is already initialized.");
 #endif // SEAD_TARGET_DEBUG
 
-    mCond = SDL_CreateCond();
-    SEAD_ASSERT_MSG(mCond, "SDL_CreateCond failed. %s", SDL_GetError());
+    mCond = SDL_CreateCondition();
+    SEAD_ASSERT_MSG(mCond, "SDL_CreateCondition failed. %s", SDL_GetError());
 
     mMutex = SDL_CreateMutex();
     SEAD_ASSERT_MSG(mMutex, "SDL_CreateMutex failed. %s", SDL_GetError());
@@ -96,10 +96,11 @@ void Event::wait()
     u32 ret = 0;
     while (!mIsSignal)
     {
-        ret = SDL_CondWait(mCond, mMutex);
+       // SDL_WaitCondition(mCond, mMutex);
+        ret = SDL_WaitConditionTimeout(mCond, mMutex, -1);
     }
 
-    if (ret == 0 && !mManualReset)
+    if (ret == 1 && !mManualReset)
         mIsSignal = false;
 
     SDL_UnlockMutex(mMutex);
@@ -112,17 +113,17 @@ bool Event::wait(TickSpan timeout)
 #endif // SEAD_TARGET_DEBUG
     SDL_LockMutex(mMutex);
 
-    u32 ret = 0;
+    bool ret = true;
 
-    while (!mIsSignal && ret != SDL_MUTEX_TIMEDOUT)
-        ret = SDL_CondWaitTimeout(mCond, mMutex, timeout.toMilliSeconds());
+    while (!mIsSignal && ret)
+        ret = SDL_WaitConditionTimeout(mCond, mMutex, timeout.toMilliSeconds());
 
-    if (mIsSignal && ret == 0 && !mManualReset)
+    if (mIsSignal && ret && !mManualReset)
         mIsSignal = false;
 
     SDL_UnlockMutex(mMutex);
 
-    return ret == 0;
+    return ret;
 }
 
 void Event::setSignal()
@@ -136,9 +137,9 @@ void Event::setSignal()
     mIsSignal = true;
 
     if (!mManualReset)
-        SDL_CondSignal(mCond);
+        SDL_SignalCondition(mCond);
     else
-        SDL_CondBroadcast(mCond);
+        SDL_BroadcastCondition(mCond);
 
     SDL_UnlockMutex(mMutex);
 }

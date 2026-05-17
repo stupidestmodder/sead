@@ -26,8 +26,8 @@ public:
         MemoryBarrier();
 #elif defined(SEAD_PLATFORM_SDL)
     // Acts as a memory barrier
-    static SDL_atomic_t dummy = {0};
-    SDL_AtomicAdd(&dummy, 0);
+    static SDL_AtomicInt dummy = {0};
+    SDL_AddAtomicInt(&dummy, 0);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

@@ -12,7 +12,9 @@ project "Sandbox"
     debugdir "../workdir"
 
     links {
-        "sead"
+        "sead",
+        "glad",
+        "SDL3"
     }
 
     includedirs {
@@ -37,6 +39,22 @@ project "Sandbox"
             "SEAD_PLATFORM_WINDOWS",
             "SEAD_USE_GL"
         }
+
+    filter "system:macosx"
+        defines {
+            "SEAD_PLATFORM_SDL",
+            "SEAD_USE_GL"
+        }
+
+        includedirs {
+        "/opt/homebrew/include"
+        }
+
+        libdirs {
+            "/opt/homebrew/lib"
+        }
+
+        systemversion "11.0"
 
     filter "configurations:Debug"
         defines { "SEAD_TARGET_DEBUG" }

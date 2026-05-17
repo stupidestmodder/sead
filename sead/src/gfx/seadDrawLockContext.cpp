@@ -49,7 +49,7 @@ void DrawLockContext::lock()
     #elif defined(SEAD_PLATFORM_WINDOWS)
     bool b = wglMakeCurrent(static_cast<HDC>(mHDC), static_cast<HGLRC>(mHGLRC));
     #endif
-    SEAD_ASSERT(b == 0);
+    SEAD_ASSERT(b == 1);
 
     mContextHolderThread = currThread;
     mContextRefCounter = 1;
@@ -75,7 +75,7 @@ void DrawLockContext::unlock()
         #elif defined(SEAD_PLATFORM_WINDOWS)
         bool b = wglMakeCurrent(nullptr, nullptr);
         #endif
-        SEAD_ASSERT(b == 0);
+        SEAD_ASSERT(b == 1);
     }
 #endif
 
