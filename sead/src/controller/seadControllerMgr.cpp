@@ -7,6 +7,7 @@
 #include <controller/win/seadKeyboardMouseDeviceWin.h>
 #include <controller/win/seadWinControllerWin.h>
 #include <controller/win/seadWinJoyPadDeviceWin.h>
+#include <controller/win/seadWinPseudoAccelerometerAddonWin.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
 class TemporallyTaskConstructArg
@@ -82,16 +83,16 @@ void ControllerMgr::initializeDefault(Heap* heap)
     {
         mDevices.pushBack(new(heap) KeyboardMouseDevice(this));
 
-        WinJoyPadDevice* jpDevice = new(heap) WinJoyPadDevice(this);
-        jpDevice->initialize(heap);
-        mDevices.pushBack(jpDevice);
+        WinJoyPadDevice* joyPadDevice = new(heap) WinJoyPadDevice(this);
+        joyPadDevice->initialize(heap);
+        mDevices.pushBack(joyPadDevice);
     }
 
     {
-        WinController* ctrl = new(heap) WinController(this, 0);
-        mControllers.pushBack(ctrl);
-        // TODO
-        //ctrl->mAddons.pushBack(new(heap) WinPseudoAccelerometerAddon(ctrl));
+        WinController* controller = new(heap) WinController(this, 0);
+        mControllers.pushBack(controller);
+
+        controller->mAddons.pushBack(new(heap) WinPseudoAccelerometerAddon(controller));
     }
 #else
 #error "Unsupported platform"
