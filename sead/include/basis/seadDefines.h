@@ -8,7 +8,7 @@
     #error "No plaform defined"
 #endif
 
-#if !defined(SEAD_USE_GL) && !defined(SEAD_USE_VK)
+#if !defined(SEAD_USE_GL)
     #error "No graphics backend defined"
 #endif
 

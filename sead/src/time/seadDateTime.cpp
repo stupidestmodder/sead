@@ -165,6 +165,10 @@ u64 DateTime::setNow()
     }
 
     return mRealTimeClock;
+#elif defined(SEAD_PLATFORM_SDL)
+    // TODO
+    SEAD_ASSERT(false);
+    return 0;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

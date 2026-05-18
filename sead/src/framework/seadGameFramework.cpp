@@ -88,6 +88,9 @@ void GameFramework::initialize(const InitializeArg& arg)
         {
             SEAD_WARNING("WSAStartup failed: %d", result);
         }
+#elif defined(SEAD_PLATFORM_SDL)
+        // TODO
+        // SEAD_ASSERT(false);
 #else
 #error "Unsupported platform"
 

@@ -2,13 +2,13 @@ project "Sandbox"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
-    systemversion "latest"
 
-    exceptionhandling "Off"
-    rtti "Off"
+    exceptionhandling "off"
+    rtti "off"
 
-    targetdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out")
-    objdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int")
+    targetdir "build/lib"
+    objdir "build/bin"
+    targetname "%{prj.name}-%{cfg.buildcfg}-%{cfg.architecture}"
     debugdir "../workdir"
 
     links {
@@ -22,6 +22,11 @@ project "Sandbox"
 
         "../sead/include",
         "../sead/vendor/glad/include",
+        "../sead/vendor/SDL3/repo/include",
+    }
+    
+    libdirs {
+        "../sead/vendor/SDL3/lib",
     }
 
     files {
@@ -41,33 +46,29 @@ project "Sandbox"
         }
 
     filter "system:macosx"
+        systemversion "11.0"
         defines {
             "SEAD_PLATFORM_SDL",
             "SEAD_USE_GL"
         }
-
-        includedirs {
-        "/opt/homebrew/include"
+    
+    filter "system:linux"
+        defines {
+            "SEAD_PLATFORM_SDL",
+            "SEAD_USE_GL"
         }
-
-        libdirs {
-            "/opt/homebrew/lib"
-        }
-
-        systemversion "11.0"
-
+    
     filter "configurations:Debug"
         defines { "SEAD_TARGET_DEBUG" }
         runtime "Debug"
         symbols "on"
-        optimize "off"
+        optimize "debug"
 
     filter "configurations:Release"
         defines { "SEAD_TARGET_DEBUG" }
         runtime "Release"
         symbols "on"
         optimize "speed"
-        flags { "LinkTimeOptimization" }
 
     filter "configurations:Dist"
         defines { "NDEBUG" }

@@ -2,13 +2,13 @@ project "sead"
     kind "StaticLib"
     language "C++"
     cppdialect "C++20"
-    systemversion "latest"
 
-    exceptionhandling "Off"
-    rtti "Off"
+    exceptionhandling "off"
+    rtti "off"
 
-    targetdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out")
-    objdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int")
+    targetdir "build/lib"
+    objdir "build/bin"
+    targetname "%{prj.name}-%{cfg.buildcfg}-%{cfg.architecture}"
 
     links {
         "glad"
@@ -18,12 +18,18 @@ project "sead"
         "include",
 
         "vendor/glad/include",
+        "vendor/SDL3/repo/include",
+    }
+    
+    links {
+        "SDL3"
     }
 
     files {
         "src/**.cpp"
     }
 
+    -- TODO: Just exclude backends in the main project and include them per-platform
     removefiles {
         "src/**Win.cpp",
        -- "src/**seadHostIO**.cpp",
@@ -51,32 +57,28 @@ project "sead"
 		}
 
     filter "system:windows"
+        systemversion "latest"
+    
         defines {
             "SEAD_PLATFORM_WINDOWS",
             "SEAD_USE_GL"
         }
+        
         files {
             "src/**Win.cpp"
         }
+        
         links {
             "Winmm.lib",
             "Ws2_32.lib"
         }
 
-    filter "system:macosx"
+    filter "system:macosx"    
+        systemversion "11.0"
+
         defines {
             "SEAD_PLATFORM_SDL",
             "SEAD_USE_GL"
-        }
-
-        systemversion "11.0"
-
-        includedirs {
-        "/opt/homebrew/include"
-        }
-
-        libdirs {
-            "/opt/homebrew/lib"
         }
 
         files {
@@ -84,33 +86,32 @@ project "sead"
         }
 
         links {
-            "SDL3",
             "OpenGL.framework"
         }
         
-filter "system:linux"
-    defines {
-        "SEAD_PLATFORM_SDL",
-        "SEAD_USE_GL"
-    }
+    filter "system:linux"
+        systemversion "latest"
+    
+        defines {
+            "SEAD_PLATFORM_SDL",
+            "SEAD_USE_GL"
+        }
 
-    files {
-        "src/**SDL.cpp"
-    }
+        files {
+            "src/**SDL.cpp"
+        }
 
-    links {
-        "SDL3",
-        "GL",
-        "dl",
-        "pthread"
-    }
-        
+        links {
+            "GL",
+            "dl",
+            "pthread"
+        }
 
     filter "configurations:Debug"
         defines { "SEAD_TARGET_DEBUG" }
         runtime "Debug"
         symbols "on"
-        optimize "off"
+        optimize "debug"
        -- sanitize "address"
 
     filter "configurations:Release"
@@ -118,7 +119,6 @@ filter "system:linux"
         runtime "Release"
         symbols "on"
         optimize "speed"
-        flags { "LinkTimeOptimization" }
 
     filter "configurations:Dist"
         defines { "SEAD_TARGET_DEBUG", "NDEBUG" }
@@ -129,4 +129,5 @@ filter "system:linux"
 
 group "Dependencies"
     include "vendor/glad"
+    include "vendor/SDL3"
 group ""

@@ -24,13 +24,13 @@ inline void Serialization::write<u32>(WriteStream& stream, const u32& value)
     stream.writeU32(value);
 }
 
-#if defined(SEAD_PLATFORM_SDL)
-template <>
-inline void Serialization::write<unsigned long>(WriteStream& stream, const unsigned long& value)
-{
-    stream.writeU32(value);
-}
-#endif
+// #if defined(SEAD_PLATFORM_SDL)
+// template <>
+// inline void Serialization::write<unsigned long>(WriteStream& stream, const unsigned long& value)
+// {
+//     stream.writeU32(value);
+// }
+// #endif
 
 template <>
 inline void Serialization::write<u64>(WriteStream& stream, const u64& value)

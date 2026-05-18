@@ -344,10 +344,10 @@ void PrimitiveDrawMgrGL::drawQuadImpl(
     glUniform2fv(mParamUVSrc, 1, uvSrc.e);
     glUniform2fv(mParamUVSize, 1, uvSize.e);
 
-    // glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
     glBindSampler(0, mSampler);
-    // glBindTexture(GL_TEXTURE_2D, textureGL->getID());
-    glBindTextureUnit(0, textureGL->getID());
+    glBindTexture(GL_TEXTURE_2D, textureGL->getID());
+    // glBindTextureUnit(0, textureGL->getID());
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }

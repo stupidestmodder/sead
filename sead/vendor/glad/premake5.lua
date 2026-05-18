@@ -2,10 +2,10 @@ project "glad"
     kind "StaticLib"
     language "C"
     staticruntime "on"
-    systemversion "latest"
 
-    targetdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out")
-    objdir ("bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int")
+    targetdir "build/lib"
+    objdir "build/bin"
+    targetname "%{prj.name}-%{cfg.buildcfg}-%{cfg.architecture}"
 
     includedirs {
         "include"
@@ -23,28 +23,28 @@ project "glad"
         systemversion "latest"
         
         links {
-        "opengl32.lib"
+            "opengl32.lib"
         }
 
     filter "system:macosx"
         systemversion "11.0"
         
         links {
-        "OpenGL.framework"
+            "OpenGL.framework"
         }
+    
+    filter "system:linux"
+        systemversion "latest"
 
     filter "configurations:Debug"
-        defines "DEBUG"
         runtime "Debug"
         symbols "on"
-        optimize "off"
+        optimize "debug"
 
     filter "configurations:Release"
-        defines "NDEBUG"
         runtime "Release"
         symbols "on"
         optimize "speed"
-        flags { "LinkTimeOptimization" }
 
     filter "configurations:Dist"
         defines "NDEBUG"

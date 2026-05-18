@@ -179,7 +179,7 @@ CalendarTime::Week calcWeekDay(const CalendarTime::Year& year, const CalendarTim
     return CalendarTime::Week(((m * 26 + 16) / 10 + d + ((y + y / 4) - y / 100) + y / 400) % 7);
 }
 
-void DateUtil::calcSecondToCalendarSpan(CalendarSpan* dst, u64 sec)
+void calcSecondToCalendarSpan(CalendarSpan* dst, u64 sec)
 {
     if (!dst)
     {
@@ -192,7 +192,7 @@ void DateUtil::calcSecondToCalendarSpan(CalendarSpan* dst, u64 sec)
     dst->setSeconds(sec % cMinuteSeconds);
 }
 
-// bool DateUtil::parseW3CDTFString(CalendarTime* dst, CalendarSpan* timezone, const SafeString& str)
+// bool parseW3CDTFString(CalendarTime* dst, CalendarSpan* timezone, const SafeString& str)
 // {
 //     u32 year = 1970;
 //     u32 month = 1;

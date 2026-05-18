@@ -1,0 +1,3 @@
+[submodule "sead/vendor/SDL3/repo"]
+	path = sead/vendor/SDL3/repo
+	url = https://github.com/libsdl-org/SDL
