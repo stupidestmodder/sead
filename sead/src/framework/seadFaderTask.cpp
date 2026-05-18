@@ -177,6 +177,9 @@ void FaderTaskBase::onCreateDone_(TaskBase* task)
         case Type::eTakeover:
         case Type::ePush:
             fadein_();
+
+        default:
+            break;
     }
 }
 
@@ -265,6 +268,7 @@ void FaderTaskBase::calcCore_()
                             break;
 
                         case Type::ePop:
+                        {
                             TaskBase* nextTask = mSrcTask->getParentTask();
                             SEAD_ASSERT(nextTask);
 
@@ -293,6 +297,10 @@ void FaderTaskBase::calcCore_()
                             nextTask->onEvent(TaskEvent::ePopped);
 
                             fadein_();
+                            break;
+                        }
+
+                        default:
                             break;
                     }
 
@@ -339,6 +347,9 @@ void FaderTaskBase::calcCore_()
                     mDstTask->resetFlag_(1);
             }
 
+            break;
+
+        default:
             break;
     }
 }

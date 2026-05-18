@@ -131,10 +131,10 @@ void RootTask::enter()
     sead::MethodTreeNode* node = getMethodTreeMgr()->getRootMethodTreeNode(0);
     SEAD_PRINT("Root(%s)\n", node->getName().cstr());
 
-    for (auto it = node->childBegin(); it != node->childEnd(); ++it)
-    {
-        SEAD_PRINT("Node(%s)\n", (*it)->getName().cstr());
-    }
+    // for (auto it = node->childBegin(); it != node->childEnd(); ++it)
+    // {
+    //     SEAD_PRINT("Node(%s)\n", (*it)->getName().cstr());
+    // }
 
     sead::Controller* controller = sead::ControllerMgr::instance()->getController(0);
     ctrl.registerWith(controller, true);

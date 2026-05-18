@@ -1,9 +1,9 @@
 -- premake5.lua
 workspace "sead"
-    configurations { "Debug", "Release", "Dist" }
-    platforms { "Win32", "Win64", "macOS", "LinuxARM64", "Linux64" }
+	platforms { "x86", "x86_64", "ARM64" }
+	configurations { "Debug", "Release", "Dist" }
 	
-	-- toolset "clang"
+	toolset "clang"
 	staticruntime "on"
 
     startproject "Sandbox"
@@ -20,29 +20,17 @@ workspace "sead"
 		"-Wno-error=logical-op-parentheses",
 		"-Wno-error=bitwise-op-parentheses",
 	}
+	
+	filter "platforms:x86"
+		architecture "x86"
+		stl "gnu"
 
-    filter { "platforms:Win32" }
-        system "Windows"
-        architecture "x86"
-    
-    filter { "platforms:Win64" }
-        system "Windows"
-        architecture "x86_64"
+	filter "platforms:x86_64"
+		architecture "x86_64"
+		vectorextensions "AVX2"
 
-	filter { "platforms:macOS" }
-        system "macosx"
-        architecture "ARM64"
-		toolset "clang"
-		
-	filter { "platforms:LinuxARM64" }
-        system "Linux"
-        architecture "ARM64"
-        toolset "clang"
-
-	filter { "platforms:Linux64" }
-        system "Linux"
-        architecture "x86_64"
-        toolset "clang"
+	filter "platforms:ARM64"
+		architecture "ARM64"
 
 include "sead"
 include "Sandbox"
