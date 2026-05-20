@@ -71,10 +71,7 @@ s32 sw16printf(char16* dst, size_t dstLen, const char16* format, ...)
 
 s32 vsw16printf(char16* dst, size_t dstLen, const char16* format, std::va_list args)
 {
-#if defined(SEAD_PLATFORM_SDL)
-    SEAD_ASSERT(false);
-    return -1;
-#else
+#if 0
     if (dstLen == 0)
         return -1;
 
@@ -82,6 +79,13 @@ s32 vsw16printf(char16* dst, size_t dstLen, const char16* format, std::va_list a
     // TODO: Implement this
     return std::vswprintf(dst, dstLen, format, args);
 #endif
+
+    SEAD_UNUSED(dst);
+    SEAD_UNUSED(dstLen);
+    SEAD_UNUSED(format);
+    SEAD_UNUSED(args);
+    SEAD_ASSERT(false);
+    return -1;
 }
 
 s32 convertUtf8ToSjis(char* dst, u32 dstLen, const char* src, s32 srcLen)

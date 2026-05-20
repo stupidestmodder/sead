@@ -6,7 +6,9 @@
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
+#if defined(SEAD_PLATFORM_SDL)
 #include <basis/sdl/seadSDL.h>
+#endif // SEAD_PLATFORM_SDL
 
 namespace sead {
 
@@ -26,11 +28,12 @@ public:
     void unlock();
 
 protected:
-    SDL_Mutex* mMutexInner;
 #if defined(SEAD_PLATFORM_WINDOWS)
-    CRITICAL_SECTION mMutexInner;
+CRITICAL_SECTION mMutexInner;
+#elif defined(SEAD_PLATFORM_SDL)
+    SDL_mutex* mMutexInner;
 #else
-//s#error "Unsupported platform"
+#error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 };
 
