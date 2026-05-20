@@ -16,9 +16,17 @@ void* AllocFromSDK(size_t size, s32 alignment)
 
 #if defined(SEAD_PLATFORM_WINDOWS)
     return ::_aligned_malloc(size, alignment);
+#elif defined(SEAD_PLATFORM_SDL)
+
+// TODO: Remove
+#if defined(_WIN32)
+    return ::_aligned_malloc(size, alignment);
 #else
-    return ::_aligned_malloc(size, alignment); // TODO: WHAT TO DO
-    //#error "Unsupported platform"
+    return ::aligned_alloc(alignment, size);
+#endif
+
+#else
+    #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 }
 
@@ -28,9 +36,17 @@ void FreeFromSDK(void* ptr)
 
 #if defined(SEAD_PLATFORM_WINDOWS)
     ::_aligned_free(ptr);
+#elif defined(SEAD_PLATFORM_SDL)
+
+// TODO: Remove
+#if defined(_WIN32)
+    ::_aligned_free(ptr);
 #else
     ::free(ptr);
-   // #error "Unsupported platform"
+#endif
+
+#else
+    #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 }
 
