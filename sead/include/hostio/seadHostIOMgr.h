@@ -7,6 +7,7 @@
 
 namespace sead {
 
+#if defined(SEAD_TARGET_DEBUG)
 class HostIORoot;
 
 class HostIOMgr : public CalculateTask
@@ -52,5 +53,14 @@ public:
 private:
     HostIORoot* mSeadRoot;
 };
+#else
+class HostIOMgr
+{
+public:
+    class Parameter
+    {
+    };
+};
+#endif // SEAD_TARGET_DEBUG
 
 } // namespace sead

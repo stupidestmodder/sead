@@ -11,6 +11,7 @@ struct ExtensionFuncEvent;
 // TODO
 class Context
 {
+#if defined(SEAD_TARGET_DEBUG)
 public:
     class ContextBufferAccessor
     {
@@ -226,6 +227,7 @@ private:
     ContextBufferAccessor mBufferAccessor;
     u32 mORBehavior;
     s32 mGenMessageDepth;
+#endif // SEAD_TARGET_DEBUG
 };
 
 } } // namespace sead::hostio

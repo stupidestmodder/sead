@@ -10,6 +10,7 @@
 
 namespace sead { namespace hostio {
 
+#if defined(SEAD_TARGET_DEBUG)
 Reflexible::ApplyEventDataToMemoryCallback Reflexible::sApplyEventDataToMemoryCallback = nullptr;
 
 Reflexible::Reflexible()
@@ -269,5 +270,6 @@ void Reflexible::disposeHostIOImpl_()
     safeDelete_(AllocFlg::eName);
     safeDelete_(AllocFlg::eMeta);
 }
+#endif // SEAD_TARGET_DEBUG
 
 } } // namespace sead::hostio

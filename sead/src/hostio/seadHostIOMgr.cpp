@@ -5,6 +5,7 @@
 
 namespace sead {
 
+#if defined(SEAD_TARGET_DEBUG)
 SEAD_TASK_SINGLETON_DISPOSER_IMPL(HostIOMgr);
 
 HostIOMgr::HostIOMgr(const TaskConstructArg& arg)
@@ -54,5 +55,6 @@ void HostIOMgr::calc()
 {
     hostio::MessageLoop();
 }
+#endif // SEAD_TARGET_DEBUG
 
 } // namespace sead

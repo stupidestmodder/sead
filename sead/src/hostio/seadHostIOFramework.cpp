@@ -7,6 +7,7 @@
 
 namespace sead { namespace hostio {
 
+#if defined(SEAD_TARGET_DEBUG)
 TmpContext::TmpContext(Command command)
 {
     ThreadLock::lock();
@@ -79,5 +80,6 @@ void SetRootNode(const SafeString& name, Reflexible* node, const SafeString& met
     Server* server = Server::getInstance();
     server->setRootNode(name, node, meta);
 }
+#endif // SEAD_TARGET_DEBUG
 
 } } // namespace sead::hostio

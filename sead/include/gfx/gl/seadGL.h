@@ -11,7 +11,6 @@
 #endif // NOMINMAX
 
 #include <glad/gl.h>
-//#include <glad/wgl.h>
 
 //#undef near
 //#undef far

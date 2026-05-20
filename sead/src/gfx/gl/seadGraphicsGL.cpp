@@ -6,9 +6,11 @@
 #include <gfx/seadGraphicsContext.h>
 #include <thread/seadThread.h>
 
+#include <glad/wgl.h>
+
 #if defined(SEAD_TARGET_DEBUG)
-static void GLDebugCallback(GLenum source, GLenum type, u32 id, GLenum severity, GLsizei, const char* message, const void*)
-{
+// static void GLDebugCallback(GLenum source, GLenum type, u32 id, GLenum severity, GLsizei, const char* message, const void*)
+// {
     // if (id == 131169 || id == 131185 || id == 131204 || id == 131218)
     //     return;
 
@@ -58,7 +60,7 @@ static void GLDebugCallback(GLenum source, GLenum type, u32 id, GLenum severity,
     // SEAD_PRINT("  message:  %s\n", message);
 
     //sead::system::DebugBreak();
-}
+// }
 #endif // SEAD_TARGET_DEBUG
 
 namespace sead {

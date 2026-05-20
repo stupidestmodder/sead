@@ -12,6 +12,7 @@ public:
     {
     }
 
+#if defined(SEAD_TARGET_DEBUG)
     HostIORoot(Heap* disposerHeap, IDisposer::HeapNullOption option)
         : hostio::Node(disposerHeap, option)
     {
@@ -19,6 +20,7 @@ public:
 
     void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
     void genMessage(hostio::Context* ctx) override;
+#endif // SEAD_TARGET_DEBUG
 };
 
 } // namespace sead

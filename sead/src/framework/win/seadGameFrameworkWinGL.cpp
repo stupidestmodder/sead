@@ -9,6 +9,9 @@
 #include <gfx/gl/seadTextureGL.h>
 #include <gfx/seadTextureUtil.h>
 
+#define GLAD_WGL_IMPLEMENTATION
+#include <glad/wgl.h>
+
 namespace sead {
 
 GameFrameworkWinGL::GameFrameworkWinGL(const CreateArg& arg)

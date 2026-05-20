@@ -5,6 +5,7 @@
 
 namespace sead { namespace hostio {
 
+#if defined(SEAD_TARGET_DEBUG)
 void Context::ContextBufferAccessor::reset()
 {
     mBuffer = nullptr;
@@ -445,5 +446,6 @@ bool Context::checkCallTiming_(Command validCommand)
         return false;
     }
 }
+#endif // SEAD_TARGET_DEBUG
 
 } } // namespace sead::hostio

@@ -176,6 +176,8 @@ public:
     {
 #if defined(SEAD_TARGET_DEBUG)
         return mFlag.isOnBit(Flag::eEnableDebugFillUser);
+#else
+        return false;
 #endif // SEAD_TARGET_DEBUG
     }
 

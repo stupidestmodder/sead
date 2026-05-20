@@ -14,6 +14,7 @@
 
 namespace sead {
 
+#if defined(SEAD_TARGET_DEBUG)
 void HostIORoot::listenPropertyEvent(const hostio::PropertyEvent* ev)
 {
     switch (ev->id)
@@ -100,5 +101,6 @@ void HostIORoot::genMessage(hostio::Context* ctx)
     }
     ctx->endNode();
 }
+#endif // SEAD_TARGET_DEBUG
 
 } // namespace sead

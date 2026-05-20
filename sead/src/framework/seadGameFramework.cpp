@@ -145,6 +145,7 @@ void GameFramework::createControllerMgr(TaskBase* rootTask)
 
 void GameFramework::createHostIOMgr(TaskBase* rootTask, HostIOMgr::Parameter* parameter, Heap* heap)
 {
+#if defined(SEAD_TARGET_DEBUG)
     TaskBase::SystemMgrTaskArg arg(&TTaskFactory<HostIOMgr>);
     arg.parent = rootTask;
     arg.parameter = parameter;
@@ -157,10 +158,12 @@ void GameFramework::createHostIOMgr(TaskBase* rootTask, HostIOMgr::Parameter* pa
     getTaskMgr()->initHostIO();
     initHostIO_();
     Graphics::instance()->initHostIO();
+#endif // SEAD_TARGET_DEBUG
 }
 
 void GameFramework::createProcessMeter(TaskBase* rootTask)
 {
+#if defined(SEAD_TARGET_DEBUG)
     TaskBase::SystemMgrTaskArg arg(&TTaskFactory<ProcessMeter>);
     arg.parent = rootTask;
 
@@ -169,18 +172,24 @@ void GameFramework::createProcessMeter(TaskBase* rootTask)
     ProcessMeter::instance()->attachProcessMeterBar(&mCalcMeter);
     ProcessMeter::instance()->attachProcessMeterBar(&mDrawMeter);
     ProcessMeter::instance()->attachProcessMeterBar(&mGPUMeter);
+#else
+    // ProcessMeter::createInstance(); // Let's not...
+#endif // SEAD_TARGET_DEBUG
 }
 
 void GameFramework::createSeadMenuMgr(TaskBase* rootTask)
 {
+#if defined(SEAD_TARGET_DEBUG)
     TaskBase::SystemMgrTaskArg arg(&TTaskFactory<SeadMenuMgr>);
     arg.parent = rootTask;
 
     mTaskMgr->createSingletonTaskSync<SeadMenuMgr>(arg);
+#endif // SEAD_TARGET_DEBUG
 }
 
 void GameFramework::createInfLoopChecker(TaskBase* rootTask, const TickSpan& infLoopSpan, s32 infLoopThreadStackSize)
 {
+#if defined(SEAD_TARGET_DEBUG)
     if (infLoopSpan.toS64() <= 0)
         return;
 
@@ -198,6 +207,7 @@ void GameFramework::createInfLoopChecker(TaskBase* rootTask, const TickSpan& inf
                                                                                          ThreadUtil::ConvertPrioritySeadToPlatform(8),
                                                                                          infLoopThreadStackSize);
     mCheckerThread->start();
+#endif // SEAD_TARGET_DEBUG
 }
 
 void GameFramework::waitStartDisplayLoop_()

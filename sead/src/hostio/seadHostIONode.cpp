@@ -6,6 +6,7 @@
 
 namespace sead { namespace hostio {
 
+#if defined(SEAD_TARGET_DEBUG)
 Node::Node()
     : Reflexible()
     , mTreeNode(this)
@@ -211,5 +212,6 @@ void Node::calcURLImpl_(BufferedSafeString* url, bool isOwnNode) const
         url->append("/");
     }
 }
+#endif // SEAD_TARGET_DEBUG
 
 } } // namespace sead::hostio

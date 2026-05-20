@@ -17,6 +17,7 @@ static const u32 MAX_SEND_BUFFER_SIZE = 0x800000;
 
 namespace sead { namespace hostio {
 
+#if defined(SEAD_TARGET_DEBUG)
 Server* Server::sInstance = nullptr;
 
 void Server::createInstance(Heap* heap, const Config* config)
@@ -582,5 +583,6 @@ void Server::sendSecurityUnlockFilePath_()
         }
     }
 }
+#endif // SEAD_TARGET_DEBUG
 
 } } // namespace sead::hostio

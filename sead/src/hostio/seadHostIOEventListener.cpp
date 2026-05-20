@@ -4,6 +4,7 @@
 
 namespace sead { namespace hostio {
 
+#if defined(SEAD_TARGET_DEBUG)
 u32 LifeCheckable::sCurrentCreateID = 1;
 LifeCheckable* LifeCheckable::sTopInstance = nullptr;
 
@@ -82,5 +83,6 @@ void LifeCheckable::disposeHostIOImpl_()
         }
     }
 }
+#endif // SEAD_TARGET_DEBUG
 
 } } // namespace sead::hostio
