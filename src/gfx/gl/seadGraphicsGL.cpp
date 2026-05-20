@@ -6,7 +6,9 @@
 #include <gfx/seadGraphicsContext.h>
 #include <thread/seadThread.h>
 
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <glad/wgl.h>
+#endif // SEAD_PLATFORM_WINDOWS
 
 #if defined(SEAD_TARGET_DEBUG)
 // static void GLDebugCallback(GLenum source, GLenum type, u32 id, GLenum severity, GLsizei, const char* message, const void*)
