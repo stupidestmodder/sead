@@ -1,36 +1,109 @@
 -- premake5.lua
-workspace "sead"
-	platforms { "x86", "x86_64", "ARM64" }
-	configurations { "Debug", "Release", "Dist" }
-	
-	toolset "clang"
-	staticruntime "on"
+project "sead"
+    kind "StaticLib"
+    language "C++"
+    cppdialect "C++20"
 
-    startproject "Sandbox"
-	
-	buildoptions {
-	-- suppressed errors
-		"-Wno-invalid-offsetof",
-		"-Wno-undefined-var-template",
-		"-Wno-missing-braces",
-	-- keep, but as warnings
-		"-Wno-error=switch",
-		"-Wno-error=unused-private-field",
-		"-Wno-error=unused-const-variable",
-		"-Wno-error=logical-op-parentheses",
-		"-Wno-error=bitwise-op-parentheses",
-	}
-	
-	filter "platforms:x86"
-		architecture "x86"
-		stl "gnu"
+    multiprocessorcompile "on"
+    staticruntime "on"
+    exceptionhandling "off"
+    rtti "off"
+    fatalwarnings { "all" }
 
-	filter "platforms:x86_64"
-		architecture "x86_64"
-		vectorextensions "AVX2"
+    targetdir "bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out"
+    objdir "bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int"
 
-	filter "platforms:ARM64"
-		architecture "ARM64"
+    includedirs {
+        "include",
+    }
 
-include "sead"
-include "Sandbox"
+    files {
+        "src/**.cpp",
+    }
+
+    removefiles {
+        "src/**sdl/**",
+        "src/**win/**",
+        "src/**posix/**",
+
+        "src/**gl/**",
+    }
+
+    filter "system:windows"
+        systemversion "latest"
+
+    filter "system:linux"
+        systemversion "latest"
+
+    filter "system:macosx"
+        systemversion "11.0"
+
+    filter "platforms:SDL_*"
+        defines {
+            "SEAD_PLATFORM_SDL",
+            "SEAD_USE_GL",
+        }
+
+        includedirs {
+            "libs/glad/include",
+            "libs/SDL3/repo/include",
+        }
+
+        files {
+            "src/**sdl/**",
+
+            "src/**gl/**",
+        }
+
+        links {
+            -- "glad",
+            "SDL3",
+        }
+
+        libdirs {
+            "libs/SDL3/lib",
+        }
+
+    filter "platforms:Win_*"
+        defines {
+            "SEAD_PLATFORM_WINDOWS",
+            "SEAD_USE_GL",
+        }
+
+        includedirs {
+            "libs/glad/include",
+        }
+
+        files {
+            "src/**win/**",
+
+            "src/**gl/**",
+        }
+
+        links {
+            "Winmm.lib",
+            "Ws2_32.lib",
+            "opengl32.lib",
+            -- "glad",
+        }
+
+    filter "configurations:Debug"
+        defines { "SEAD_TARGET_DEBUG" }
+        runtime "debug"
+        optimize "debug"
+        symbols "on"
+        linktimeoptimization "off"
+
+    filter "configurations:Develop"
+        defines { "SEAD_TARGET_DEBUG" } -- TODO: Use SEAD_TARGET_DEVELOP
+        runtime "release"
+        optimize "speed"
+        symbols "on"
+        linktimeoptimization "off"
+
+    filter "configurations:Release"
+        defines { "SEAD_TARGET_RELEASE", "NDEBUG" }
+        runtime "release"
+        optimize "speed"
+        symbols "off"
+        linktimeoptimization "on"

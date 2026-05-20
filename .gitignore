@@ -28,13 +28,14 @@ compile_commands.json
 # Executables
 *.out
 *.app
-**/bin/**
+bin
 
 # Local files
 .vs
 .vscode
 *.sln
+*.slnx
 *.vcxproj*
 *.user
 *.DS_Store
-*Makefile
+**/Makefile

@@ -1,1 +1,1 @@
-sead decomp for windows
+sead for everyone
