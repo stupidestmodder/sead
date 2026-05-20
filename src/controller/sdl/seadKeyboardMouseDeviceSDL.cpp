@@ -76,6 +76,7 @@ void KeyboardMouseDevice::calc()
 
         float mouseX, mouseY;
         u32 mouseButtons = SDL_GetGlobalMouseState(&mouseX, &mouseY);
+        SEAD_UNUSED(mouseButtons);
 
         mFlags.set(FlagMask::eCursorEnable);
         mCursorScreenPos.set(static_cast<f32>(mouseX), static_cast<f32>(mouseY));

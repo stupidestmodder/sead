@@ -31,7 +31,7 @@ protected:
 #if defined(SEAD_PLATFORM_WINDOWS)
 CRITICAL_SECTION mMutexInner;
 #elif defined(SEAD_PLATFORM_SDL)
-    SDL_mutex* mMutexInner;
+    SDL_Mutex* mMutexInner;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

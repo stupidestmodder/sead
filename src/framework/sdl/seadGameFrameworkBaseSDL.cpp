@@ -193,6 +193,7 @@ void GameFrameworkBaseSDL::mainLoop_()
     {
         SDL_Event event;
         bool isEventPolled = false;
+        SEAD_UNUSED(isEventPolled);
 
         {
             sead::CurrentHeapSetter chs(mSDLHeap);

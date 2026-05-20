@@ -29,14 +29,28 @@ project "sead"
         "src/**gl/**",
     }
 
+    defines { "_CRT_SECURE_NO_WARNINGS" }
+
     filter "system:windows"
         systemversion "latest"
+
+        files {
+            "src/prim/win/seadMemUtilWin.cpp",
+        }
 
     filter "system:linux"
         systemversion "latest"
 
+        files {
+            "src/prim/posix/seadMemUtilPosix.cpp",
+        }
+
     filter "system:macosx"
         systemversion "11.0"
+
+        files {
+            "src/prim/posix/seadMemUtilPosix.cpp",
+        }
 
     filter "platforms:SDL_*"
         defines {

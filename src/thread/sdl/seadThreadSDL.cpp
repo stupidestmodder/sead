@@ -4,7 +4,6 @@
 #include <basis/seadWarning.h>
 
 #include <thread>
-#include <SDL2/SDL_thread.h>
 
 namespace sead {
 

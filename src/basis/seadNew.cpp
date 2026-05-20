@@ -17,7 +17,7 @@ void* AllocFromSDK(size_t size, s32 alignment)
 #if defined(SEAD_PLATFORM_WINDOWS)
     return ::_aligned_malloc(size, alignment);
 #else
-    return ::aligned_alloc(alignment, size);
+    return ::_aligned_malloc(size, alignment); // TODO: WHAT TO DO
     //#error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 }
