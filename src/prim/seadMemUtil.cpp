@@ -3,6 +3,8 @@
 #include <basis/seadRawPrint.h>
 #include <heap/seadHeapMgr.h>
 
+#include <climits>
+
 static char toPrintable(char c)
 {
     if (c < ' ' || c > '~') 
