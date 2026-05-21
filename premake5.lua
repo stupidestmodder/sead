@@ -74,10 +74,6 @@ project "sead"
             "SDL3",
         }
 
-        libdirs {
-            "libs/SDL3/lib",
-        }
-
     filter "platforms:Win_*"
         defines {
             "SEAD_PLATFORM_WINDOWS",
@@ -121,3 +117,5 @@ project "sead"
         optimize "speed"
         symbols "off"
         linktimeoptimization "on"
+
+include "libs/SDL3"
