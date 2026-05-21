@@ -4,8 +4,8 @@
 
 #if defined(SEAD_PLATFORM_WINDOWS)
 #include <basis/win/seadWindows.h>
-#elif defined(SEAD_PLATFORM_SDL)
-#include <basis/sdl/seadSDL.h>
+#elif defined(SEAD_PLATFORM_POSIX)
+#include <pthread.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
 namespace sead {
@@ -24,8 +24,8 @@ public:
 private:
 #if defined(SEAD_PLATFORM_WINDOWS)
     DWORD mTlsInner;
-#elif defined(SEAD_PLATFORM_SDL) 
-    mutable SDL_TLSID mTlsHandle;
+#elif defined(SEAD_PLATFORM_POSIX) 
+    pthread_key_t mPthreadKey;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -35,8 +35,8 @@ private:
 
 #if defined(SEAD_PLATFORM_WINDOWS)
 #include <thread/win/seadThreadLocalStorageWin.hpp>
-#elif defined(SEAD_PLATFORM_SDL)
-#include <thread/sdl/seadThreadLocalStorageSDL.hpp>
+#elif defined(SEAD_PLATFORM_POSIX)
+#include <thread/posix/seadThreadLocalStoragePosix.hpp>
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

@@ -48,8 +48,8 @@ public:
 protected:
 #if defined(SEAD_PLATFORM_WINDOWS)
     Thread(Heap* heap, HANDLE thread, u32 id);
-#elif defined(SEAD_PLATFORM_SDL)
-    Thread(Heap* heap, u32 id);
+#elif defined(SEAD_PLATFORM_POSIX)
+    Thread(Heap* heap, pthread_t handle);
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -110,14 +110,14 @@ protected:
 
 #if defined(SEAD_PLATFORM_WINDOWS)
     static u32 __stdcall winThreadFunc_(void* param);
-#elif defined(SEAD_PLATFORM_SDL)
-    static s32 sdlThreadFunc_(void* param);
-#else
-//#error "Unsupported platform"
-#endif // SEAD_PLATFORM_WINDOWS
+#elif defined(SEAD_PLATFORM_POSIX)
+    static void* posixThreadFunc_(void* param);
 
-    friend class ThreadMgr;
-    friend class HeapMgr;
+public:
+    uintptr_t getStackBase() const; // TODO
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM_WINDOWS
 
 protected:
     MessageQueue mMessageQueue;
@@ -131,13 +131,19 @@ protected:
     State mState;
 #if defined(SEAD_PLATFORM_WINDOWS)
     HANDLE mHandle;
-#elif defined(SEAD_PLATFORM_SDL)
-    SDL_Thread* mHandle;
-    sead::FixedSafeString<32> mNameBuffer;
+#elif defined(SEAD_PLATFORM_POSIX)
+    pthread_t mHandle;
+    pthread_attr_t mAttr;
+    uintptr_t mStackBase;
+    u8* mStackTop;
+    s32 mPriority;
+    FixedSafeString<16> mNameBuffer;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 
+    friend class ThreadMgr;
+    friend class HeapMgr;
 };
 
 class ThreadMgr : public hostio::Node
@@ -213,14 +219,15 @@ public:
         : Thread(heap, thread, id)
     {
     }
-#elif defined(SEAD_PLATFORM_SDL)
-    MainThread(Heap* heap, u32 id)
-        : Thread(heap, id)
+#elif defined(SEAD_PLATFORM_POSIX)
+    MainThread(Heap* heap, pthread_t handle)
+        : Thread(heap, handle)
     {  
     }
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
+
     ~MainThread() override
     {
         mState = State::eTerminated;

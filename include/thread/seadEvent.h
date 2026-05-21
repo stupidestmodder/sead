@@ -7,9 +7,9 @@
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
-#if defined(SEAD_PLATFORM_SDL)
-#include <basis/sdl/seadSDL.h>
-#endif // SEAD_PLATFORM_SDL
+#if defined(SEAD_PLATFORM_POSIX)
+#include <pthread.h>
+#endif // SEAD_PLATFORM_POSIX
 
 namespace sead {
 
@@ -34,10 +34,10 @@ public:
 protected:
 #if defined(SEAD_PLATFORM_WINDOWS)
     HANDLE mEventInner;
-#elif defined(SEAD_PLATFORM_SDL)
-    SDL_Condition* mCond;
-    SDL_Mutex* mMutex;
-    volatile bool mManualReset;
+#elif defined(SEAD_PLATFORM_POSIX)
+    pthread_cond_t mCond;
+    pthread_mutex_t mMutexInner;
+    volatile bool mIsManualReset;
     volatile bool mIsSignal;
 #else
 #error "Unsupported platform"

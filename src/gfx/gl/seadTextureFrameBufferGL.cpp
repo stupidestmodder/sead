@@ -29,7 +29,7 @@ void TextureFrameBufferGL::copyToDisplayBuffer(DrawContext* drawContext, const D
     Graphics::instance()->setScissorRealPosition(0, 0, w, h);
 
     //! TODO: Copy framebuffer without using glBlit
-#if defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_GLFW)
     {
         GLint previousReadFBO = 0;
         GLint previousDrawFBO = 0;

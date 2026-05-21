@@ -20,8 +20,10 @@ public:
 
 } // namespace sead
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS)
 #include <prim/win/seadMemUtilWin.hpp>
+#elif defined(SEAD_PLATFORM_POSIX)
+#include <prim/posix/seadMemUtilPosix.hpp>
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

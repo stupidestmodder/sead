@@ -246,7 +246,7 @@ void FileDeviceMgr::resolveDirectoryPath(BufferedSafeString* out, const SafeStri
 
 void FileDeviceMgr::mount_(Heap* heap)
 {
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
     //* Nothing
     SEAD_UNUSED(heap);
 #else
@@ -256,7 +256,7 @@ void FileDeviceMgr::mount_(Heap* heap)
 
 void FileDeviceMgr::unmount_()
 {
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
     //* Nothing
 #else
 #error "Unsupported platform"

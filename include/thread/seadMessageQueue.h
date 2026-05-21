@@ -1,9 +1,12 @@
 #pragma once
 
 #include <basis/seadTypes.h>
+
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
 #include <container/seadRingBuffer.h>
 #include <thread/seadCriticalSection.h>
 #include <thread/seadEvent.h>
+#endif // SEAD_PLATFORM_WINDOWS
 
 namespace sead {
 
@@ -32,16 +35,16 @@ public:
 
     static const Element cNullElement = 0;
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
-private:
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
+protected:
     bool push_(Element message);
     Element pop_();
     Element peek_() const;
     bool jam_(Element message);
 #endif // SEAD_PLATFORM_WINDOWS
 
-private:
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+protected:
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
     mutable CriticalSection mCriticalSection;
     mutable Event mEvent;
     RingBuffer<Element> mBuffer;

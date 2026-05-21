@@ -22,11 +22,13 @@ project "sead"
     }
 
     removefiles {
-        "src/**sdl/**",
-        "src/**win/**",
         "src/**posix/**",
-
+        "src/**win/**",
+        
         "src/**gl/**",
+
+        "src/**sdl/**",
+        "src/**glfw/**",
     }
 
     defines { "_CRT_SECURE_NO_WARNINGS" }
@@ -34,44 +36,56 @@ project "sead"
     filter "system:windows"
         systemversion "latest"
 
+        -- TODO: Remove
+        defines { "SEAD_PLATFORM_WINDOWS" }
         files {
-            "src/prim/win/seadMemUtilWin.cpp",
+            "src/**win/**",
+        }
+        links {
+            "Winmm.lib",
+            "Ws2_32.lib",
+            "opengl32.lib",
+            -- "glad",
         }
 
     filter "system:linux"
         systemversion "latest"
-
+        
+        -- TODO: Remove
+        defines { "SEAD_PLATFORM_POSIX", "SEAD_PLATFORM_LINUX" }
         files {
-            "src/prim/posix/seadMemUtilPosix.cpp",
+            "src/**posix/**",
         }
 
     filter "system:macosx"
         systemversion "11.0"
 
+        -- TODO: Remove
+        defines { "SEAD_PLATFORM_POSIX", "SEAD_PLATFORM_MACOSX" }
         files {
-            "src/prim/posix/seadMemUtilPosix.cpp",
+            "src/**posix/**",
         }
 
-    filter "platforms:SDL_*"
+    filter "platforms:GLFW_*"
         defines {
-            "SEAD_PLATFORM_SDL",
+            "SEAD_PLATFORM_GLFW",
             "SEAD_USE_GL",
         }
 
         includedirs {
             "libs/glad/include",
-            "libs/SDL3/repo/include",
+            -- "libs/SDL3/repo/include",
         }
 
         files {
-            "src/**sdl/**",
+            "src/**glfw/**",
 
             "src/**gl/**",
         }
 
         links {
             -- "glad",
-            "SDL3",
+            -- "SDL3",
         }
 
     filter "platforms:Win_*"
@@ -118,4 +132,4 @@ project "sead"
         symbols "off"
         linktimeoptimization "on"
 
-include "libs/SDL3"
+-- include "libs/SDL3"

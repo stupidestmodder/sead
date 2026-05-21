@@ -1,6 +1,5 @@
 #include <basis/seadRawPrint.h>
 
-#include <basis/sdl/seadSDL.h>
 #include <prim/seadScopedLock.h>
 #include <thread/seadCriticalSection.h>
 

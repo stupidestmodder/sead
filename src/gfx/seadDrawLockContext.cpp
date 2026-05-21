@@ -44,12 +44,15 @@ void DrawLockContext::lock()
 
     SEAD_ASSERT(mContextHolderThread == nullptr);
     SEAD_ASSERT(mContextRefCounter == 0);
-    #if defined(SEAD_PLATFORM_SDL)
-    bool b = SDL_GL_MakeCurrent(static_cast<SDL_Window*>(mHDC), static_cast<SDL_GLContext>(mHGLRC));
-    #elif defined(SEAD_PLATFORM_WINDOWS)
+
+#if defined(SEAD_PLATFORM_GLFW)
+    // TODO
+    bool b = false;
+#elif defined(SEAD_PLATFORM_WINDOWS)
     bool b = wglMakeCurrent(static_cast<HDC>(mHDC), static_cast<HGLRC>(mHGLRC));
-    #endif
-    SEAD_ASSERT(b == 1);
+#endif
+
+    SEAD_ASSERT(b);
 
     mContextHolderThread = currThread;
     mContextRefCounter = 1;
@@ -70,12 +73,14 @@ void DrawLockContext::unlock()
 
         glFinish();
 
-        #if defined(SEAD_PLATFORM_SDL)
-        bool b = SDL_GL_MakeCurrent(nullptr, nullptr);
-        #elif defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_GLFW)
+        // TODO
+        bool b = false;
+#elif defined(SEAD_PLATFORM_WINDOWS)
         bool b = wglMakeCurrent(nullptr, nullptr);
-        #endif
-        SEAD_ASSERT(b == 1);
+#endif
+
+        SEAD_ASSERT(b);
     }
 #endif
 

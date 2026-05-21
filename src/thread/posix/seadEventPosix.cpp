@@ -1,15 +1,17 @@
 #include <thread/seadEvent.h>
 
-#include <basis/sdl/seadSDL.h>
 #include <basis/seadAssert.h>
+
+#include <cerrno>
+#include <ctime>
 
 namespace sead {
 
 Event::Event()
     : IDisposer()
-    , mCond(nullptr)
-    , mMutex(nullptr)
-    , mManualReset(false)
+    , mCond(PTHREAD_COND_INITIALIZER)
+    , mMutexInner(PTHREAD_MUTEX_INITIALIZER)
+    , mIsManualReset(false)
     , mIsSignal(false)
 #if defined(SEAD_TARGET_DEBUG)
     , mIsInitialized(false)
@@ -19,9 +21,9 @@ Event::Event()
 
 Event::Event(Heap* disposerHeap)
     : IDisposer(disposerHeap, HeapNullOption::eFindContainHeap)
-    , mCond(nullptr)
-    , mMutex(nullptr)
-    , mManualReset(false)
+    , mCond(PTHREAD_COND_INITIALIZER)
+    , mMutexInner(PTHREAD_MUTEX_INITIALIZER)
+    , mIsManualReset(false)
     , mIsSignal(false)
 #if defined(SEAD_TARGET_DEBUG)
     , mIsInitialized(false)
@@ -31,9 +33,9 @@ Event::Event(Heap* disposerHeap)
 
 Event::Event(bool manualReset)
     : IDisposer()
-    , mCond(nullptr)
-    , mMutex(nullptr)
-    , mManualReset(false)
+    , mCond(PTHREAD_COND_INITIALIZER)
+    , mMutexInner(PTHREAD_MUTEX_INITIALIZER)
+    , mIsManualReset(false)
     , mIsSignal(false)
 #if defined(SEAD_TARGET_DEBUG)
     , mIsInitialized(false)
@@ -44,9 +46,9 @@ Event::Event(bool manualReset)
 
 Event::Event(Heap* disposerHeap, bool manualReset)
     : IDisposer(disposerHeap, HeapNullOption::eFindContainHeap)
-    , mCond(nullptr)
-    , mMutex(nullptr)
-    , mManualReset(false)
+    , mCond(PTHREAD_COND_INITIALIZER)
+    , mMutexInner(PTHREAD_MUTEX_INITIALIZER)
+    , mIsManualReset(false)
     , mIsSignal(false)
 #if defined(SEAD_TARGET_DEBUG)
     , mIsInitialized(false)
@@ -61,8 +63,8 @@ Event::~Event()
     mIsInitialized = false;
 #endif // SEAD_TARGET_DEBUG
 
-    SDL_DestroyMutex(mMutex);
-    SDL_DestroyCondition(mCond);
+    pthread_mutex_destroy(&mMutexInner);
+    pthread_cond_destroy(&mCond);
 }
 
 void Event::initialize(bool manualReset)
@@ -71,14 +73,14 @@ void Event::initialize(bool manualReset)
     SEAD_ASSERT_MSG(!mIsInitialized, "Event is already initialized.");
 #endif // SEAD_TARGET_DEBUG
 
-    mCond = SDL_CreateCondition();
-    SEAD_ASSERT_MSG(mCond, "SDL_CreateCondition failed. %s", SDL_GetError());
+    {
+        pthread_mutexattr_t attr;
+        pthread_mutexattr_init(&attr);
+        pthread_mutex_init(&mMutexInner, &attr);
+        pthread_mutexattr_destroy(&attr);
+    }
 
-    mMutex = SDL_CreateMutex();
-    SEAD_ASSERT_MSG(mMutex, "SDL_CreateMutex failed. %s", SDL_GetError());
-
-    mManualReset = manualReset;
-    mIsSignal = false;
+    mIsManualReset = manualReset;
 
 #if defined(SEAD_TARGET_DEBUG)
     mIsInitialized = true;
@@ -91,19 +93,18 @@ void Event::wait()
     SEAD_ASSERT_MSG(mIsInitialized, "Event is not initialized.");
 #endif // SEAD_TARGET_DEBUG
 
-    SDL_LockMutex(mMutex);
+    pthread_mutex_lock(&mMutexInner);
 
-    u32 ret = 0;
+    s32 ret = 0;
     while (!mIsSignal)
     {
-       // SDL_WaitCondition(mCond, mMutex);
-        ret = SDL_WaitConditionTimeout(mCond, mMutex, -1);
+        ret = pthread_cond_wait(&mCond, &mMutexInner);
     }
 
-    if (ret == 1 && !mManualReset)
+    if (ret == 0 && !mIsManualReset)
         mIsSignal = false;
 
-    SDL_UnlockMutex(mMutex);
+    pthread_mutex_unlock(&mMutexInner);
 }
 
 bool Event::wait(TickSpan timeout)
@@ -111,19 +112,32 @@ bool Event::wait(TickSpan timeout)
 #if defined(SEAD_TARGET_DEBUG)
     SEAD_ASSERT_MSG(mIsInitialized, "Event is not initialized.");
 #endif // SEAD_TARGET_DEBUG
-    SDL_LockMutex(mMutex);
 
-    bool ret = true;
+    struct ::timespec ts;
+    ::clock_gettime(CLOCK_REALTIME, &ts);
 
-    while (!mIsSignal && ret)
-        ret = SDL_WaitConditionTimeout(mCond, mMutex, timeout.toMilliSeconds());
+    s64 nanosec = 1'000'000'000LL * ts.tv_sec + ts.tv_nsec + timeout.toNanoSeconds();
+    ts.tv_sec = nanosec / 1'000'000'000LL;
+    ts.tv_nsec = nanosec % 1'000'000'000LL;
 
-    if (mIsSignal && ret && !mManualReset)
+    pthread_mutex_lock(&mMutexInner);
+
+    s32 ret = 0;
+    while (!mIsSignal)
+    {
+        ret = pthread_cond_timedwait(&mCond, &mMutexInner, &ts);
+        if (ret == ETIMEDOUT) //? Nintendo incorreclty checks for EHOSTUNREACH instead
+        {
+            break;
+        }
+    }
+
+    if (ret == 0 && !mIsManualReset)
         mIsSignal = false;
 
-    SDL_UnlockMutex(mMutex);
+    pthread_mutex_unlock(&mMutexInner);
 
-    return ret;
+    return ret == 0;
 }
 
 void Event::setSignal()
@@ -132,16 +146,16 @@ void Event::setSignal()
     SEAD_ASSERT_MSG(mIsInitialized, "Event is not initialized.");
 #endif // SEAD_TARGET_DEBUG
 
-    SDL_LockMutex(mMutex);
+    pthread_mutex_lock(&mMutexInner);
 
     mIsSignal = true;
 
-    if (!mManualReset)
-        SDL_SignalCondition(mCond);
+    if (mIsManualReset)
+        pthread_cond_broadcast(&mCond);
     else
-        SDL_BroadcastCondition(mCond);
+        pthread_cond_signal(&mCond);
 
-    SDL_UnlockMutex(mMutex);
+    pthread_mutex_unlock(&mMutexInner);
 }
 
 void Event::resetSignal()
@@ -150,11 +164,9 @@ void Event::resetSignal()
     SEAD_ASSERT_MSG(mIsInitialized, "Event is not initialized.");
 #endif // SEAD_TARGET_DEBUG
 
-    SDL_LockMutex(mMutex);
-
+    pthread_mutex_lock(&mMutexInner);
     mIsSignal = false;
-
-    SDL_UnlockMutex(mMutex);
+    pthread_mutex_unlock(&mMutexInner);
 }
 
 } // namespace sead

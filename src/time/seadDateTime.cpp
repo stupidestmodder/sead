@@ -165,7 +165,7 @@ u64 DateTime::setNow()
     }
 
     return mRealTimeClock;
-#elif defined(SEAD_PLATFORM_SDL)
+#elif defined(SEAD_PLATFORM_POSIX)
     // TODO
     SEAD_ASSERT(false);
     return 0;

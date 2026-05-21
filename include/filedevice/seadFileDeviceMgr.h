@@ -108,7 +108,7 @@ protected:
     FileDevice* mDefaultFileDevice;
     MainFileDevice* mMainFileDevice;
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
     //* Nothing
 #else
 #error "Unsupported platform"

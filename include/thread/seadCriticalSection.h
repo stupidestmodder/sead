@@ -6,9 +6,9 @@
 #include <basis/win/seadWindows.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
-#if defined(SEAD_PLATFORM_SDL)
-#include <basis/sdl/seadSDL.h>
-#endif // SEAD_PLATFORM_SDL
+#if defined(SEAD_PLATFORM_POSIX)
+#include <pthread.h>
+#endif // SEAD_PLATFORM_POSIX
 
 namespace sead {
 
@@ -27,11 +27,18 @@ public:
     bool tryLock();
     void unlock();
 
+    void dump(StackSymbolResolver*); // TODO
+
+#if defined(SEAD_PLATFORM_POSIX)
+protected:
+    void initialize_pthread(pthread_mutex_t* pthread);
+#endif // SEAD_PLATFORM_POSIX
+
 protected:
 #if defined(SEAD_PLATFORM_WINDOWS)
-CRITICAL_SECTION mMutexInner;
-#elif defined(SEAD_PLATFORM_SDL)
-    SDL_Mutex* mMutexInner;
+    CRITICAL_SECTION mMutexInner;
+#elif defined(SEAD_PLATFORM_POSIX)
+    pthread_mutex_t mMutexInner;
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

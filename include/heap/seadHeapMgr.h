@@ -183,7 +183,7 @@ public:
     static void clearFindContainHeapCacheStatistics();
 #endif // SEAD_TARGET_DEBUG
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
     static Heap* getUnboundHeap() { return sUnboundHeap; }
 
     static void createUnboundHeap();
@@ -214,7 +214,7 @@ protected:
     static CriticalSection sHeapTreeLockCS;
     static IndependentHeaps sIndependentHeaps;
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
     static Heap* sUnboundHeap;
 #endif // SEAD_PLATFORM_WINDOWS
 

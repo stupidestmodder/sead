@@ -146,8 +146,8 @@ public:
     {
 #if defined(SEAD_PLATFORM_WINDOWS)
         return getCoreIdFromPlatformCoreId(GetCurrentProcessorNumber());
-#elif defined(SEAD_PLATFORM_SDL)
-        return cMain; // stub
+#elif defined(SEAD_PLATFORM_POSIX)
+        return cMain; // TODO
 #else
     #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

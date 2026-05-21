@@ -18,8 +18,8 @@ MainFileDevice::MainFileDevice(Heap* heap)
 {
 #if defined(SEAD_PLATFORM_WINDOWS)
     mFileDevice = new(heap) WinContentFileDevice();
-#elif defined(SEAD_PLATFORM_SDL)
-    mFileDevice = new(heap) SDLContentFileDevice();
+#elif defined(SEAD_PLATFORM_POSIX)
+    // TODO
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS

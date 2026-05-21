@@ -101,23 +101,10 @@ void ControllerMgr::initializeDefault(Heap* heap)
         controller->mAddons.pushBack(new(heap) WinPseudoAccelerometerAddon(controller));
     }
     
-#elif defined(SEAD_PLATFORM_SDL)
+#elif defined(SEAD_PLATFORM_POSIX)
     initialize(5, heap);
 
-    {
-        mDevices.pushBack(new(heap) KeyboardMouseDevice(this));
-
-        // WinJoyPadDevice* jpDevice = new(heap) WinJoyPadDevice(this);
-        // jpDevice->initialize(heap);
-        // mDevices.pushBack(jpDevice);
-    }
-
-    {
-        // WinController* ctrl = new(heap) WinController(this, 0);
-        // mControllers.pushBack(ctrl);
-        // TODO
-        //ctrl->mAddons.pushBack(new(heap) WinPseudoAccelerometerAddon(ctrl));
-    }
+    // TODO
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
@@ -127,7 +114,7 @@ void ControllerMgr::finalizeDefault()
 {
 #if defined(SEAD_PLATFORM_WINDOWS)
     // TODO
-#elif defined(SEAD_PLATFORM_SDL)
+#elif defined(SEAD_PLATFORM_POSIX)
     // TODO
 #else
 #error "Unsupported platform"

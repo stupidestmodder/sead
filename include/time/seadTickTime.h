@@ -4,11 +4,9 @@
 
 #if defined(SEAD_PLATFORM_WINDOWS)
 #include <basis/win/seadWindows.h>
+#elif defined(SEAD_PLATFORM_POSIX)
+#include <ctime>
 #endif // SEAD_PLATFORM_WINDOWS
-
-#if defined(SEAD_PLATFORM_SDL)
-#include <basis/sdl/seadSDL.h>
-#endif // SEAD_PLATFORM_SDL
 
 namespace sead {
 
@@ -28,10 +26,15 @@ public:
 
         mTick = now.QuadPart;
     }
-#elif defined(SEAD_PLATFORM_SDL)
+#elif defined(SEAD_PLATFORM_POSIX)
     void setNow()
     {
-        mTick = SDL_GetTicks();
+        struct ::timespec now;
+        ::clock_gettime(CLOCK_MONOTONIC, &now);
+
+        mTick = now.tv_sec;
+        mTick *= 1'000'000'000LL;
+        mTick += now.tv_nsec;
     }
 #else
 #error "Unsupported platform"

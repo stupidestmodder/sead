@@ -11,7 +11,7 @@
 #include <stream/seadPrintStream.h>
 #include <thread/seadThread.h>
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
 #include <heap/seadUnboundHeap.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -29,7 +29,7 @@ CriticalSection HeapMgr::sHeapTreeLockCS;
 HeapMgr::RootHeaps HeapMgr::sRootHeaps;
 HeapMgr::IndependentHeaps HeapMgr::sIndependentHeaps;
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
 Heap* HeapMgr::sUnboundHeap = nullptr;
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -257,7 +257,7 @@ Heap* HeapMgr::findContainHeap(const void* memBlock) const
         }
     }
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
     if (sUnboundHeap)
     {
         Heap* containHeap = sUnboundHeap->findContainHeap_(memBlock);
@@ -359,7 +359,7 @@ void HeapMgr::dumpTreeYAML(WriteStream& stream)
         heap.dumpTreeYAML(stream, 0);
     }
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
     if (sUnboundHeap)
         sUnboundHeap->dumpTreeYAML(stream, 0);
 #endif // SEAD_PLATFORM_WINDOWS
@@ -511,7 +511,7 @@ void HeapMgr::clearFindContainHeapCacheStatistics()
 }
 #endif // SEAD_TARGET_DEBUG
 
-#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_SDL)
+#if defined(SEAD_PLATFORM_WINDOWS) || defined(SEAD_PLATFORM_POSIX)
 void HeapMgr::createUnboundHeap()
 {
     SEAD_ASSERT(!sUnboundHeap);

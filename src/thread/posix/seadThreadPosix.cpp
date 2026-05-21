@@ -1,13 +1,19 @@
 #include <thread/seadThread.h>
 
-#include <basis/sdl/seadSDL.h>
 #include <basis/seadWarning.h>
+#include <heap/seadHeap.h>
 
-#include <thread>
+#include <unistd.h>
+#include <sched.h>
+#include <sys/mman.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 namespace sead {
 
-const s32 Thread::cDefaultPriority = SDL_THREAD_PRIORITY_NORMAL;
+const s32 cGuardSize = 0x1000;
+
+const s32 Thread::cDefaultPriority = 0;
 
 SEAD_SINGLETON_DISPOSER_IMPL(ThreadMgr);
 
@@ -16,7 +22,7 @@ Thread::Thread(const SafeString& name, Heap* heap, s32 platformPriority, Message
     : IDisposer()
     , INamable(name)
     , mMessageQueue()
-    , mStackSize(stackSize)
+    , mStackSize(Mathi::max(stackSize, PTHREAD_STACK_MIN))
     , mListNode(this)
     , mCurrentHeap(nullptr)
     , mFindContainHeapCache()
@@ -25,19 +31,22 @@ Thread::Thread(const SafeString& name, Heap* heap, s32 platformPriority, Message
     , mID(0)
     , mState(State::eInitialized)
     , mHandle(0)
-    , mNameBuffer(name)
+    , mAttr()
+    , mStackBase(0)
+    , mStackTop(nullptr)
+    , mPriority(platformPriority)
+    , mNameBuffer()
 {
+    mNameBuffer.cutOffCopy(getName());
     mMessageQueue.allocate(msgQueueSize, heap);
 
-    // mHandle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, mStackSize, &Thread::winThreadFunc_, this, CREATE_SUSPENDED, &mID));
-    // if (!mHandle)
-    // {
-    //     SEAD_ASSERT_MSG(false, "_beginthreadex failed. %d", GetLastError());
-    //     return;
-    // }
+    pthread_attr_init(&mAttr);
 
-    // bool success = SetThreadPriority(mHandle, platformPriority);
-    // SEAD_ASSERT_MSG(success, "SetThreadPriority failed. %d", GetLastError());
+    mStackSize = Mathi::roundUpPow2(mStackSize, cGuardSize);
+    mStackTop = static_cast<u8*>(heap->alloc(mStackSize + cGuardSize, cGuardSize));
+
+    mprotect(mStackTop, cGuardSize, PROT_NONE);
+    pthread_attr_setstack(&mAttr, mStackTop + cGuardSize, mStackSize);
 
     if (ThreadMgr::instance())
         ThreadMgr::instance()->addThread_(this);
@@ -45,7 +54,7 @@ Thread::Thread(const SafeString& name, Heap* heap, s32 platformPriority, Message
         SEAD_ASSERT_MSG(false, "ThreadMgr not initialized");
 }
 
-Thread::Thread(Heap* heap, u32 id)
+Thread::Thread(Heap* heap, pthread_t handle)
     : IDisposer()
     , INamable("sead::MainThread")
     , mMessageQueue()
@@ -55,11 +64,19 @@ Thread::Thread(Heap* heap, u32 id)
     , mFindContainHeapCache()
     , mBlockType(MessageQueue::BlockType::eNoBlock)
     , mQuitMsg(cDefaultQuitMsg)
-    , mID(id)
+    , mID(static_cast<u32>(handle))
     , mState(State::eRunning)
-    , mHandle(nullptr)
+    , mHandle(handle)
+    , mAttr()
+    , mStackBase(0)
+    , mStackTop(nullptr)
+    , mPriority(0)
+    , mNameBuffer()
 {
+    mNameBuffer.cutOffCopy(getName());
     mMessageQueue.allocate(cDefaultMsgQueueSize, heap);
+
+    pthread_attr_init(&mAttr);
 }
 
 Thread::~Thread()
@@ -84,6 +101,11 @@ Thread::~Thread()
             SEAD_ASSERT_MSG(false, "Thread is not done. Do waitDone");
             waitDone();
         }
+
+        pthread_attr_destroy(&mAttr);
+        mprotect(mStackTop, mStackSize + cGuardSize, PROT_READ | PROT_WRITE);
+
+        delete[] mStackTop;
     }
 
     mMessageQueue.free();
@@ -97,14 +119,17 @@ bool Thread::start()
         return false;
     }
 
-    // TODO: SDL_CreateThreadWithStackSize
-    mHandle = SDL_CreateThread(&sdlThreadFunc_, mNameBuffer.cstr(), this);
+    if (pthread_create(&mHandle, &mAttr, &posixThreadFunc_, this) != 0)
+    {
+        SEAD_WARNING("Failed to create thread.\n");
+        return false;
+    }
+
+    mID = static_cast<u32>(mHandle);
+    pthread_setname_np(mHandle, mNameBuffer.cstr());
 
     if (mState == State::eInitialized)
         mState = State::eRunning;
-
-    if (!mHandle)
-        return false;
 
     return true;
 }
@@ -114,37 +139,38 @@ void Thread::waitDone()
     if (mState == State::eInitialized || mState == State::eReleased)
         return;
 
-    SDL_WaitThread(mHandle, nullptr);
+    pthread_join(mHandle, nullptr);
+
+    Thread::sleep(TickSpan::makeFromNanoSeconds(10));
+
     SEAD_ASSERT_MSG(mState == State::eTerminated, "Join failed?");
     mState = State::eReleased;
 }
 
 void Thread::sleep(TickSpan span)
 {
-    s64 ms = span.toMilliSeconds();
-    SEAD_ASSERT((ms & 0xFFFFFFFF00000000) == 0);
+    struct ::timespec ts;
 
-    SDL_Delay(static_cast<u32>(ms));
+    s64 nanosec = span.toNanoSeconds();
+    ts.tv_sec = nanosec / 1'000'000'000LL;
+    ts.tv_nsec = nanosec % 1'000'000'000LL;
+
+    nanosleep(&ts, nullptr);
 }
 
 void Thread::yield()
 {
-    std::this_thread::yield();
+    sched_yield();
 }
 
 void Thread::setPriority(s32 platformPriority)
 {
-    SDL_SetCurrentThreadPriority(static_cast<SDL_ThreadPriority>(platformPriority));
-    // TODO
-    // SEAD_UNUSED(platformPriority);
-    // SEAD_ASSERT(false);
+    mPriority = platformPriority;
 }
 
 s32 Thread::getPriority() const
 {
-    // TODO
-    SEAD_ASSERT(false);
-    return -1;
+    return mPriority;
 }
 
 u32* Thread::getStackCheckStartAddress_() const
@@ -152,28 +178,30 @@ u32* Thread::getStackCheckStartAddress_() const
     return nullptr;
 }
 
-s32 Thread::sdlThreadFunc_(void* param)
+void* Thread::posixThreadFunc_(void* param)
 {
-    Thread* self = static_cast<Thread*>(param);
+    Thread* thread = static_cast<Thread*>(param);
+    ThreadMgr::instance()->mThreadPtrTLS.setValue(reinterpret_cast<uintptr_t>(thread));
 
-    ThreadMgr::instance()->mThreadPtrTLS.setValue(reinterpret_cast<uintptr_t>(self));
+    setpriority(PRIO_PROCESS, gettid(), thread->mPriority);
 
-    self->mState = State::eRunning;
-    self->run_();
-    self->mState = State::eTerminated;
+    thread->mState = State::eRunning;
+    thread->run_();
+    thread->mState = State::eTerminated;
 
-    return 0;
+    pthread_exit(nullptr);
+    return nullptr;
 }
 
 void ThreadMgr::initMainThread_(Heap* heap)
 {
-    mMainThread = new(heap) MainThread(heap, getCurrentThreadID_());
+    mMainThread = new(heap) MainThread(heap, pthread_self());
     mThreadPtrTLS.setValue(reinterpret_cast<uintptr_t>(mMainThread));
 }
 
 u32 ThreadMgr::getCurrentThreadID_()
 {
-    return SDL_GetThreadID(nullptr);
+    return static_cast<u32>(pthread_self());
 }
 
 } // namespace sead

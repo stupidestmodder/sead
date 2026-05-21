@@ -136,18 +136,18 @@ bool GraphicsGL::setVBlankWaitIntervalImpl(u32 interval)
 {
     mVBlankWaitInterval = interval;
 
-    #if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_GLFW)
+    // TODO
+    return false;
+#elif defined(SEAD_PLATFORM_WINDOWS)
     if (wglSwapIntervalEXT)
     {
         wglSwapIntervalEXT(interval);
         return true;
     }
-    #elif defined(SEAD_PLATFORM_SDL)
-    SDL_GL_SetSwapInterval(interval);
-    return true;
-    #endif 
 
     return false;
+#endif 
 }
 
 void GraphicsGL::setCullingModeImpl(CullingMode mode)

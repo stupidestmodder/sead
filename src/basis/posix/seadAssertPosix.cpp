@@ -1,7 +1,6 @@
 #include <basis/seadAssert.h>
 
 #include <basis/seadRawPrint.h>
-#include <basis/sdl/seadSDL.h>
 #include <devenv/seadAssertConfig.h>
 #include <prim/seadMemUtil.h>
 #include <prim/seadStringUtil.h>
@@ -20,10 +19,7 @@
     #error "Unsupported compiler"
 #endif // SEAD_COMPILER_MSVC
 
-static const size_t sExceptionStrBufSize = 0x180;
-static char sExceptionStrBuf[sExceptionStrBufSize];
-
-static bool sEnableExceptionOnHalt = false;
+static const s32 cFormatBufSize = 0x180;
 
 namespace sead { namespace system {
 
@@ -41,36 +37,22 @@ void Halt()
 {
     FlushPrint();
 
-    if (sEnableExceptionOnHalt)
-    {
-#if defined(SEAD_COMPILER_MSVC)
-        throw sExceptionStrBuf;
-#else
-        // if (IsDebuggerPresent())
-        // {
-        //     SEAD_BREAKPOINT();
-        // }
-#endif
-    }
-    else
-    {
-        // if (IsDebuggerPresent())
-        // {
-        //   SEAD_BREAKPOINT();
-        //   return;
-        // }
+    // if (IsDebuggerPresent())
+    // {
+    //   SEAD_BREAKPOINT();
+    //   return;
+    // }
 
-        std::exit(255);
-    }
+    std::exit(255);
 }
 
 void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
 {
-    char tmp[sExceptionStrBufSize];
-    MemUtil::fillZero(tmp, sExceptionStrBufSize);
+    char tmp[cFormatBufSize];
+    MemUtil::fillZero(tmp, cFormatBufSize);
 
     s32 msgLen = StringUtil::snprintf(
-        tmp, sExceptionStrBufSize,
+        tmp, cFormatBufSize,
         "\n//======================= PROGRAM HALT =======================//\nSource File: %s\nLine Number: %d\nDescription: ",
         pos, line
     );
@@ -81,7 +63,7 @@ void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
 
         std::va_list list;
         va_start(list, format);
-        formatLen = StringUtil::vsnprintf(tmp + msgLen, sExceptionStrBufSize - msgLen, format, list);
+        formatLen = StringUtil::vsnprintf(tmp + msgLen, cFormatBufSize - msgLen, format, list);
         va_end(list);
 
         if (formatLen > -1)
@@ -89,7 +71,7 @@ void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
             msgLen += formatLen;
 
             s32 closeFormatLen = StringUtil::snprintf(
-                tmp + msgLen, sExceptionStrBufSize - msgLen,
+                tmp + msgLen, cFormatBufSize - msgLen,
                 "\n//============================================================//"
             );
 
@@ -97,7 +79,7 @@ void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
             {
                 msgLen += closeFormatLen;
 
-                if (msgLen < sExceptionStrBufSize - 2)
+                if (msgLen < cFormatBufSize - 2)
                 {
                     tmp[msgLen] = '\n';
                     tmp[msgLen + 1] = '\0';
@@ -105,7 +87,7 @@ void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
                 }
                 else
                 {
-                    msgLen = sExceptionStrBufSize - 1;
+                    msgLen = cFormatBufSize - 1;
                 }
             }
         }
@@ -115,7 +97,7 @@ void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
         }
     }
 
-    tmp[sExceptionStrBufSize - 1] = '\0';
+    tmp[cFormatBufSize - 1] = '\0';
 
     if (msgLen > -1)
     {
@@ -127,16 +109,7 @@ void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
     }
 
     AssertConfig::execCallbacks(tmp);
-
-    ::strncpy(sExceptionStrBuf, tmp, sExceptionStrBufSize);
-    sExceptionStrBuf[sExceptionStrBufSize - 1] = '\0';
-
     Halt();
-}
-
-void SetEnableExceptionOnHalt(bool enable)
-{
-    sEnableExceptionOnHalt = enable;
 }
 
 } } // namespace sead::system
