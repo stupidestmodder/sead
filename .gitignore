@@ -28,7 +28,7 @@ compile_commands.json
 # Executables
 *.out
 *.app
-bin
+**/bin/**
 
 # Local files
 .vs
@@ -39,3 +39,4 @@ bin
 *.user
 *.DS_Store
 **/Makefile
+**.make
