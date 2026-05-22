@@ -2,6 +2,7 @@
 
 #include <basis/seadWarning.h>
 #include <heap/seadHeap.h>
+#include <math/seadMathCalcCommon.h>
 
 #include <unistd.h>
 #include <sched.h>
