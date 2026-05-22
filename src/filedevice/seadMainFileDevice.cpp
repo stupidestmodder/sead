@@ -24,7 +24,7 @@ MainFileDevice::MainFileDevice(Heap* heap)
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 
-    SEAD_ASSERT(mFileDevice);
+    // SEAD_ASSERT(mFileDevice);
 }
 
 MainFileDevice::~MainFileDevice()

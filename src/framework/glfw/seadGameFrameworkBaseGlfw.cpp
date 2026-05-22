@@ -128,6 +128,8 @@ void GameFrameworkBaseGlfw::createWindow_()
 {
     //* Window creation
     {
+        CurrentHeapSetter chs(HeapMgr::instance()->findContainHeap(this));
+
         glfwSetErrorCallback([](s32 error, const char* description) {
             SEAD_ASSERT_MSG(false, "GLFW Error(%d): %s\n", error, description);
         });
