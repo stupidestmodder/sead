@@ -18,7 +18,7 @@ public:
     void setDefaultCommandBufferFromFramework(Framework*) {}
 
 protected:
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
     // Nothing
 #else
 #error "Unsupported GFX backend"

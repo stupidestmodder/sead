@@ -54,7 +54,7 @@ void Viewport::setByFrameBuffer(const LogicalFrameBuffer& frameBuffer)
 
 void Viewport::apply(DrawContext* drawContext, const LogicalFrameBuffer& frameBuffer) const
 {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
     SEAD_UNUSED(drawContext);
 
     Vector2f realPos;
@@ -76,7 +76,7 @@ void Viewport::apply(DrawContext* drawContext, const LogicalFrameBuffer& frameBu
 
 void Viewport::applyViewport(DrawContext* drawContext, const LogicalFrameBuffer& frameBuffer) const
 {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
     SEAD_UNUSED(drawContext);
 
     Vector2f realPos;
@@ -97,7 +97,7 @@ void Viewport::applyViewport(DrawContext* drawContext, const LogicalFrameBuffer&
 
 void Viewport::applyScissor(DrawContext* drawContext, const LogicalFrameBuffer& frameBuffer) const
 {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
     SEAD_UNUSED(drawContext);
 
     Vector2f realPos;

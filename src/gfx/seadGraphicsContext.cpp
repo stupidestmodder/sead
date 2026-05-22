@@ -45,7 +45,7 @@ GraphicsContext::GraphicsContext()
 
 void GraphicsContext::apply(DrawContext* drawContext) const
 {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
     SEAD_UNUSED(drawContext);
 
     Graphics* gfx = Graphics::instance();

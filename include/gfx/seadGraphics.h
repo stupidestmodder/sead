@@ -4,7 +4,7 @@
 #include <heap/seadDisposer.h>
 #include <thread/seadCriticalSection.h>
 
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
 #include <gfx/gl/seadGL.h>
 #endif
 
@@ -29,7 +29,7 @@ public:
 
     enum class DepthFunc : u32
     {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
         eLessEqual = GL_LEQUAL,
         eLess = GL_LESS,
         eGreaterEqual = GL_GEQUAL,
@@ -44,7 +44,7 @@ public:
 
     enum class CullingMode : u32
     {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
         eFront = GL_FRONT,
         eBack = GL_BACK,
         eNone = 0xFFFFFFF0,
@@ -55,7 +55,7 @@ public:
 
     enum class BlendFactor : u32
     {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
         eZero = GL_ZERO,
         eOne = GL_ONE,
         eSrcColor = GL_SRC_COLOR,
@@ -77,7 +77,7 @@ public:
 
     enum class BlendEquation : u32
     {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
         eAdd = GL_FUNC_ADD,
         eSub = GL_FUNC_SUBTRACT,
         eReverseSub = GL_FUNC_REVERSE_SUBTRACT,
@@ -89,7 +89,7 @@ public:
 
     enum class AlphaFunc : u32
     {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
         eLessEqual = GL_LEQUAL,
         eLess = GL_LESS,
         eGreaterEqual = GL_GEQUAL,
@@ -104,7 +104,7 @@ public:
 
     enum class StencilFunc : u32
     {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
         eLessEqual = GL_LEQUAL,
         eLess = GL_LESS,
         eGreaterEqual = GL_GEQUAL,
@@ -119,7 +119,7 @@ public:
 
     enum class StencilOp : u32
     {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
         eKeep = GL_KEEP,
         eZero = GL_ZERO,
         eReplace = GL_REPLACE,
@@ -134,7 +134,7 @@ public:
 
     enum class PolygonMode : u32
     {
-#if SEAD_GFX_BACKEND == GL_GFX_GL
+#if defined(SEAD_USE_GL)
         ePoint = GL_POINT,
         eLine = GL_LINE,
         eFill = GL_FILL,
