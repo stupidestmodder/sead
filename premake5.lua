@@ -177,10 +177,6 @@ project "glfw"
             "libs/glfw/src/egl_context.c",
             "libs/glfw/src/osmesa_context.c"
         }
-
-        links {
-            -- "",
-        }
     
         defines {
             "_GLFW_WIN32"
@@ -195,7 +191,6 @@ project "glfw"
             "libs/glfw/src/posix_module.c",
             "libs/glfw/src/posix_time.c",
             "libs/glfw/src/posix_thread.c",
-            "libs/glfw/src/posix_module.c",
             "libs/glfw/src/posix_poll.c",
             "libs/glfw/src/glx_context.c",
             "libs/glfw/src/egl_context.c",
