@@ -31,8 +31,14 @@ protected:
 #if defined(SEAD_USE_GL)
     Thread* mContextHolderThread;
     s32 mContextRefCounter;
+#if defined(SEAD_PLATFORM_GLFW)
+    void* mWindow; //* GLFW Window Handle
+#elif defined(SEAD_PLATFORM_WINDOWS)
     void* mHGLRC; //* GL Context Handle
     void* mHDC;   //* Device Context Handle
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM
 #endif
 };
 

@@ -6,7 +6,9 @@
 #include <gfx/seadGraphicsContext.h>
 #include <thread/seadThread.h>
 
-#if defined(SEAD_PLATFORM_WINDOWS)
+#if defined(SEAD_PLATFORM_GLFW)
+#include <basis/glfw/seadGlfw.h>
+#elif defined(SEAD_PLATFORM_WINDOWS)
 #include <glad/wgl.h>
 #endif // SEAD_PLATFORM_WINDOWS
 
@@ -69,8 +71,14 @@ namespace sead {
 
 GraphicsGL::GraphicsGL(const CreateArg& arg)
     : Graphics()
+#if defined(SEAD_PLATFORM_GLFW)
+    , mWindow(arg.window)
+#elif defined(SEAD_PLATFORM_WINDOWS)
     , mHGLRC(arg.hglrc)
     , mHDC(arg.hdc)
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM
     , mVBlankWaitInterval(0)
 {
 }
@@ -137,8 +145,8 @@ bool GraphicsGL::setVBlankWaitIntervalImpl(u32 interval)
     mVBlankWaitInterval = interval;
 
 #if defined(SEAD_PLATFORM_GLFW)
-    // TODO
-    return false;
+    glfwSwapInterval(static_cast<s32>(interval));
+    return true;
 #elif defined(SEAD_PLATFORM_WINDOWS)
     if (wglSwapIntervalEXT)
     {

@@ -9,8 +9,14 @@ class GraphicsGL : public Graphics
 public:
     struct CreateArg
     {
+#if defined(SEAD_PLATFORM_GLFW)
+        void* window;
+#elif defined(SEAD_PLATFORM_WINDOWS)
         void* hglrc;
         void* hdc;
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM
     };
 
     static GraphicsGL* instance() { return static_cast<GraphicsGL*>(sInstance); }
@@ -18,8 +24,12 @@ public:
 public:
     explicit GraphicsGL(const CreateArg& arg);
 
+#if defined(SEAD_PLATFORM_GLFW)
+    void* getWindow() const { return mWindow; }
+#elif defined(SEAD_PLATFORM_WINDOWS)
     void* getHGLRC() { return mHGLRC; }
     void* getHDC() { return mHDC; }
+#endif // SEAD_PLATFORM
 
 protected:
     void initializeDrawLockContext(Heap* heap) override;
@@ -50,8 +60,12 @@ protected:
     void setPolygonOffsetEnableImpl(bool fillFrontEnable, bool fillBackEnable, bool pointLineEnable) override;
 
 protected:
+#if defined(SEAD_PLATFORM_GLFW)
+    void* mWindow; //* GLFW Window Handle
+#elif defined(SEAD_PLATFORM_WINDOWS)
     void* mHGLRC; //* GL Context Handle
     void* mHDC;   //* Device Context Handle
+#endif // SEAD_PLATFORM
     u32 mVBlankWaitInterval;
 };
 

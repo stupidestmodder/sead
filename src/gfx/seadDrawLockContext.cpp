@@ -3,6 +3,11 @@
 #if defined(SEAD_USE_GL)
 #include <gfx/gl/seadGraphicsGL.h>
 #include <thread/seadThread.h>
+
+#if defined(SEAD_PLATFORM_GLFW)
+#include <basis/glfw/seadGlfw.h>
+#endif // SEAD_PLATFORM
+
 #endif
 
 namespace sead {
@@ -12,8 +17,14 @@ DrawLockContext::DrawLockContext()
 #if defined(SEAD_USE_GL)
     , mContextHolderThread(nullptr)
     , mContextRefCounter(0)
+#if defined(SEAD_PLATFORM_GLFW)
+    , mWindow(nullptr)
+#elif defined(SEAD_PLATFORM_WINDOWS)
     , mHGLRC(nullptr)
     , mHDC(nullptr)
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM
 #endif
 {
 }
@@ -25,8 +36,14 @@ DrawLockContext::~DrawLockContext()
 void DrawLockContext::initialize(Heap*)
 {
 #if defined(SEAD_USE_GL)
+#if defined(SEAD_PLATFORM_GLFW)
+    mWindow = GraphicsGL::instance()->getWindow();
+#elif defined(SEAD_PLATFORM_WINDOWS)
     mHGLRC = GraphicsGL::instance()->getHGLRC();
     mHDC = GraphicsGL::instance()->getHDC();
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM
 #endif
 }
 
@@ -46,13 +63,11 @@ void DrawLockContext::lock()
     SEAD_ASSERT(mContextRefCounter == 0);
 
 #if defined(SEAD_PLATFORM_GLFW)
-    // TODO
-    bool b = false;
+    glfwMakeContextCurrent(static_cast<GLFWwindow*>(mWindow));
 #elif defined(SEAD_PLATFORM_WINDOWS)
     bool b = wglMakeCurrent(static_cast<HDC>(mHDC), static_cast<HGLRC>(mHGLRC));
-#endif
-
     SEAD_ASSERT(b);
+#endif
 
     mContextHolderThread = currThread;
     mContextRefCounter = 1;
@@ -74,13 +89,12 @@ void DrawLockContext::unlock()
         glFinish();
 
 #if defined(SEAD_PLATFORM_GLFW)
-        // TODO
-        bool b = false;
+        glfwMakeContextCurrent(nullptr);
 #elif defined(SEAD_PLATFORM_WINDOWS)
         bool b = wglMakeCurrent(nullptr, nullptr);
+        SEAD_ASSERT(b);
 #endif
 
-        SEAD_ASSERT(b);
     }
 #endif
 

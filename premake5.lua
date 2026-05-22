@@ -18,7 +18,7 @@ project "sead"
     }
 
     files {
-        "src/**.cpp",
+        "src/**",
     }
 
     removefiles {
@@ -74,7 +74,7 @@ project "sead"
 
         includedirs {
             "libs/glad/include",
-            -- "libs/SDL3/repo/include",
+            "libs/glfw/include",
         }
 
         files {
@@ -83,9 +83,13 @@ project "sead"
             "src/**gl/**",
         }
 
+        removefiles {
+            "src/framework/win/**",
+        }
+
         links {
             -- "glad",
-            -- "SDL3",
+            "glfw",
         }
 
     filter "platforms:Win_*"
@@ -132,4 +136,91 @@ project "sead"
         symbols "off"
         linktimeoptimization "on"
 
--- include "libs/SDL3"
+project "glfw"
+    kind "StaticLib"
+    language "C"
+
+    multiprocessorcompile "on"
+    staticruntime "on"
+    warnings "off"
+
+    targetdir "bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/out"
+    objdir "bin/%{prj.name}-%{cfg.platform}-%{cfg.buildcfg}/int"
+    
+    files {
+        "libs/glfw/include/GLFW/glfw3.h",
+        "libs/glfw/include/GLFW/glfw3native.h",
+        "libs/glfw/src/glfw_config.h",
+        "libs/glfw/src/context.c",
+        "libs/glfw/src/init.c",
+        "libs/glfw/src/input.c",
+        "libs/glfw/src/monitor.c",
+        "libs/glfw/src/null_init.c",
+        "libs/glfw/src/null_joystick.c",
+        "libs/glfw/src/null_monitor.c",
+        "libs/glfw/src/null_window.c",
+        "libs/glfw/src/platform.c",
+        "libs/glfw/src/vulkan.c",
+        "libs/glfw/src/window.c"
+    }
+    
+    filter "system:windows"
+        files {
+            "libs/glfw/src/win32_init.c",
+            "libs/glfw/src/win32_joystick.c",
+            "libs/glfw/src/win32_module.c",
+            "libs/glfw/src/win32_monitor.c",
+            "libs/glfw/src/win32_time.c",
+            "libs/glfw/src/win32_thread.c",
+            "libs/glfw/src/win32_window.c",
+            "libs/glfw/src/wgl_context.c",
+            "libs/glfw/src/egl_context.c",
+            "libs/glfw/src/osmesa_context.c"
+        }
+
+        links {
+            -- "",
+        }
+    
+        defines {
+            "_GLFW_WIN32"
+        }
+    
+    filter "system:linux"
+        files {
+            "libs/glfw/src/x11_init.c",
+            "libs/glfw/src/x11_monitor.c",
+            "libs/glfw/src/x11_window.c",
+            "libs/glfw/src/xkb_unicode.c",
+            "libs/glfw/src/posix_module.c",
+            "libs/glfw/src/posix_time.c",
+            "libs/glfw/src/posix_thread.c",
+            "libs/glfw/src/posix_module.c",
+            "libs/glfw/src/posix_poll.c",
+            "libs/glfw/src/glx_context.c",
+            "libs/glfw/src/egl_context.c",
+            "libs/glfw/src/osmesa_context.c",
+            "libs/glfw/src/linux_joystick.c"
+        }
+    
+        defines {
+            "_GLFW_X11"
+        }
+    
+    filter "system:macosx"
+        files {
+            "libs/glfw/src/cocoa_init.m",
+            "libs/glfw/src/cocoa_monitor.m",
+            "libs/glfw/src/cocoa_window.m",
+            "libs/glfw/src/cocoa_joystick.m",
+            "libs/glfw/src/cocoa_time.c",
+            "libs/glfw/src/nsgl_context.m",
+            "libs/glfw/src/posix_thread.c",
+            "libs/glfw/src/posix_module.c",
+            "libs/glfw/src/osmesa_context.c",
+            "libs/glfw/src/egl_context.c"
+        }
+    
+        defines {
+            "_GLFW_COCOA"
+        }

@@ -6,4 +6,5 @@
 
 #include <basis/seadTypes.h>
 
-// #include <SDL3/SDL.h>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
