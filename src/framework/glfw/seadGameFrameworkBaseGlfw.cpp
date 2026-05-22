@@ -140,6 +140,7 @@ void GameFrameworkBaseGlfw::createWindow_()
             return;
         }
 
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         mWindow = glfwCreateWindow(mArg.width, mArg.height, mArg.window_name.cstr(), nullptr, nullptr);
         if (!mWindow)
         {
