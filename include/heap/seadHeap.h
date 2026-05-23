@@ -67,7 +67,7 @@ public:
 #endif // SEAD_TARGET_DEBUG
     };
 
-    static const s32 cMinAlignment = cDefaultAlignment;
+    static const s32 cMinAlignment = alignof(void*);
     static const size_t cMinAllocSize = cPtrSize;
     //static const size_t cAlignmentAliquot;
 

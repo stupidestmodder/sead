@@ -1200,7 +1200,7 @@ MemBlock* ExpHeap::allocFromHead_(size_t size)
         return nullptr;
 
     SEAD_ASSERT(memBlock->getOffset() == 0);
-    SEAD_ASSERT(reinterpret_cast<uintptr_t>(memBlock->memory()) % cDefaultAlignment == 0);
+    SEAD_ASSERT(reinterpret_cast<uintptr_t>(memBlock->memory()) % cMinAlignment == 0);
 
     void* memory = memBlock->memory();
     size_t remainSize = memBlock->getSize() - size;
@@ -1275,7 +1275,7 @@ MemBlock* ExpHeap::allocFromTail_(size_t size)
         return nullptr;
 
     SEAD_ASSERT(memBlock->getOffset() == 0);
-    SEAD_ASSERT(reinterpret_cast<uintptr_t>(memBlock->memory()) % cDefaultAlignment == 0);
+    SEAD_ASSERT(reinterpret_cast<uintptr_t>(memBlock->memory()) % cMinAlignment == 0);
 
     size_t remainSize = memBlock->getSize() - size;
     if (remainSize < sizeof(MemBlock) + 1)
