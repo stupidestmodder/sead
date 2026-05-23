@@ -191,7 +191,7 @@ void* Thread::posixThreadFunc_(void* param)
     setpriority(PRIO_PROCESS, gettid(), thread->mPriority);
 #else
     setpriority(PRIO_DARWIN_THREAD, 0, thread->mPriority);
-    pthread_setname_np(mNameBuffer.cstr());
+    pthread_setname_np(thread->mNameBuffer.cstr());
 #endif // SEAD_PLATFORM
 
     thread->mState = State::eRunning;
