@@ -219,3 +219,12 @@ project "glfw"
         defines {
             "_GLFW_COCOA"
         }
+
+        links {
+            "Cocoa.framework",
+            "IOKit.framework",
+            "CoreVideo.framework",
+            "OpenGL.framework",
+            "QuartzCore.framework",
+            "UniformTypeIdentifiers.framework"
+        }
