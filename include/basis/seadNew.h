@@ -7,7 +7,7 @@
 namespace sead {
 
 const size_t cPtrSize = sizeof(void*);
-const s32 cDefaultAlignment = alignof(void*);
+const s32 cDefaultAlignment = alignof(std::max_align_t);
 
 class Heap;
 
