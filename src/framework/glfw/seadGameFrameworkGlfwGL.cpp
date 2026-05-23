@@ -8,6 +8,7 @@
 #include <gfx/gl/seadTextureFrameBufferGL.h>
 #include <gfx/gl/seadTextureGL.h>
 #include <gfx/seadTextureUtil.h>
+#include <heap/seadExpHeap.h>
 
 namespace sead {
 
@@ -15,6 +16,7 @@ GameFrameworkGlfwGL::GameFrameworkGlfwGL(const CreateArg& arg)
     : GameFrameworkBaseGlfw(arg)
     // , mHGLRC(nullptr)
     // , mHDC(nullptr)
+    , mGLHeap(nullptr)
     , mDisplayBufferGL(nullptr)
     , mColorTexture(nullptr)
     , mDepthTexture(nullptr)
@@ -30,6 +32,8 @@ GameFrameworkGlfwGL::~GameFrameworkGlfwGL()
 
 void GameFrameworkGlfwGL::initializeGraphicsSystem(Heap* heap, const Vector2f& virtualFbSize)
 {
+    mGLHeap = ExpHeap::create(5 * 1024 * 1024, "GLHeap", heap);
+
     glfwMakeContextCurrent(mWindow);
     {
         s32 result = gladLoaderLoadGL();
@@ -47,6 +51,8 @@ void GameFrameworkGlfwGL::initializeGraphicsSystem(Heap* heap, const Vector2f& v
 
     Graphics::instance()->lockDrawContext();
     {
+        CurrentHeapSetter chs(mGLHeap);
+
         glGenQueries(2, mGPUQueries);
     }
     Graphics::instance()->unlockDrawContext();
@@ -65,13 +71,20 @@ void GameFrameworkGlfwGL::procFrame_()
             TickTime frameBegin;
 
             GLint64 frameBeginTimeGL;
-            glGetInteger64v(GL_TIMESTAMP, &frameBeginTimeGL);
-
-            glQueryCounter(mGPUQueries[0], GL_TIMESTAMP);
             {
-                procDraw_();
+                CurrentHeapSetter chs(mGLHeap);
+
+                glGetInteger64v(GL_TIMESTAMP, &frameBeginTimeGL);
+                glQueryCounter(mGPUQueries[0], GL_TIMESTAMP);
             }
-            glQueryCounter(mGPUQueries[1], GL_TIMESTAMP);
+
+            procDraw_();
+
+            {
+                CurrentHeapSetter chs(mGLHeap);
+
+                glQueryCounter(mGPUQueries[1], GL_TIMESTAMP);
+            }
 
             procCalc_();
             procReset_();
@@ -80,6 +93,8 @@ void GameFrameworkGlfwGL::procFrame_()
 
             //* Update GPUMeter
             {
+                CurrentHeapSetter chs(mGLHeap);
+
                 GLuint64 start;
                 GLuint64 end;
                 glGetQueryObjectui64v(mGPUQueries[0], GL_QUERY_RESULT, &start);
@@ -117,6 +132,8 @@ void GameFrameworkGlfwGL::procDraw_()
     {
         if (mDefaultFrameBuffer)
         {
+            CurrentHeapSetter chs(mGLHeap);
+
             mDefaultFrameBuffer->bind(nullptr);
             clearFrameBuffers_(3);
         }
@@ -133,6 +150,8 @@ void GameFrameworkGlfwGL::clearFrameBuffers_(s32)
 {
     if (mDefaultFrameBuffer)
     {
+        CurrentHeapSetter chs(mGLHeap);
+
         Viewport vp(*mDefaultFrameBuffer);
         vp.applyScissor(nullptr, *mDefaultFrameBuffer);
 
@@ -142,6 +161,8 @@ void GameFrameworkGlfwGL::clearFrameBuffers_(s32)
 
 void GameFrameworkGlfwGL::present_()
 {
+    CurrentHeapSetter chs(mGLHeap);
+
     if (mCopyReservedFrameBuffer)
     {
         mCopyReservedFrameBuffer->copyToDisplayBuffer(nullptr, mDisplayBufferGL);
@@ -155,6 +176,8 @@ void GameFrameworkGlfwGL::present_()
 
 void GameFrameworkGlfwGL::createFrameBuffer_(Heap* heap, const Vector2f& virtualFbSize)
 {
+    CurrentHeapSetter chs(mGLHeap);
+
     Graphics::instance()->lockDrawContext();
     {
         s32 width = mArg.width;
@@ -191,6 +214,8 @@ void GameFrameworkGlfwGL::createFrameBuffer_(Heap* heap, const Vector2f& virtual
 
 void GameFrameworkGlfwGL::resize_(f32 width, f32 height)
 {
+    CurrentHeapSetter chs(mGLHeap);
+
     Graphics::instance()->lockDrawContext();
     {
         {

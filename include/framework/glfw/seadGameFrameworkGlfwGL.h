@@ -44,6 +44,7 @@ protected:
 protected:
     // HGLRC mHGLRC;
     // HDC mHDC;
+    Heap* mGLHeap;
     DisplayBufferGL* mDisplayBufferGL;
     TextureGL* mColorTexture;
     TextureGL* mDepthTexture;
