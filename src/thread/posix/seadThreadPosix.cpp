@@ -65,7 +65,7 @@ Thread::Thread(Heap* heap, pthread_t handle)
     , mFindContainHeapCache()
     , mBlockType(MessageQueue::BlockType::eNoBlock)
     , mQuitMsg(cDefaultQuitMsg)
-    , mID(static_cast<u32>(handle))
+    , mID(static_cast<u32>(reinterpret_cast<uintptr_t>(handle)))
     , mState(State::eRunning)
     , mHandle(handle)
     , mAttr()
@@ -126,8 +126,11 @@ bool Thread::start()
         return false;
     }
 
-    mID = static_cast<u32>(mHandle);
+    mID = static_cast<u32>(reinterpret_cast<uintptr_t>(mHandle));
+
+#if !defined(SEAD_PLATFORM_MACOSX)
     pthread_setname_np(mHandle, mNameBuffer.cstr());
+#endif // SEAD_PLATFORM
 
     if (mState == State::eInitialized)
         mState = State::eRunning;
@@ -184,7 +187,12 @@ void* Thread::posixThreadFunc_(void* param)
     Thread* thread = static_cast<Thread*>(param);
     ThreadMgr::instance()->mThreadPtrTLS.setValue(reinterpret_cast<uintptr_t>(thread));
 
+#if !defined(SEAD_PLATFORM_MACOSX)
     setpriority(PRIO_PROCESS, gettid(), thread->mPriority);
+#else
+    setpriority(PRIO_DARWIN_THREAD, 0, thread->mPriority);
+    pthread_setname_np(mNameBuffer.cstr());
+#endif // SEAD_PLATFORM
 
     thread->mState = State::eRunning;
     thread->run_();
@@ -202,7 +210,7 @@ void ThreadMgr::initMainThread_(Heap* heap)
 
 u32 ThreadMgr::getCurrentThreadID_()
 {
-    return static_cast<u32>(pthread_self());
+    return static_cast<u32>(reinterpret_cast<uintptr_t>(pthread_self()));
 }
 
 } // namespace sead
