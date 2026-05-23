@@ -65,6 +65,14 @@ project "sead"
         files {
             "src/**posix/**",
         }
+        links {
+            "Cocoa.framework",
+            "IOKit.framework",
+            "CoreVideo.framework",
+            "OpenGL.framework",
+            "QuartzCore.framework",
+            "UniformTypeIdentifiers.framework"
+        }
 
     filter "platforms:GLFW_*"
         defines {
