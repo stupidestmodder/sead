@@ -27,7 +27,7 @@ public:
 
     static FrameHeap* tryCreate(size_t size, const SafeString& name, Heap* parent, HeapDirection direction = HeapDirection::eForward, bool enableLock = false);
 
-    static size_t getManagementAreaSize(s32 alignment = cMinAlignment);
+    static size_t getManagementAreaSize(s32 alignment = cDefaultAlignment);
 
 protected:
     FrameHeap(const SafeString& name, Heap* parent, void* start, size_t size, HeapDirection direction, bool enableLock);
@@ -36,7 +36,7 @@ protected:
 public:
     void destroy() override;
     size_t adjust() override;
-    void* tryAlloc(size_t size, s32 alignment = cMinAlignment) override;
+    void* tryAlloc(size_t size, s32 alignment = cDefaultAlignment) override;
     void free(void* ptr) override;
     void* resizeFront(void* ptr, size_t newSize) override;
     void* resizeBack(void* ptr, size_t newSize) override;
@@ -49,7 +49,7 @@ public:
     const void* getEndAddress() const override;
     size_t getSize() const override;
     size_t getFreeSize() const override;
-    size_t getMaxAllocatableSize(s32 alignment = cMinAlignment) const override;
+    size_t getMaxAllocatableSize(s32 alignment = cDefaultAlignment) const override;
     bool isInclude(const void* ptr) const override;
     bool isEmpty() const override;
     bool isFreeable() const override;

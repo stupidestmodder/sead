@@ -83,7 +83,7 @@ public:
     virtual void destroy() = 0;
     virtual size_t adjust() = 0;
 
-    void* alloc(size_t size, s32 alignment = cMinAlignment)
+    void* alloc(size_t size, s32 alignment = cDefaultAlignment)
     {
         void* ptr = tryAlloc(size, alignment);
         SEAD_ASSERT_MSG(ptr, "alloc failed. size: %zu, allocatable size: %zu, alignment: %d, heap: %s",
@@ -91,7 +91,7 @@ public:
         return ptr;
     }
 
-    virtual void* tryAlloc(size_t size, s32 alignment = cMinAlignment) = 0;
+    virtual void* tryAlloc(size_t size, s32 alignment = cDefaultAlignment) = 0;
     virtual void free(void* ptr) = 0;
 
     virtual void* resizeFront(void* ptr, size_t newSize) = 0;
@@ -121,7 +121,7 @@ public:
     virtual const void* getEndAddress() const = 0;
     virtual size_t getSize() const = 0;
     virtual size_t getFreeSize() const = 0;
-    virtual size_t getMaxAllocatableSize(s32 alignment = cMinAlignment) const = 0;
+    virtual size_t getMaxAllocatableSize(s32 alignment = cDefaultAlignment) const = 0;
 
     virtual bool isInclude(const void* ptr) const = 0;
     virtual bool isEmpty() const = 0;
