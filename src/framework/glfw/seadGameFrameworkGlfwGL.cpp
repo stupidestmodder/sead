@@ -32,7 +32,7 @@ GameFrameworkGlfwGL::~GameFrameworkGlfwGL()
 
 void GameFrameworkGlfwGL::initializeGraphicsSystem(Heap* heap, const Vector2f& virtualFbSize)
 {
-    mGLHeap = ExpHeap::create(5 * 1024 * 1024, "GLHeap", heap);
+    mGLHeap = ExpHeap::create(5 * 1024 * 1024, "GLHeap", heap, Heap::HeapDirection::eForward, true);
 
     glfwMakeContextCurrent(mWindow);
     {
@@ -79,8 +79,6 @@ void GameFrameworkGlfwGL::createWindow_()
 
 void GameFrameworkGlfwGL::procFrame_()
 {
-    CurrentHeapSetter chs(mGLHeap);
-
     Graphics::instance()->lockDrawContext();
     {
         ProcessMeter* proc = ProcessMeter::instance();

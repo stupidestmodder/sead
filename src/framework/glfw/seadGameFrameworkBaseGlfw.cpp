@@ -165,9 +165,6 @@ void GameFrameworkBaseGlfw::createWindow_()
 
 void GameFrameworkBaseGlfw::mainLoop_()
 {
-    HeapMgr::createUnboundHeap();
-    CurrentHeapSetter chs(HeapMgr::getUnboundHeap());
-
     Graphics::instance()->lockDrawContext();
     {
         procCalc_();
