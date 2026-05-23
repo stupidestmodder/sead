@@ -169,21 +169,21 @@ inline u32 MathCalcCommon<u32>::roundUpPow2(u32 val, s32 base)
     return val + (base - 1u) & ~(base - 1u);
 }
 
-// #if defined(SEAD_PLATFORM_SDL)
-// template <>
-// inline unsigned long MathCalcCommon<unsigned long>::roundUpPow2(unsigned long val, s32 base)
-// {
-//     SEAD_ASSERT_MSG(base > 0 && (base - 1u & base) == 0, "illegal param[base:%d]", base);
-//     return val + (base - 1u) & ~(base - 1u);
-// }
-// #endif
-
 template <>
 inline u64 MathCalcCommon<u64>::roundUpPow2(u64 val, s32 base)
 {
     SEAD_ASSERT_MSG(base > 0 && (base - 1u & base) == 0, "illegal param[base:%d]", base);
     return val + (base - 1llu) & ~(base - 1llu);
 }
+
+#if defined(SEAD_PLATFORM_MACOSX)
+template <>
+inline unsigned long MathCalcCommon<unsigned long>::roundUpPow2(unsigned long val, s32 base)
+{
+    SEAD_ASSERT_MSG(base > 0 && (base - 1u & base) == 0, "illegal param[base:%d]", base);
+    return val + (base - 1llu) & ~(base - 1llu);
+}
+#endif
 
 template <>
 inline u32 MathCalcCommon<u32>::roundDownPow2(u32 val, s32 base)
@@ -192,21 +192,21 @@ inline u32 MathCalcCommon<u32>::roundDownPow2(u32 val, s32 base)
     return val & ~(base - 1u);
 }
 
-// #if defined(SEAD_PLATFORM_SDL)
-// template <>
-// inline unsigned long MathCalcCommon<unsigned long>::roundDownPow2(unsigned long val, s32 base)
-// {
-//     SEAD_ASSERT_MSG(base > 0 && (base - 1u & base) == 0, "illegal param[base:%d]", base);
-//     return val & ~(base - 1u);
-// }
-// #endif
-
 template <>
 inline u64 MathCalcCommon<u64>::roundDownPow2(u64 val, s32 base)
 {
     SEAD_ASSERT_MSG(base > 0 && (base - 1u & base) == 0, "illegal param[base:%d]", base);
     return val & ~(base - 1llu);
 }
+
+#if defined(SEAD_PLATFORM_MACOSX)
+template <>
+inline unsigned long MathCalcCommon<unsigned long>::roundDownPow2(unsigned long val, s32 base)
+{
+    SEAD_ASSERT_MSG(base > 0 && (base - 1u & base) == 0, "illegal param[base:%d]", base);
+    return val & ~(base - 1llu);
+}
+#endif
 
 template <typename T>
 inline T MathCalcCommon<T>::clampMax(T val, T max_)
@@ -249,18 +249,18 @@ inline bool MathCalcCommon<u32>::isMultiplePow2(u32 n, u32 mult)
     return (n & mult - 1) == 0;
 }
 
-// #if defined(SEAD_PLATFORM_SDL)
-// template <>
-// inline bool MathCalcCommon<unsigned long>::isMultiplePow2(unsigned long n, unsigned long mult)
-// {
-//     return (n & mult - 1) == 0;
-// }
-// #endif
-
 template <>
 inline bool MathCalcCommon<u64>::isMultiplePow2(u64 n, u64 mult)
 {
     return (n & mult - 1) == 0;
 }
+
+#if defined(SEAD_PLATFORM_MACOSX)
+template <>
+inline bool MathCalcCommon<unsigned long>::isMultiplePow2(unsigned long n, unsigned long mult)
+{
+    return (n & mult - 1) == 0;
+}
+#endif
 
 } // namespace sead
