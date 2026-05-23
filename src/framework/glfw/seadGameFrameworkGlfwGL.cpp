@@ -58,6 +58,25 @@ void GameFrameworkGlfwGL::initializeGraphicsSystem(Heap* heap, const Vector2f& v
     Graphics::instance()->unlockDrawContext();
 }
 
+void GameFrameworkGlfwGL::createWindow_()
+{
+    if (!glfwInit())
+    {
+        SEAD_ASSERT_MSG(false, "glfwInit failed");
+        return;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#if defined(SEAD_PLATFORM_MACOSX)
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    GameFrameworkBaseGlfw::createWindow_();
+}
+
 void GameFrameworkGlfwGL::procFrame_()
 {
     Graphics::instance()->lockDrawContext();

@@ -31,6 +31,7 @@ public:
     // }
 
 protected:
+    void createWindow_() override;
     void procFrame_() override;
     void procDraw_() override;
 
