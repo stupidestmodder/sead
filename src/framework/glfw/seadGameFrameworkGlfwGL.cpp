@@ -79,6 +79,8 @@ void GameFrameworkGlfwGL::createWindow_()
 
 void GameFrameworkGlfwGL::procFrame_()
 {
+    CurrentHeapSetter chs(mGLHeap);
+
     Graphics::instance()->lockDrawContext();
     {
         ProcessMeter* proc = ProcessMeter::instance();
