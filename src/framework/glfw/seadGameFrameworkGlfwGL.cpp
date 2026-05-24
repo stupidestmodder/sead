@@ -130,6 +130,8 @@ void GameFrameworkGlfwGL::procFrame_()
         if (proc)
             proc->measureEndFrame();
 
+        CurrentHeapSetter chs(mGlfwHeap);
+
         if (getDisplayState() == DisplayState::eReady)
         {
             glfwShowWindow(mWindow);

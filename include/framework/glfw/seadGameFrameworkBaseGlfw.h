@@ -137,6 +137,7 @@ protected:
     FrameBuffer* mDefaultFrameBuffer;
     LogicalFrameBuffer mDefaultLogicalFrameBuffer;
     s32 mMouseWheel;
+    Heap* mGlfwHeap;
 };
 
 } // namespace sead

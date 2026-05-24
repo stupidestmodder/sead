@@ -4,6 +4,7 @@
 // #include <controller/win/seadKeyboardMouseDeviceWin.h>
 #include <framework/seadSingleScreenMethodTreeMgr.h>
 #include <framework/seadTaskMgr.h>
+#include <heap/seadExpHeap.h>
 
 namespace sead {
 
@@ -21,6 +22,7 @@ GameFrameworkBaseGlfw::GameFrameworkBaseGlfw(const CreateArg& arg)
     , mDefaultFrameBuffer(nullptr)
     , mDefaultLogicalFrameBuffer()
     , mMouseWheel(0)
+    , mGlfwHeap(nullptr)
 {
     SEAD_ASSERT(!sInstance);
     sInstance = this;
@@ -126,9 +128,11 @@ MethodTreeMgr* GameFrameworkBaseGlfw::createMethodTreeMgr_(Heap* heap)
 
 void GameFrameworkBaseGlfw::createWindow_()
 {
+    mGlfwHeap = ExpHeap::create(5 * 1024 * 1024, "GlfwHeap", HeapMgr::instance()->findContainHeap(this), Heap::HeapDirection::eForward, true);
+
     //* Window creation
     {
-        CurrentHeapSetter chs(HeapMgr::instance()->findContainHeap(this));
+        CurrentHeapSetter chs(mGlfwHeap);
 
         glfwSetErrorCallback([](s32 error, const char* description) {
             SEAD_ASSERT_MSG(false, "GLFW Error(%d): %s\n", error, description);
@@ -173,7 +177,11 @@ void GameFrameworkBaseGlfw::mainLoop_()
 
     while (!mExit && !glfwWindowShouldClose(mWindow))
     {
-        glfwPollEvents();
+        {
+            CurrentHeapSetter chs(mGlfwHeap);
+
+            glfwPollEvents();
+        }
 
         {
             TickSpan dt = mLastUpdateTime.diffToNow();
