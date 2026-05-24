@@ -102,6 +102,8 @@ void GameFrameworkBaseGlfw::createControllerMgr(TaskBase* rootTask)
 
 void GameFrameworkBaseGlfw::setCaption(const SafeString& caption)
 {
+    CurrentHeapSetter chs(mGlfwHeap);
+
     glfwSetWindowTitle(mWindow, caption.cstr());
 }
 
