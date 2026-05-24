@@ -203,6 +203,7 @@ void GameFrameworkGlfwGL::createFrameBuffer_(Heap* heap, const Vector2f& virtual
     {
         s32 width = mArg.width;
         s32 height = mArg.height;
+        glfwGetFramebufferSize(mWindow, &width, &height);
 
         if (mArg.create_default_framebuffer)
         {
