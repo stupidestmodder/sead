@@ -81,7 +81,7 @@ bool PosixFileDevice::doRead_(u32* readSize, FileHandle* handle, u8* buf, u32 si
 
 bool PosixFileDevice::doWrite_(u32* writeSize, FileHandle* handle, const u8* buf, u32 size)
 {
-    bool bytesWritten = std::fwrite(buf, sizeof(u8), size, *getHANDLE_(handle));
+    size_t bytesWritten = std::fwrite(buf, sizeof(u8), size, *getHANDLE_(handle));
 
     mLastRawError = errno;
 
