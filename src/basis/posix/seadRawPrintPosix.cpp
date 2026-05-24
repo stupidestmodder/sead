@@ -5,7 +5,11 @@
 
 #include <cstdio>
 
-static sead::CriticalSection sPrintCriticalSection;
+static sead::CriticalSection& GetPrintCriticalSection()
+{
+    static sead::CriticalSection sPrintCriticalSection;
+    return sPrintCriticalSection;
+}
 
 namespace sead { namespace system {
 
@@ -13,7 +17,7 @@ void PrintStringImpl(const char* str, s32 len)
 {
     if (len > 0)
     {
-        ScopedLock<CriticalSection> lock(&sPrintCriticalSection);
+        ScopedLock<CriticalSection> lock(&GetPrintCriticalSection());
 
         std::printf("%s", str);
 
