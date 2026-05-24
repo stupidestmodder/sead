@@ -171,6 +171,8 @@ void GameFrameworkBaseGlfw::createWindow_()
 
 void GameFrameworkBaseGlfw::mainLoop_()
 {
+    CurrentHeapSetter chs(mGlfwHeap); // TODO: Remove
+
     Graphics::instance()->lockDrawContext();
     {
         procCalc_();
