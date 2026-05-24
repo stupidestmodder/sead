@@ -4,11 +4,9 @@
 
 #if defined(SEAD_PLATFORM_WINDOWS)
 #include <filedevice/win/seadWinContentFileDeviceWin.h>
+#elif defined(SEAD_PLATFORM_POSIX)
+#include <filedevice/posix/seadPosixContentFileDevicePosix.h>
 #endif // SEAD_PLATFORM_WINDOWS
-
-#if defined(SEAD_PLATFORM_SDL)
-#include <filedevice/sdl/seadSDLContentFileDeviceSDL.h>
-#endif // SEAD_PLATFORM_SDL
 
 namespace sead {
 
@@ -19,12 +17,12 @@ MainFileDevice::MainFileDevice(Heap* heap)
 #if defined(SEAD_PLATFORM_WINDOWS)
     mFileDevice = new(heap) WinContentFileDevice();
 #elif defined(SEAD_PLATFORM_POSIX)
-    // TODO
+    mFileDevice = new(heap) PosixContentFileDevice();
 #else
 #error "Unsupported platform"
 #endif // SEAD_PLATFORM_WINDOWS
 
-    // SEAD_ASSERT(mFileDevice);
+    SEAD_ASSERT(mFileDevice);
 }
 
 MainFileDevice::~MainFileDevice()

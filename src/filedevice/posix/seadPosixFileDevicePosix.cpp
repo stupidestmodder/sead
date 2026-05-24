@@ -1,10 +1,10 @@
-#include <filedevice/sdl/seadSDLFileDeviceSDL.h>
+#include <filedevice/posix/seadPosixFileDevicePosix.h>
 
 #include <cerrno>
 
 namespace sead {
 
-FileDevice* SDLFileDevice::doOpen_(FileHandle* handle, const SafeString& filename, FileOpenFlag flag)
+FileDevice* PosixFileDevice::doOpen_(FileHandle* handle, const SafeString& filename, FileOpenFlag flag)
 {
     FixedSafeString<512> filepath;
     doResolvePath_(&filepath, filename);
@@ -44,7 +44,7 @@ FileDevice* SDLFileDevice::doOpen_(FileHandle* handle, const SafeString& filenam
     return this;
 }
 
-bool SDLFileDevice::doClose_(FileHandle* handle)
+bool PosixFileDevice::doClose_(FileHandle* handle)
 {
     bool success = std::fclose(*getHANDLE_(handle));
     if (!success)
@@ -53,21 +53,21 @@ bool SDLFileDevice::doClose_(FileHandle* handle)
     return (success == false);
 }
 
-bool SDLFileDevice::doFlush_(FileHandle* handle)
+bool PosixFileDevice::doFlush_(FileHandle* handle)
 {
     // TODO
     SEAD_ASSERT(false);
     return false;
 }
 
-bool SDLFileDevice::doRemove_(const SafeString& path)
+bool PosixFileDevice::doRemove_(const SafeString& path)
 {
     // TODO
     SEAD_ASSERT(false);
     return false;
 }
 
-bool SDLFileDevice::doRead_(u32* readSize, FileHandle* handle, u8* buf, u32 size)
+bool PosixFileDevice::doRead_(u32* readSize, FileHandle* handle, u8* buf, u32 size)
 {
     size_t bytesRead = std::fread(buf, sizeof(u8), size, *getHANDLE_(handle));
 
@@ -79,7 +79,7 @@ bool SDLFileDevice::doRead_(u32* readSize, FileHandle* handle, u8* buf, u32 size
     return bytesRead == size;
 }
 
-bool SDLFileDevice::doWrite_(u32* writeSize, FileHandle* handle, const u8* buf, u32 size)
+bool PosixFileDevice::doWrite_(u32* writeSize, FileHandle* handle, const u8* buf, u32 size)
 {
     bool bytesWritten = std::fwrite(buf, sizeof(u8), size, *getHANDLE_(handle));
 
@@ -91,7 +91,7 @@ bool SDLFileDevice::doWrite_(u32* writeSize, FileHandle* handle, const u8* buf, 
     return bytesWritten == size;
 }
 
-bool SDLFileDevice::doSeek_(FileHandle* handle, s32 offset, SeekOrigin origin)
+bool PosixFileDevice::doSeek_(FileHandle* handle, s32 offset, SeekOrigin origin)
 {
     s32 moveMethod = SEEK_SET;
     switch (origin)
@@ -119,7 +119,7 @@ bool SDLFileDevice::doSeek_(FileHandle* handle, s32 offset, SeekOrigin origin)
     return res == 0;
 }
 
-bool SDLFileDevice::doGetCurrentSeekPos_(u32* pos, FileHandle* handle)
+bool PosixFileDevice::doGetCurrentSeekPos_(u32* pos, FileHandle* handle)
 {
     s32 currentPos = std::ftell(*getHANDLE_(handle));
 
@@ -135,7 +135,7 @@ bool SDLFileDevice::doGetCurrentSeekPos_(u32* pos, FileHandle* handle)
     return true;
 }
 
-bool SDLFileDevice::doGetFileSize_(u32* size, const SafeString& path)
+bool PosixFileDevice::doGetFileSize_(u32* size, const SafeString& path)
 {
     // TODO
     SEAD_UNUSED(size);
@@ -144,7 +144,7 @@ bool SDLFileDevice::doGetFileSize_(u32* size, const SafeString& path)
     return false;
 }
 
-bool SDLFileDevice::doGetFileSize_(u32* size, FileHandle* handle)
+bool PosixFileDevice::doGetFileSize_(u32* size, FileHandle* handle)
 {
     u32 prevPos = 0;
     if (!doGetCurrentSeekPos_(&prevPos, handle))
@@ -176,54 +176,54 @@ bool SDLFileDevice::doGetFileSize_(u32* size, FileHandle* handle)
     return true;
 }
 
-bool SDLFileDevice::doIsExistFile_(bool* isExist, const SafeString& path)
+bool PosixFileDevice::doIsExistFile_(bool* isExist, const SafeString& path)
 {
     // TODO
     SEAD_ASSERT(false);
     return false;
 }
 
-bool SDLFileDevice::doIsExistDirectory_(bool* isExist, const SafeString& path)
+bool PosixFileDevice::doIsExistDirectory_(bool* isExist, const SafeString& path)
 {
     // TODO
     SEAD_ASSERT(false);
     return false;
 }
 
-FileDevice* SDLFileDevice::doOpenDirectory_(DirectoryHandle* handle, const SafeString& dirname)
+FileDevice* PosixFileDevice::doOpenDirectory_(DirectoryHandle* handle, const SafeString& dirname)
 {
     // TODO
     SEAD_ASSERT(false);
     return nullptr;
 }
 
-bool SDLFileDevice::doCloseDirectory_(DirectoryHandle* handle)
+bool PosixFileDevice::doCloseDirectory_(DirectoryHandle* handle)
 {
     // TODO
     SEAD_ASSERT(false);
     return false;
 }
 
-bool SDLFileDevice::doReadDirectory_(u32* readNum, DirectoryHandle* handle, DirectoryEntry* entry, u32 num)
+bool PosixFileDevice::doReadDirectory_(u32* readNum, DirectoryHandle* handle, DirectoryEntry* entry, u32 num)
 {
     // TODO
     SEAD_ASSERT(false);
     return false;
 }
 
-bool SDLFileDevice::doMakeDirectory_(const SafeString& path, u32 permission)
+bool PosixFileDevice::doMakeDirectory_(const SafeString& path, u32 permission)
 {
     // TODO
     SEAD_ASSERT(false);
     return false;
 }
 
-RawErrorCode SDLFileDevice::doGetLastRawError_() const
+RawErrorCode PosixFileDevice::doGetLastRawError_() const
 {
     return mLastRawError;
 }
 
-void SDLFileDevice::doResolvePath_(BufferedSafeString* out, const SafeString& path) const
+void PosixFileDevice::doResolvePath_(BufferedSafeString* out, const SafeString& path) const
 {
     // TODO: ?
     // CHAR exPath[512];

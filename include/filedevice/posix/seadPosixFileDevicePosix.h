@@ -6,19 +6,19 @@
 
 namespace sead {
 
-class SDLFileDevice : public FileDevice
+class PosixFileDevice : public FileDevice
 {
-    SEAD_RTTI_OVERRIDE(SDLFileDevice, FileDevice);
+    SEAD_RTTI_OVERRIDE(PosixFileDevice, FileDevice);
 
 public:
-    SDLFileDevice(const SafeString& driveName, const SafeString& cwdPath)
+    PosixFileDevice(const SafeString& driveName, const SafeString& cwdPath)
         : FileDevice(driveName)
         , mCWD(cwdPath)
         , mLastRawError(0)
     {
     }
 
-    ~SDLFileDevice() override
+    ~PosixFileDevice() override
     {
     }
 
