@@ -117,7 +117,6 @@ void AllocFailAssert(Heap* heap, size_t size, s32 alignment)
 // operator new(size_t)
 
 //* So MSVC won't complain
-
 #if defined(SEAD_COMPILER_MSVC)
 #pragma warning(push)
 #pragma warning(disable : 28251)
@@ -147,7 +146,29 @@ void* operator new[](size_t size, const std::nothrow_t&) noexcept
 #pragma warning(pop)
 #endif // SEAD_COMPILER_MSVC
 
-// operator new(size_t, Heap*)
+// operator new(size_t, std::align_val_t)
+
+void* operator new(size_t size, std::align_val_t alignment)
+{
+    return sead::system::NewImpl(nullptr, size, static_cast<s32>(alignment), true);
+}
+
+void* operator new[](size_t size, std::align_val_t alignment)
+{
+    return sead::system::NewImpl(nullptr, size, static_cast<s32>(alignment), true);
+}
+
+void* operator new(size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept
+{
+    return sead::system::NewImpl(nullptr, size, static_cast<s32>(alignment), false);
+}
+
+void* operator new[](size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept
+{
+    return sead::system::NewImpl(nullptr, size, static_cast<s32>(alignment), false);
+}
+
+// operator new(size_t, sead::Heap*)
 
 void* operator new(size_t size, sead::Heap* heap)
 {
@@ -231,6 +252,72 @@ void operator delete(void* ptr, const std::nothrow_t&) noexcept
 }
 
 void operator delete[](void* ptr, const std::nothrow_t&) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+// operator delete(void*, size_t)
+
+void operator delete(void* ptr, size_t) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete[](void* ptr, size_t) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete(void* ptr, size_t, const std::nothrow_t&) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete[](void* ptr, size_t, const std::nothrow_t&) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+// operator delete(void*, std::align_val_t)
+
+void operator delete(void* ptr, std::align_val_t) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete[](void* ptr, std::align_val_t) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete(void* ptr, std::align_val_t, const std::nothrow_t&) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete[](void* ptr, std::align_val_t, const std::nothrow_t&) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+// operator delete(void*, size_t, std::align_val_t)
+
+void operator delete(void* ptr, size_t, std::align_val_t) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete[](void* ptr, size_t, std::align_val_t) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete(void* ptr, size_t, std::align_val_t, const std::nothrow_t&) noexcept
+{
+    sead::system::DeleteImpl(ptr);
+}
+
+void operator delete[](void* ptr, size_t, std::align_val_t, const std::nothrow_t&) noexcept
 {
     sead::system::DeleteImpl(ptr);
 }
