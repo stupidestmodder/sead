@@ -126,7 +126,7 @@ project "sead"
     filter "configurations:Debug"
         defines { "SEAD_TARGET_DEBUG" }
         runtime "debug"
-        optimize "debug"
+        optimize "off"
         symbols "on"
         linktimeoptimization "off"
 
@@ -236,3 +236,24 @@ project "glfw"
             "QuartzCore.framework",
             "UniformTypeIdentifiers.framework"
         }
+
+    filter "configurations:Debug"
+        defines { "SEAD_TARGET_DEBUG" }
+        runtime "debug"
+        optimize "off"
+        symbols "on"
+        linktimeoptimization "off"
+
+    filter "configurations:Develop"
+        defines { "SEAD_TARGET_DEBUG" } -- TODO: Use SEAD_TARGET_DEVELOP
+        runtime "release"
+        optimize "speed"
+        symbols "on"
+        linktimeoptimization "off"
+
+    filter "configurations:Release"
+        defines { "SEAD_TARGET_RELEASE", "NDEBUG" }
+        runtime "release"
+        optimize "speed"
+        symbols "off"
+        linktimeoptimization "on"
