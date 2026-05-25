@@ -8,6 +8,14 @@
 #include <cstdlib>
 #include <cstring>
 
+#if defined(SEAD_PLATFORM_LINUX)
+#include <cstdio>
+#elif defined(SEAD_PLATFORM_MACOSX)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <unistd.h>
+#endif // SEAD_PLATFORM
+
 #if defined(SEAD_COMPILER_MSVC)
     #define SEAD_BREAKPOINT() __debugbreak()
 #elif defined(SEAD_COMPILER_CLANG)
@@ -23,27 +31,74 @@ static const s32 cFormatBufSize = 0x180;
 
 namespace sead { namespace system {
 
+static bool IsDebuggerPresent()
+{
+#if defined(SEAD_PLATFORM_LINUX)
+    std::FILE* file = std::fopen("/proc/self/status", "r");
+    if (!file)
+    {
+        return false;
+    }
+
+    char line[256];
+    while (std::fgets(line, sizeof(line), file))
+    {
+        if (strncmp(line, "TracerPid:", 10) == 0)
+        {
+            s32 tracerPid = 0;
+            std::sscanf(line + 10, "%d", &tracerPid);
+
+            std::fclose(file);
+            return tracerPid != 0;
+        }
+    }
+
+    std::fclose(file);
+    return false;
+#elif defined(SEAD_PLATFORM_MACOSX)
+    s32 mib[4];
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PID;
+    mib[3] = getpid();
+
+    struct kinfo_proc info;
+
+    size_t size = sizeof(info);
+    sead::MemUtil::fillZero(&info, size);
+
+    if (sysctl(mib, 4, &info, &size, nullptr, 0) != 0)
+    {
+        return false;
+    }
+
+    return (info.kp_proc.p_flag & P_TRACED) != 0;
+#else
+#error "Unsupported platform"
+#endif // SEAD_PLATFORM
+}
+
 void DebugBreak()
 {
-    // if (!IsDebuggerPresent())
-    // {
-    //     return;
-    // }
+    if (!IsDebuggerPresent())
+    {
+        return;
+    }
 
-    // SEAD_BREAKPOINT();
+    SEAD_BREAKPOINT();
 }
 
 void Halt()
 {
     FlushPrint();
 
-    // if (IsDebuggerPresent())
-    // {
-    //   SEAD_BREAKPOINT();
-    //   return;
-    // }
+    if (!IsDebuggerPresent())
+    {
+        std::exit(255);
+        return;
+    }
 
-    std::exit(255);
+    SEAD_BREAKPOINT();
 }
 
 void HaltWithDetail(const char* pos, s32 line, const char* format, ...)
