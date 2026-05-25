@@ -32,6 +32,11 @@ GameFrameworkBaseGlfw::GameFrameworkBaseGlfw(const CreateArg& arg)
 
 GameFrameworkBaseGlfw::~GameFrameworkBaseGlfw()
 {
+    glfwDestroyWindow(mWindow);
+    mWindow = nullptr;
+
+    glfwTerminate();
+
     sInstance = nullptr;
 }
 
