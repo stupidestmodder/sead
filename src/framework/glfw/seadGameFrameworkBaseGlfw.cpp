@@ -169,6 +169,38 @@ void GameFrameworkBaseGlfw::createWindow_()
             SEAD_ASSERT_MSG(false, "glfwCreateWindow failed");
             return;
         }
+
+        glfwSetFramebufferSizeCallback(mWindow, [](GLFWwindow* window, s32 width, s32 height)
+        {
+            SEAD_ASSERT(sInstance);
+            if (width == 0 || height == 0)
+            {
+                return;
+            }
+
+            if (sInstance->mDefaultFrameBuffer)
+            {
+                sInstance->mDefaultFrameBuffer->setVirtualSize(width, height);
+                sInstance->mDefaultFrameBuffer->setPhysicalArea(0.0f, 0.0f, width, height);
+            }
+
+            sInstance->mDefaultLogicalFrameBuffer.setVirtualSize(width, height);
+            sInstance->mDefaultLogicalFrameBuffer.setPhysicalArea(0.0f, 0.0f, width, height);
+
+            sInstance->resize_(width, height);
+        });
+
+        glfwSetWindowRefreshCallback(mWindow, [](GLFWwindow* window)
+        {
+            SEAD_ASSERT(sInstance);
+            sInstance->procFrame_();
+        });
+
+        glfwSetWindowCloseCallback(mWindow, [](GLFWwindow* window)
+        {
+            SEAD_ASSERT(sInstance);
+            sInstance->requestExit();
+        });
     }
 
     setFps(mArg.fps);
@@ -186,7 +218,7 @@ void GameFrameworkBaseGlfw::mainLoop_()
     }
     Graphics::instance()->unlockDrawContext();
 
-    while (!mExit && !glfwWindowShouldClose(mWindow))
+    while (!mExit)
     {
         {
             CurrentHeapSetter chs(mGlfwHeap);
@@ -229,68 +261,5 @@ void GameFrameworkBaseGlfw::procCalc_()
     }
     mCalcMeter.measureEnd();
 }
-
-// LRESULT GameFrameworkBaseWin::msgProcImpl_(HWND hWnd, u32 msg, WPARAM wParam, LPARAM lParam)
-// {
-//     if (mMsgProcCallback)
-//     {
-//         LRESULT result = mMsgProcCallback(hWnd, msg, wParam, lParam);
-//         if (result != 0)
-//             return result;
-//     }
-
-//     switch (msg)
-//     {
-//         case WM_KEYDOWN:
-//             if (wParam != VK_ESCAPE)
-//                 break;
-
-//             //! Fallthrough
-
-//         case WM_CLOSE:
-//             mExit = true;
-//             return 1;
-
-//         case WM_MOUSEWHEEL:
-//             mMouseWheel += GET_WHEEL_DELTA_WPARAM(wParam);
-//             break;
-
-//         //! Temp
-//         case WM_SIZE:
-// 		    if (wParam != SIZE_MINIMIZED)
-//             {
-//                 f32 width = static_cast<f32>(LOWORD(lParam));
-//                 f32 height = static_cast<f32>(HIWORD(lParam));
-
-//                 if (mDefaultFrameBuffer)
-//                 {
-//                     mDefaultFrameBuffer->setVirtualSize(width, height);
-//                     mDefaultFrameBuffer->setPhysicalArea(0.0f, 0.0f, width, height);
-//                 }
-
-//                 mDefaultLogicalFrameBuffer.setVirtualSize(width, height);
-//                 mDefaultLogicalFrameBuffer.setPhysicalArea(0.0f, 0.0f, width, height);
-
-//                 resize_(width, height);
-
-//                 return 1;
-//             }
-
-//         //! Temp
-//         case WM_PAINT:
-//             //SEAD_PRINT("proc\n");
-//             procFrame_();
-//             break;
-//     }
-
-//     return DefWindowProcA(hWnd, msg, wParam, lParam);
-// }
-
-// LRESULT __stdcall GameFrameworkBaseWin::msgProc_(HWND hWnd, u32 msg, WPARAM wParam, LPARAM lParam)
-// {
-//     SEAD_ASSERT(sInstance);
-
-//     return sInstance->msgProcImpl_(hWnd, msg, wParam, lParam);
-// }
 
 } // namespace sead
