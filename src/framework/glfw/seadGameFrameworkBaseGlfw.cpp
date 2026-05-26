@@ -32,6 +32,8 @@ GameFrameworkBaseGlfw::GameFrameworkBaseGlfw(const CreateArg& arg)
 
 GameFrameworkBaseGlfw::~GameFrameworkBaseGlfw()
 {
+    CurrentHeapSetter chs(mGlfwHeap);
+    
     glfwDestroyWindow(mWindow);
     mWindow = nullptr;
 
