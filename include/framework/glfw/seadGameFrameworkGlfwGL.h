@@ -30,6 +30,11 @@ public:
     //     return mHGLRC;
     // }
 
+    Heap* getGLHeap() const
+    {
+        return mGLHeap;
+    }
+
 protected:
     void createWindow_() override;
     void procFrame_() override;
