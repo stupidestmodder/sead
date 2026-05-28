@@ -1,8 +1,8 @@
 #pragma once
 
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif // NOMINMAX
+#if defined(SEAD_PLATFORM_WINDOWS)
+#include <basis/win/seadWindows.h>
+#endif // SEAD_PLATFORM
 
 #include <basis/seadTypes.h>
 

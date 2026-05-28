@@ -178,16 +178,19 @@ void GameFrameworkBaseGlfw::createWindow_()
                 return;
             }
 
+            f32 w = static_cast<f32>(width);
+            f32 h = static_cast<f32>(height);
+
             if (sInstance->mDefaultFrameBuffer)
             {
-                sInstance->mDefaultFrameBuffer->setVirtualSize(width, height);
-                sInstance->mDefaultFrameBuffer->setPhysicalArea(0.0f, 0.0f, width, height);
+                sInstance->mDefaultFrameBuffer->setVirtualSize(w, h);
+                sInstance->mDefaultFrameBuffer->setPhysicalArea(0.0f, 0.0f, w, h);
             }
 
-            sInstance->mDefaultLogicalFrameBuffer.setVirtualSize(width, height);
-            sInstance->mDefaultLogicalFrameBuffer.setPhysicalArea(0.0f, 0.0f, width, height);
+            sInstance->mDefaultLogicalFrameBuffer.setVirtualSize(w, h);
+            sInstance->mDefaultLogicalFrameBuffer.setPhysicalArea(0.0f, 0.0f, w, h);
 
-            sInstance->resize_(width, height);
+            sInstance->resize_(w, h);
         });
 
         glfwSetWindowRefreshCallback(mWindow, [](GLFWwindow* window)
