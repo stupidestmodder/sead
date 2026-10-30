@@ -347,7 +347,9 @@ bool UnboundHeap::isInclude(const void* ptr) const
     // Structural pre-screen: for any legitimately malloc'd block,
     // the MemBlock header must end at or before ptr. A garbage decoded
     // address that violates this is an immediate false-negative
-    if (PtrUtil::addOffset(memBlock, sizeof(MemBlock)) > ptr)
+    const uintptr_t headerEnd = reinterpret_cast<uintptr_t>(memBlock) + sizeof(MemBlock);
+    const uintptr_t address = reinterpret_cast<uintptr_t>(ptr);
+    if (headerEnd > address || address - headerEnd > 0xFFFF)
         return false;
 
     if (memBlock->mHeapCheckTag != mHeapCheckTag)
