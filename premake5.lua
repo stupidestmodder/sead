@@ -26,6 +26,7 @@ project "sead"
         "src/**win/**",
         
         "src/**gl/**",
+        "src/**wgpu/**",
 
         "src/**sdl/**",
         "src/**glfw/**",
@@ -44,8 +45,6 @@ project "sead"
         links {
             "Winmm.lib",
             "Ws2_32.lib",
-            "opengl32.lib",
-            -- "glad",
         }
 
     filter "system:linux"
@@ -69,7 +68,6 @@ project "sead"
             "Cocoa.framework",
             "IOKit.framework",
             "CoreVideo.framework",
-            "OpenGL.framework",
             "QuartzCore.framework",
             "UniformTypeIdentifiers.framework"
         }
@@ -77,18 +75,14 @@ project "sead"
     filter "platforms:GLFW_*"
         defines {
             "SEAD_PLATFORM_GLFW",
-            "SEAD_USE_GL",
         }
 
         includedirs {
-            "libs/glad/include",
             "libs/glfw/include",
         }
 
         files {
             "src/**glfw/**",
-
-            "src/**gl/**",
         }
 
         removefiles {
@@ -96,13 +90,16 @@ project "sead"
         }
 
         links {
-            -- "glad",
             "glfw",
         }
 
     filter "platforms:Win_*"
         defines {
             "SEAD_PLATFORM_WINDOWS",
+        }
+
+    filter "platforms:*_GL"
+        defines {
             "SEAD_USE_GL",
         }
 
@@ -111,17 +108,48 @@ project "sead"
         }
 
         files {
-            "src/**win/**",
-
             "src/**gl/**",
         }
 
-        links {
-            "Winmm.lib",
-            "Ws2_32.lib",
-            "opengl32.lib",
-            -- "glad",
+        removefiles {
+            "src/framework/**WGPU.cpp",
         }
+
+    filter { "platforms:*_GL", "system:windows" }
+        links { "opengl32.lib" }
+
+    filter { "platforms:*_GL", "system:macosx" }
+        links { "OpenGL.framework" }
+
+    filter "platforms:*_WGPU"
+        defines {
+            "SEAD_USE_WGPU",
+        }
+
+        includedirs {
+            "libs/wgpu/include",
+        }
+
+        files {
+            "src/**wgpu/**",
+        }
+
+        removefiles {
+            "src/framework/**GL.cpp",
+        }
+
+        libdirs {
+            "libs/wgpu/lib",
+        }
+
+    filter { "platforms:*_WGPU", "system:linux" }
+        links { "wgpu-linux-x86_64" }
+
+    filter { "platforms:*_WGPU", "system:windows" }
+        -- TODO: Link prebuilt webgpu library
+
+    filter { "platforms:*_WGPU", "system:macosx" }
+        -- TODO: Link prebuilt webgpu library
 
     filter "configurations:Debug"
         defines { "SEAD_TARGET_DEBUG" }
