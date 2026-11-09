@@ -71,7 +71,6 @@ void ProcessMeter::calc()
 void ProcessMeter::draw()
 {
     DrawContext drawContext;
-    drawContext.setDefaultCommandBufferFromFramework(getFramework());
 
     if (!mVisible)
         return;

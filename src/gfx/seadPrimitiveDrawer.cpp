@@ -6,6 +6,8 @@
 
 #if defined(SEAD_USE_GL)
 #include <gfx/gl/seadPrimitiveDrawMgrGL.h>
+#elif defined(SEAD_USE_WGPU)
+#include <gfx/wgpu/seadPrimitiveDrawMgrWGPU.h>
 #endif
 
 namespace sead {
@@ -151,6 +153,8 @@ PrimitiveDrawMgrBase* PrimitiveDrawer::createDrawMgrInstance_(Heap* heap)
 {
 #if defined(SEAD_USE_GL)
     return PrimitiveDrawMgrGL::createInstance(heap);
+#elif defined (SEAD_USE_WGPU)
+    return PrimitiveDrawMgrWGPU::createInstance(heap);
 #endif
 }
 
@@ -158,6 +162,8 @@ PrimitiveDrawMgrBase* PrimitiveDrawer::getDrawMgr_()
 {
 #if defined(SEAD_USE_GL)
     return PrimitiveDrawMgrGL::instance();
+#elif defined(SEAD_USE_WGPU)
+    return PrimitiveDrawMgrWGPU::instance();
 #endif
 }
 
