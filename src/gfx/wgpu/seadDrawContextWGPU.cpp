@@ -437,9 +437,9 @@ WGPURenderPipeline DrawContext::PipelineCache::getOrCreate(WGPUDevice device, co
         mList.erase(entry);
     }
 
-    mList.birthFront();
-    *mList.back() = { pipeline, key };
-    mMap.insert(key, mList.back());
+    Entry* entry = mList.birthFront();
+    *entry = { pipeline, key };
+    mMap.insert(key, entry);
 
     return pipeline;
 }
