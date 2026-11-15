@@ -25,6 +25,7 @@ GraphicsWGPU::GraphicsWGPU(const CreateArg& arg)
     , mDevice(nullptr)
     , mQueue(nullptr)
     , mSurfaceConfig({})
+    , mDefaultCommandBuffer(nullptr)
 { }
 
 GraphicsWGPU::~GraphicsWGPU()
@@ -35,6 +36,12 @@ GraphicsWGPU::~GraphicsWGPU()
 void GraphicsWGPU::initializeImpl(Heap* heap)
 {
     CurrentHeapSetter chs(heap);
+
+    wgpuSetLogLevel(WGPULogLevel_Info);
+
+    //* WebGPU depth range is [0, 1] while sead uses the OpenGL convention ([-1, 1]) so remap Z in the device
+    sDefaultDeviceZScale = 0.5f;
+    sDefaultDeviceZOffset = 0.5f;
 
     WGPUInstanceDescriptor instanceDescriptor = {};
 

@@ -21,14 +21,15 @@ DrawContext::DrawContext()
     resetBindingState_();
 }
 
-void DrawContext::begin()
+void DrawContext::setCommandBuffer()
 {
     mEncoder = wgpuDeviceCreateCommandEncoder(mDevice, nullptr);
 }
 
-void DrawContext::submit()
+void DrawContext::flushCommandBuffer()
 {
-    SEAD_ASSERT(mEncoder != nullptr);
+    if (mEncoder == nullptr)
+        return;
 
     // force commit pending operations
     if (mRenderPassEncoder == nullptr && (mRenderPassState.colorAttachmentCount > 0 || mRenderPassState.hasDepthStencil))
@@ -222,16 +223,34 @@ void DrawContext::setShader(WGPUShaderModule vertexShader, WGPUShaderModule frag
     mPipelineState.fs = fragmentShader;
 }
 
-void DrawContext::setBindGroup(const WGPUBindGroup* groups, u32 groupNum, WGPUPipelineLayout layout)
+void DrawContext::setBindGroup(const WGPUBindGroup* groups, u32 groupNum, u32** dynamicOffsets, u32* dynamicOffsetCounts, WGPUPipelineLayout layout)
 {
     SEAD_ASSERT(groupNum <= 4); // API restriction
 
     for (u32 i = 0; i < 4; i++)
     {
         if (i < groupNum)
+        {
             mBindingState.bindGroups[i] = groups[i];
+
+            if (dynamicOffsets != nullptr && dynamicOffsetCounts != nullptr)
+            {
+                mBindingState.bindGroupDynamicOffsetCount[i] = sead::Mathu::clampMax(dynamicOffsetCounts[i], 8);
+
+                for (u32 j = 0; j < mBindingState.bindGroupDynamicOffsetCount[i]; j++)
+                {
+                    mBindingState.bindGroupDynamicOffsets[i][j] = dynamicOffsets[i][j];
+                }
+            }
+            else
+            {
+                mBindingState.bindGroupDynamicOffsetCount[i] = 0;
+            }
+        }
         else
+        {
             mBindingState.bindGroups[i] = nullptr;
+        }
     }
 
     mBindingState.bindLayout = layout;
@@ -253,10 +272,7 @@ void DrawContext::commitRenderPass_()
     mRenderPassEncoder = wgpuCommandEncoderBeginRenderPass(mEncoder, &desc);
 
     // apply deferred state we accumulated
-    wgpuRenderPassEncoderSetScissorRect(mRenderPassEncoder, mRenderPassState.scissor.x, mRenderPassState.scissor.y, mRenderPassState.scissor.width, mRenderPassState.scissor.height);
-    wgpuRenderPassEncoderSetViewport(mRenderPassEncoder, mRenderPassState.viewport.x, mRenderPassState.viewport.y, mRenderPassState.viewport.width, mRenderPassState.viewport.height, 0.0f, 1.0f);
-    wgpuRenderPassEncoderSetStencilReference(mRenderPassEncoder, mRenderPassState.stencilReference);
-    wgpuRenderPassEncoderSetBlendConstant(mRenderPassEncoder, &mRenderPassState.blendConstant);
+    applyPassState_();
 
     // consume the clear trigger
     for (u32 i = 0; i < mRenderPassState.colorAttachmentCount; i++)
@@ -287,6 +303,11 @@ void DrawContext::resetPipelineState_()
     sead::MemUtil::fillZero(&mPipelineState, sizeof(mPipelineState));
     mPipelineState.frontFace = WGPUFrontFace_CCW; //* GraphicsContext has no way to modify this, and the OpenGL default is CCW
     mPipelineState.vertexStepMode = WGPUVertexStepMode_Vertex; //* Same as above
+
+    for (u32 i = 0; i < 8; i++)
+    {
+        mPipelineState.colorWriteMask[i] = WGPUColorWriteMask_All;
+    }
 }
 
 void DrawContext::resetBindingState_()
@@ -299,6 +320,13 @@ WGPURenderPipeline DrawContext::commitRenderPipeline_()
     static const sead::SafeString cShaderEntry = "main";
     static const size_t cShaderEntryLength = cShaderEntry.calcLength();
 
+    size_t bufferCount = 0;
+    for (u32 i = 0; i < 8; i++)
+    {
+        if (mBindingState.vertexBuffers[i])
+            bufferCount++;
+    }
+
     WGPURenderPipelineDescriptor pipelineDesc = {};
     pipelineDesc.layout = mBindingState.bindLayout;
     pipelineDesc.vertex = {
@@ -308,9 +336,8 @@ WGPURenderPipeline DrawContext::commitRenderPipeline_()
         .constantCount = 0,
         .constants = nullptr,
 
-        // TODO
-        .bufferCount = 0,
-        .buffers = nullptr,
+        .bufferCount = bufferCount,
+        .buffers = &mPipelineState.vertexBufferLayout,
     };
 
     //* MRT is unsupported here
@@ -350,7 +377,7 @@ WGPURenderPipeline DrawContext::commitRenderPipeline_()
 
     pipelineDesc.primitive = {
         .topology = mPipelineState.topology,
-        .stripIndexFormat = (mPipelineState.topology == WGPUPrimitiveTopology_LineStrip || mPipelineState.topology == WGPUPrimitiveTopology_TriangleStrip) ? WGPUIndexFormat_Uint16 : WGPUIndexFormat_Undefined , // TODO: dehardcode
+        .stripIndexFormat = (mPipelineState.topology == WGPUPrimitiveTopology_LineStrip || mPipelineState.topology == WGPUPrimitiveTopology_TriangleStrip) ? mBindingState.indexFormat : WGPUIndexFormat_Undefined,
         .frontFace = mPipelineState.frontFace,
         .cullMode = static_cast<WGPUCullMode>(mPipelineState.cullMode),
         .unclippedDepth = false
@@ -391,6 +418,42 @@ WGPURenderPipeline DrawContext::commitRenderPipeline_()
     return sPipelineCache.getOrCreate(mDevice, pipelineDesc);
 }
 
+void DrawContext::setVertexBuffer(const WGPUBuffer* vertexBuffers, u64* offsets, u64* sizes, u32 bufferNum, WGPUVertexBufferLayout* layout)
+{
+    SEAD_ASSERT_MSG(bufferNum == 0 || bufferNum == 1, "Only a single vertex buffer layout is supported.");
+
+    for (u32 i = 0; i < 8; i++)
+    {
+        if (i < bufferNum)
+        {
+            mBindingState.vertexBuffers[i] = vertexBuffers[i];
+            mBindingState.vertexBufferOffsets[i] = offsets[i];
+            mBindingState.vertexBufferSizes[i] = sizes[i];
+        }
+        else
+        {
+            mBindingState.vertexBuffers[i] = nullptr;
+        }
+    }
+
+    if (layout != nullptr)
+    {
+        mPipelineState.vertexBufferLayout = *layout;
+    }
+    else
+    {
+        mPipelineState.vertexBufferLayout = {};
+    }
+}
+
+void DrawContext::setIndexBuffer(WGPUBuffer indexBuffer, WGPUIndexFormat format, u64 offset, u64 size)
+{
+    mBindingState.indexBuffer = indexBuffer;
+    mBindingState.indexFormat = format;
+    mBindingState.indexBufferOffset = offset;
+    mBindingState.indexBufferSize = size;
+}
+
 void DrawContext::drawInstanced(WGPUPrimitiveTopology mode, u32 first, u32 count, u32 instances)
 {
     commitRenderPass_();
@@ -398,12 +461,41 @@ void DrawContext::drawInstanced(WGPUPrimitiveTopology mode, u32 first, u32 count
     mPipelineState.topology = mode;
     WGPURenderPipeline pipeline = commitRenderPipeline_();
     wgpuRenderPassEncoderSetPipeline(mRenderPassEncoder, pipeline);
+    applyPassState_();
+
+    wgpuRenderPassEncoderDraw(mRenderPassEncoder, count, instances, first, 0);
+}
+
+void DrawContext::drawInstancedIndexed(WGPUPrimitiveTopology mode, u32 first, u32 count, u32 instances)
+{
+    commitRenderPass_();
+
+    mPipelineState.topology = mode;
+    WGPURenderPipeline pipeline = commitRenderPipeline_();
+    wgpuRenderPassEncoderSetPipeline(mRenderPassEncoder, pipeline);
+    applyPassState_();
+
+    wgpuRenderPassEncoderDrawIndexed(mRenderPassEncoder, count, instances, first, 0, 0);
+}
+
+void DrawContext::applyPassState_()
+{
+    wgpuRenderPassEncoderSetScissorRect(mRenderPassEncoder, mRenderPassState.scissor.x, mRenderPassState.scissor.y, mRenderPassState.scissor.width, mRenderPassState.scissor.height);
+    wgpuRenderPassEncoderSetViewport(mRenderPassEncoder, mRenderPassState.viewport.x, mRenderPassState.viewport.y, mRenderPassState.viewport.width, mRenderPassState.viewport.height, 0.0f, 1.0f);
+    wgpuRenderPassEncoderSetStencilReference(mRenderPassEncoder, mRenderPassState.stencilReference);
+    wgpuRenderPassEncoderSetBlendConstant(mRenderPassEncoder, &mRenderPassState.blendConstant);
     for (u32 i = 0; i < 4; i++)
     {
         if (mBindingState.bindGroups[i])
-            wgpuRenderPassEncoderSetBindGroup(mRenderPassEncoder, i, mBindingState.bindGroups[i], 0, nullptr);
+            wgpuRenderPassEncoderSetBindGroup(mRenderPassEncoder, i, mBindingState.bindGroups[i], mBindingState.bindGroupDynamicOffsetCount[i], mBindingState.bindGroupDynamicOffsets[i]);
     }
-    wgpuRenderPassEncoderDraw(mRenderPassEncoder, count, instances, first, 0);
+    for (u32 i = 0; i < 8; i++)
+    {
+        if (mBindingState.vertexBuffers[i] != nullptr)
+            wgpuRenderPassEncoderSetVertexBuffer(mRenderPassEncoder, i, mBindingState.vertexBuffers[i], mBindingState.vertexBufferOffsets[i], mBindingState.vertexBufferSizes[i]);
+    }
+    if (mBindingState.indexBuffer)
+        wgpuRenderPassEncoderSetIndexBuffer(mRenderPassEncoder, mBindingState.indexBuffer, mBindingState.indexFormat, mBindingState.indexBufferOffset, mBindingState.indexBufferSize);
 }
 
 void DrawContext::PipelineCache::initialize(Heap* heap, s32 entries)
@@ -428,6 +520,8 @@ WGPURenderPipeline DrawContext::PipelineCache::getOrCreate(WGPUDevice device, co
 
     WGPURenderPipeline pipeline = wgpuDeviceCreateRenderPipeline(device, &desc);
     SEAD_ASSERT(pipeline != nullptr);
+
+    // TODO: register an extra ref to the internal objects to prevent pointer reuse?
 
     if (mList.isFull()) // kick last entry
     {

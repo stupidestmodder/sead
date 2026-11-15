@@ -2,14 +2,28 @@
 
 #include <gfx/wgpu/seadWGPU.h>
 #include <gfx/seadPrimitiveDrawMgrBase.h>
+#include <gfx/seadPrimitiveDrawUtil.h>
 #include <heap/seadDisposer.h>
 
 namespace sead {
 
-// TODO
 class PrimitiveDrawMgrWGPU : public PrimitiveDrawMgrBase
 {
     SEAD_SINGLETON_DISPOSER(PrimitiveDrawMgrWGPU);
+
+protected:
+    static constexpr u32 cFrameDrawLimit = 1024;
+
+    struct alignas(256) Uniforms
+    {
+        Matrix44f wvp = Matrix44f::ident;
+        Matrix44f user = Matrix44f::ident;
+        Color4f color0 = Color4f::cBlack;
+        Color4f color1 = Color4f::cBlack;
+        Vector2f uvSrc = Vector2f::zero;
+        Vector2f uvSize = Vector2f::zero;
+        f32 rate = 0.0f;
+    };
 
 public:
     PrimitiveDrawMgrWGPU();
@@ -29,6 +43,27 @@ public:
     void drawLineImpl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& c0, const Color4f& c1) override;
     void drawSphere4x8Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south) override;
     void drawSphere8x16Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south) override;
+
+protected:
+    void updateBindings_(const Texture* texture);
+    void createBuffer_(WGPUBuffer* vertex, WGPUBuffer* index, PrimitiveDrawUtil::Vertex* vertices, size_t verticesSize, u16* indices, size_t indicesSize);
+
+protected:
+    WGPUShaderModule mVS;
+    WGPUShaderModule mFS;
+    WGPUSampler mSampler;
+    WGPUBuffer mUniforms;
+    Uniforms mUniformData;
+    u32 mDrawCalls;
+    WGPUPipelineLayout mPipelineLayout;
+    WGPUBindGroup mBindGroup;
+    WGPUTextureView mPrevView;
+    WGPUBindGroupLayout mGroupLayout;
+
+    WGPUVertexAttribute mAttributes[3];
+    WGPUVertexBufferLayout mVertexLayout;
+    WGPUBuffer mQuadVtx;
+    WGPUBuffer mQuadIdx;
 };
 
 } // namespace sead

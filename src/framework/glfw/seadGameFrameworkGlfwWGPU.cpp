@@ -80,7 +80,9 @@ void GameFrameworkGlfwWGPU::procFrame_()
 void GameFrameworkGlfwWGPU::procDraw_()
 {
     DrawContext drawContext;
-    drawContext.begin();
+    drawContext.setCommandBuffer();
+
+    GraphicsWGPU::instance()->setDefaultCommandBuffer(&drawContext);
 
     if (mProcDrawCallback)
         mProcDrawCallback(true);
@@ -103,6 +105,8 @@ void GameFrameworkGlfwWGPU::procDraw_()
         mProcDrawCallback(false);
 
     present_(&drawContext);
+
+    GraphicsWGPU::instance()->setDefaultCommandBuffer(nullptr);
 }
 
 void GameFrameworkGlfwWGPU::present_(DrawContext* drawContext)
@@ -112,7 +116,7 @@ void GameFrameworkGlfwWGPU::present_(DrawContext* drawContext)
         mDefaultFrameBuffer->copyToDisplayBuffer(drawContext, mDisplayBufferWGPU);
     }
 
-    drawContext->submit();
+    drawContext->flushCommandBuffer();
 
     wgpuSurfacePresent(GraphicsWGPU::instance()->getSurface());
     wgpuDevicePoll(GraphicsWGPU::instance()->getDevice(), false, nullptr);

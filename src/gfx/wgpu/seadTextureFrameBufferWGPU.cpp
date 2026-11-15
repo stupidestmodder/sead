@@ -192,7 +192,7 @@ void DisplayBufferWGPU::initializeImpl_(Heap* heap)
     samplerDesc.lodMaxClamp = 0.0f;
     samplerDesc.maxAnisotropy = 1;
 
-    mSampler = wgpuDeviceCreateSampler(sead::GraphicsWGPU::instance()->getDevice(), &samplerDesc);
+    mSampler = wgpuDeviceCreateSampler(GraphicsWGPU::instance()->getDevice(), &samplerDesc);
 
     WGPUBufferDescriptor gammaDesc = {};
     gammaDesc.usage = WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst;
@@ -287,7 +287,7 @@ void DisplayBufferWGPU::copyToDisplay(sead::DrawContext* drawContext) const
 
     drawContext->setShader(mVertShader, mFragShader);
     wgpuQueueWriteBuffer(GraphicsWGPU::instance()->getQueue(), mGammaBuffer, 0, &mGamma, sizeof(mGamma));
-    drawContext->setBindGroup(&mBindGroup, 1, mPipelineLayout);
+    drawContext->setBindGroup(&mBindGroup, 1, nullptr, nullptr, mPipelineLayout);
 
     drawContext->draw(WGPUPrimitiveTopology_TriangleList, 0, 3);
 }

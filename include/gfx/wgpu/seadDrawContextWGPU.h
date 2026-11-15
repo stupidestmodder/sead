@@ -18,8 +18,8 @@ public:
     DrawContext();
     virtual ~DrawContext() = default;
 
-    void begin();
-    void submit();
+    void setCommandBuffer();
+    void flushCommandBuffer();
 
     void beginPass(const WGPURenderPassColorAttachment* colorAttachments, const WGPUTexture* colorTextures, u32 colorAttachmentNum,
                    const WGPURenderPassDepthStencilAttachment* depthStencilAttachment = nullptr, const WGPUTexture depthStencilTexture = nullptr);
@@ -54,10 +54,14 @@ public:
         const Color4f& blendConstant
     );
     void setShader(WGPUShaderModule vertexShader, WGPUShaderModule fragmentShader);
-    void setBindGroup(const WGPUBindGroup* groups, u32 groupNum, WGPUPipelineLayout layout);
+    void setBindGroup(const WGPUBindGroup* groups, u32 groupNum, u32** dynamicOffsets, u32* dynamicOffsetCounts, WGPUPipelineLayout layout);
+    void setVertexBuffer(const WGPUBuffer* vertexBuffers, u64* offsets, u64* sizes, u32 bufferNum, WGPUVertexBufferLayout* layout);
+    void setIndexBuffer(WGPUBuffer indexBuffer, WGPUIndexFormat format, u64 offset, u64 size);
 
     void drawInstanced(WGPUPrimitiveTopology mode, u32 first, u32 count, u32 instances);
+    void drawInstancedIndexed(WGPUPrimitiveTopology mode, u32 first, u32 count, u32 instances);
     void draw(WGPUPrimitiveTopology mode, u32 first, u32 count) { drawInstanced(mode, first, count, 1); }
+    void drawIndexed(WGPUPrimitiveTopology mode, u32 first, u32 count) { drawInstancedIndexed(mode, first, count, 1); }
 
     WGPUCommandEncoder getEncoder() const { return mEncoder; }
     WGPURenderPassEncoder getRenderPass();
@@ -66,6 +70,7 @@ public:
 
 protected:
     void commitRenderPass_();
+    void applyPassState_();
     void resetRenderPassState_();
     void resetPipelineState_();
     void resetBindingState_();
@@ -144,10 +149,14 @@ protected:
         WGPUBlendComponent blendColor[8];
         WGPUBlendComponent blendAlpha[8];
         WGPUColorWriteMask colorWriteMask[8];
+
+        WGPUVertexBufferLayout vertexBufferLayout;
     } mPipelineState;
     struct BindingState
     {
         WGPUBindGroup bindGroups[4];
+        u32 bindGroupDynamicOffsets[4][8];
+        u32 bindGroupDynamicOffsetCount[4];
         WGPUPipelineLayout bindLayout;
 
         WGPUBuffer vertexBuffers[8];

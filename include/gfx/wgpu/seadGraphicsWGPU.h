@@ -6,6 +6,8 @@
 
 namespace sead {
 
+class DrawContext;
+
 class GraphicsWGPU : public Graphics
 {
 public:
@@ -49,6 +51,13 @@ public:
         return mQueue;
     }
 
+    DrawContext* getDefaultCommandBuffer() const
+    {
+        return mDefaultCommandBuffer;
+    }
+
+    void setDefaultCommandBuffer(DrawContext* ctx) { mDefaultCommandBuffer = ctx; }
+
     void resizeSurface(f32 x, f32 y);
     Vector2f getSurfaceSize() const { return Vector2f(mSurfaceConfig.width, mSurfaceConfig.height); }
 
@@ -91,6 +100,7 @@ protected:
     WGPUDevice mDevice;
     WGPUQueue mQueue;
     WGPUSurfaceConfiguration mSurfaceConfig;
+    DrawContext* mDefaultCommandBuffer;
 };
 
 } // namespace sead
