@@ -62,6 +62,7 @@ public:
 
     void copyToDisplay(sead::DrawContext* drawContext) const;
     void reconfigure(f32 width, f32 height);
+    void releaseSurface() const;
 
     TextureWGPU* getTexture() const { return mTextureWGPU; }
 
@@ -69,6 +70,7 @@ public:
 
 protected:
     void initializeImpl_(Heap* heap) override;
+    void recreateBindGroup_();
 
 protected:
     TextureWGPU* mTextureWGPU;
@@ -78,6 +80,8 @@ protected:
     WGPUBindGroup mBindGroup;
     WGPUPipelineLayout mPipelineLayout;
     WGPUSampler mSampler;
+    WGPUBindGroupLayout mGroupLayout;
+    mutable WGPUTextureView mSurfaceView;
     mutable WGPUSurfaceTexture mSurface;
     f32 mGamma;
 };

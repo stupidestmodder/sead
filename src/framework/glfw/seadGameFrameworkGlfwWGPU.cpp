@@ -119,6 +119,7 @@ void GameFrameworkGlfwWGPU::present_(DrawContext* drawContext)
     drawContext->flushCommandBuffer();
 
     wgpuSurfacePresent(GraphicsWGPU::instance()->getSurface());
+    mDisplayBufferWGPU->releaseSurface();
     wgpuDevicePoll(GraphicsWGPU::instance()->getDevice(), false, nullptr);
 }
 

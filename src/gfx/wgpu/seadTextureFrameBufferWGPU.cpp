@@ -95,6 +95,8 @@ DisplayBufferWGPU::DisplayBufferWGPU()
     , mBindGroup(nullptr)
     , mPipelineLayout(nullptr)
     , mSampler(nullptr)
+    , mGroupLayout(nullptr)
+    , mSurfaceView(nullptr)
     , mSurface({})
     , mGamma(1.0f)
 {
@@ -110,7 +112,52 @@ void DisplayBufferWGPU::reconfigure(f32 width, f32 height)
     mWidth = width;
     mHeight = height;
 
-    TextureUtil::createTextureImage2DWGPU(mTextureWGPU, mTextureWGPU->getMipMapLevel(), mTextureWGPU->getFormat(), width, height, mTextureWGPU->getUsage(), mTextureWGPU->getSamples());
+    if (mBindGroup != nullptr)
+    {
+        wgpuBindGroupRelease(mBindGroup);
+        mBindGroup = nullptr;
+    }
+
+    const bool created = TextureUtil::createTextureImage2DWGPU(
+        mTextureWGPU,
+        mTextureWGPU->getMipMapLevel(),
+        mTextureWGPU->getFormat(),
+        width,
+        height,
+        mTextureWGPU->getUsage(),
+        mTextureWGPU->getSamples()
+    );
+    SEAD_ASSERT(created);
+    if (created)
+        recreateBindGroup_();
+}
+
+void DisplayBufferWGPU::recreateBindGroup_()
+{
+    SEAD_ASSERT(mGroupLayout != nullptr);
+    SEAD_ASSERT(mTextureWGPU != nullptr);
+    SEAD_ASSERT(mTextureWGPU->getView() != nullptr);
+
+    WGPUBindGroupEntry entries[3] = {};
+    // uTexture
+    entries[0].binding = 0;
+    entries[0].textureView = mTextureWGPU->getView();
+    // uSampler
+    entries[1].binding = 1;
+    entries[1].sampler = mSampler;
+    // uGamma
+    entries[2].binding = 2;
+    entries[2].buffer = mGammaBuffer;
+    entries[2].offset = 0;
+    entries[2].size = sizeof(f32);
+
+    WGPUBindGroupDescriptor bindDesc = {
+        .layout = mGroupLayout,
+        .entryCount = 3,
+        .entries = entries
+    };
+    mBindGroup = wgpuDeviceCreateBindGroup(GraphicsWGPU::instance()->getDevice(), &bindDesc);
+    SEAD_ASSERT(mBindGroup != nullptr);
 }
 
 void DisplayBufferWGPU::initializeImpl_(Heap* heap)
@@ -221,40 +268,20 @@ void DisplayBufferWGPU::initializeImpl_(Heap* heap)
         .entryCount = 3,
         .entries = layoutEntries
     };
-    WGPUBindGroupLayout layout = wgpuDeviceCreateBindGroupLayout(GraphicsWGPU::instance()->getDevice(), &layoutDesc);
+    mGroupLayout = wgpuDeviceCreateBindGroupLayout(GraphicsWGPU::instance()->getDevice(), &layoutDesc);
+    SEAD_ASSERT(mGroupLayout != nullptr);
 
-    WGPUBindGroupEntry entries[3] = {};
-    // uTexture
-    entries[0].binding = 0;
-    entries[0].textureView = mTextureWGPU->getView();
-    // uSampler
-    entries[1].binding = 1;
-    entries[1].sampler = mSampler;
-    // uGamma
-    entries[2].binding = 2;
-    entries[2].buffer = mGammaBuffer;
-    entries[2].offset = 0;
-    entries[2].size = sizeof(f32);
-
-    WGPUBindGroupDescriptor bindDesc = {
-        .layout = layout,
-        .entryCount = 3,
-        .entries = entries
-    };
-    mBindGroup = wgpuDeviceCreateBindGroup(GraphicsWGPU::instance()->getDevice(), &bindDesc);
+    recreateBindGroup_();
 
     WGPUPipelineLayoutDescriptor pipelineLayoutDesc = {
         .bindGroupLayoutCount = 1,
-        .bindGroupLayouts = &layout
+        .bindGroupLayouts = &mGroupLayout
     };
     mPipelineLayout = wgpuDeviceCreatePipelineLayout(GraphicsWGPU::instance()->getDevice(), &pipelineLayoutDesc);
 }
 
 void DisplayBufferWGPU::copyToDisplay(sead::DrawContext* drawContext) const
 {
-    if (mSurface.texture)
-        wgpuTextureRelease(mSurface.texture);
-
     wgpuSurfaceGetCurrentTexture(GraphicsWGPU::instance()->getSurface(), &mSurface);
 
     // TODO: idk about this
@@ -265,11 +292,11 @@ void DisplayBufferWGPU::copyToDisplay(sead::DrawContext* drawContext) const
         SEAD_ASSERT(false);
     }
 
-    WGPUTextureView surfaceView = wgpuTextureCreateView(mSurface.texture, nullptr);
-    SEAD_ASSERT(surfaceView != nullptr);
+    mSurfaceView = wgpuTextureCreateView(mSurface.texture, nullptr);
+    SEAD_ASSERT(mSurfaceView != nullptr);
 
     WGPURenderPassColorAttachment color = {};
-    color.view = surfaceView;
+    color.view = mSurfaceView;
     color.storeOp = WGPUStoreOp_Store;
     color.loadOp = WGPULoadOp_Clear;
     drawContext->beginPass(&color, &mSurface.texture, 1);
@@ -292,7 +319,21 @@ void DisplayBufferWGPU::copyToDisplay(sead::DrawContext* drawContext) const
 
     drawContext->draw(WGPUPrimitiveTopology_TriangleList, 0, 3);
 
-    wgpuTextureViewRelease(surfaceView);
+}
+
+void DisplayBufferWGPU::releaseSurface() const
+{
+    if (mSurfaceView != nullptr)
+    {
+        wgpuTextureViewRelease(mSurfaceView);
+        mSurfaceView = nullptr;
+    }
+
+    if (mSurface.texture)
+    {
+        wgpuTextureRelease(mSurface.texture);
+        mSurface = {};
+    }
 }
 
 } // namespace sead
