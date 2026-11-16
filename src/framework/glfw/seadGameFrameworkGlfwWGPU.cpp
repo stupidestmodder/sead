@@ -45,6 +45,9 @@ void GameFrameworkGlfwWGPU::initializeGraphicsSystem(Heap* heap, const Vector2f&
 
     resize_(virtualFbSize.x, virtualFbSize.y);
     createFrameBuffer_(heap, virtualFbSize);
+
+    if (!setWaitVBlankInterval(mArg.wait_vblank))
+        mArg.wait_vblank = 0;
 }
 
 void GameFrameworkGlfwWGPU::procFrame_()
@@ -150,9 +153,6 @@ void GameFrameworkGlfwWGPU::createFrameBuffer_(Heap* heap, const Vector2f& virtu
 
     mDisplayBufferWGPU = new(heap) DisplayBufferWGPU();
     mDisplayBufferWGPU->initialize(static_cast<f32>(width), static_cast<f32>(height), heap);
-
-    if (!setWaitVBlankInterval(0))
-        mArg.wait_vblank = 0;
 }
 
 void GameFrameworkGlfwWGPU::resize_(f32 width, f32 height)

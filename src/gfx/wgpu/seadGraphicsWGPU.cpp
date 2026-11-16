@@ -230,7 +230,6 @@ void GraphicsWGPU::initializeImpl(Heap* heap)
         if (surfaceCapabilities.presentModes[i] == WGPUPresentMode_Mailbox)
         {
             mMailboxSupported = true;
-            mSurfaceConfig.presentMode = WGPUPresentMode_Mailbox;
             break;
         }
     }
@@ -267,7 +266,9 @@ bool GraphicsWGPU::setVBlankWaitIntervalImpl(u32 interval)
 
     SEAD_ASSERT(interval == 0 || interval == 1);
 
-    mSurfaceConfig.presentMode = mMailboxSupported ? WGPUPresentMode_Mailbox : WGPUPresentMode_Fifo;
+    mSurfaceConfig.presentMode = interval > 0
+        ? WGPUPresentMode_Fifo
+        : (mMailboxSupported ? WGPUPresentMode_Mailbox : WGPUPresentMode_Fifo);
     wgpuSurfaceConfigure(mSurface, &mSurfaceConfig);
     return true;
 }
