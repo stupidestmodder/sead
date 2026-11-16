@@ -25,6 +25,7 @@ GraphicsWGPU::GraphicsWGPU(const CreateArg& arg)
     , mDevice(nullptr)
     , mQueue(nullptr)
     , mSurfaceConfig({})
+    , mMailboxSupported(false)
     , mDefaultCommandBuffer(nullptr)
 { }
 
@@ -150,8 +151,19 @@ void GraphicsWGPU::initializeImpl(Heap* heap)
     mSurfaceConfig.device = sead::GraphicsWGPU::instance()->getDevice();
     mSurfaceConfig.format = surfaceCapabilities.formats[0];
     mSurfaceConfig.usage = WGPUTextureUsage_RenderAttachment;
-    mSurfaceConfig.presentMode = WGPUPresentMode_Mailbox;
+    mSurfaceConfig.presentMode = WGPUPresentMode_Fifo;
     mSurfaceConfig.alphaMode = WGPUCompositeAlphaMode_Auto;
+
+    for (size_t i = 0; i < surfaceCapabilities.presentModeCount; i++)
+    {
+        if (surfaceCapabilities.presentModes[i] == WGPUPresentMode_Mailbox)
+        {
+            mMailboxSupported = true;
+            mSurfaceConfig.presentMode = WGPUPresentMode_Mailbox;
+            break;
+        }
+    }
+
     wgpuSurfaceCapabilitiesFreeMembers(surfaceCapabilities);
 }
 
@@ -182,7 +194,7 @@ bool GraphicsWGPU::setVBlankWaitIntervalImpl(u32 interval)
 
     SEAD_ASSERT(interval == 0 || interval == 1);
 
-    mSurfaceConfig.presentMode = interval == 0 ? WGPUPresentMode_Mailbox : WGPUPresentMode_Fifo;
+    mSurfaceConfig.presentMode = mMailboxSupported ? WGPUPresentMode_Mailbox : WGPUPresentMode_Fifo;
     wgpuSurfaceConfigure(mSurface, &mSurfaceConfig);
     return true;
 }

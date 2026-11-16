@@ -100,6 +100,7 @@ protected:
     WGPUDevice mDevice;
     WGPUQueue mQueue;
     WGPUSurfaceConfiguration mSurfaceConfig;
+    bool mMailboxSupported;
     DrawContext* mDefaultCommandBuffer;
 };
 
