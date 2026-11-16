@@ -47,6 +47,11 @@ public:
 
     void setup(TextureGL* colorTexture, TextureGL* depthTexture = nullptr);
 
+    const TextureGL* getColorTexture() const
+    {
+        return mColorTexture;
+    }
+
     GLuint getFBO() const
     {
         return mFBO;

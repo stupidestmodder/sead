@@ -44,6 +44,11 @@ public:
 
     void setup(TextureWGPU* colorTexture, TextureWGPU* depthTexture = nullptr);
 
+    const TextureWGPU* getColorTexture() const
+    {
+        return mColorTexture;
+    }
+
 protected:
     void bindImpl_(DrawContext* drawContext) const override;
 
