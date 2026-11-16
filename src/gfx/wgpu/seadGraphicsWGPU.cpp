@@ -220,7 +220,21 @@ void GraphicsWGPU::initializeImpl(Heap* heap)
     SEAD_ASSERT(s == WGPUStatus_Success && surfaceCapabilities.formatCount > 0); // TODO: do a pass over everything to make sure stuff gets freed in error cases
 
     mSurfaceConfig.device = sead::GraphicsWGPU::instance()->getDevice();
-    mSurfaceConfig.format = surfaceCapabilities.formats[0];
+    mSurfaceConfig.format = WGPUTextureFormat_Undefined;
+    for (size_t i = 0; i < surfaceCapabilities.formatCount; i++)
+    {
+        const WGPUTextureFormat format = surfaceCapabilities.formats[i];
+        if (format == WGPUTextureFormat_BGRA8UnormSrgb || format == WGPUTextureFormat_RGBA8UnormSrgb)
+        {
+            mSurfaceConfig.format = format;
+            break;
+        }
+    }
+    if (mSurfaceConfig.format == WGPUTextureFormat_Undefined)
+    {
+        SEAD_ASSERT_MSG(false, "sRGB unsupported.");
+        mSurfaceConfig.format = surfaceCapabilities.formats[0];
+    }
     mSurfaceConfig.usage = WGPUTextureUsage_RenderAttachment;
     mSurfaceConfig.presentMode = WGPUPresentMode_Fifo;
     mSurfaceConfig.alphaMode = WGPUCompositeAlphaMode_Auto;

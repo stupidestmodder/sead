@@ -350,6 +350,7 @@ void DisplayBufferGL::initializeImpl_(Heap* heap)
 void DisplayBufferGL::copyToDisplay() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glEnable(GL_FRAMEBUFFER_SRGB);
 
     s32 w = static_cast<s32>(mWidth);
     s32 h = static_cast<s32>(mHeight);
@@ -376,6 +377,7 @@ void DisplayBufferGL::copyToDisplay() const
     glBindSampler(0, mSampler);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
 void DisplayBufferGL::reconfigure(f32 width, f32 height)

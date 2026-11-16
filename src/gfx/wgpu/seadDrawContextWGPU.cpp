@@ -1,4 +1,3 @@
-#include "webgpu/webgpu.h"
 #include <prim/seadMemUtil.h>
 #include <gfx/seadFrameBuffer.h>
 #include <gfx/seadDrawContext.h>
@@ -394,7 +393,7 @@ WGPURenderPipeline DrawContext::commitRenderPipeline_()
     if (mRenderPassState.hasDepthStencil)
     {
         depthStencil.format = mRenderPassState.depthStencilFormat;
-        depthStencil.depthWriteEnabled = static_cast<WGPUOptionalBool>(mPipelineState.depthWriteEnable);
+        depthStencil.depthWriteEnabled = mPipelineState.depthTestEnable && mPipelineState.depthWriteEnable ? WGPUOptionalBool_True : WGPUOptionalBool_False;
         depthStencil.depthCompare = mPipelineState.depthTestEnable ? static_cast<WGPUCompareFunction>(mPipelineState.depthFunc) : WGPUCompareFunction_Always;
 
         WGPUStencilFaceState stencilFace = {

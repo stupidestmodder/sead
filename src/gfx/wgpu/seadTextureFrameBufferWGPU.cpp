@@ -268,7 +268,7 @@ void DisplayBufferWGPU::initializeImpl_(Heap* heap)
         "        uSampler,\n"
         "        input.vFragCoord\n"
         "    );\n"
-        "    let gamma = uGamma;\n"
+        "    let gamma = 1.0 / max(uGamma, 0.000001);\n"
         "    return pow(\n"
         "        color,\n"
         "        vec4<f32>(gamma, gamma, gamma, 1.0)\n"
