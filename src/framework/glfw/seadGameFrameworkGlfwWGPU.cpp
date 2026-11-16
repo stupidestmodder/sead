@@ -36,11 +36,12 @@ void GameFrameworkGlfwWGPU::initializeGraphicsSystem(Heap* heap, const Vector2f&
 {
     createWindow_();
 
-    GraphicsWGPU::CreateArg arg = { .window = mWindow };
+    GraphicsWGPU::CreateArg arg = {
+        .pipeline_cache_size = mPipelineCacheSize,
+        .window = mWindow
+    };
     Graphics::setInstance(new(heap) GraphicsWGPU(arg));
     Graphics::instance()->initialize(heap);
-
-    DrawContext::initializeCache(heap, mPipelineCacheSize);
 
     resize_(virtualFbSize.x, virtualFbSize.y);
     createFrameBuffer_(heap, virtualFbSize);

@@ -1,5 +1,3 @@
-#include "gfx/wgpu/seadDrawContextWGPU.h"
-#include "gfx/wgpu/seadPipelineHashWGPU.h"
 #include "webgpu/webgpu.h"
 #include <prim/seadMemUtil.h>
 #include <gfx/seadFrameBuffer.h>
@@ -7,8 +5,6 @@
 #include <gfx/wgpu/seadWGPU.h>
 
 namespace sead {
-
-DrawContext::PipelineCache DrawContext::sPipelineCache;
 
 DrawContext::DrawContext()
     : mEncoder(nullptr)
@@ -19,6 +15,21 @@ DrawContext::DrawContext()
     resetRenderPassState_();
     resetPipelineState_();
     resetBindingState_();
+}
+
+DrawContext::~DrawContext()
+{
+    endPass();
+
+    if (mEncoder != nullptr)
+    {
+        WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(mEncoder, nullptr);
+        wgpuCommandEncoderRelease(mEncoder);
+        mEncoder = nullptr;
+
+        if (commandBuffer != nullptr)
+            wgpuCommandBufferRelease(commandBuffer);
+    }
 }
 
 void DrawContext::setCommandBuffer()
@@ -99,11 +110,6 @@ WGPURenderPassEncoder DrawContext::getRenderPass()
 {
     commitRenderPass_();
     return mRenderPassEncoder;
-}
-
-void DrawContext::initializeCache(Heap* heap, s32 entries)
-{
-    sPipelineCache.initialize(heap, entries);
 }
 
 void DrawContext::setClear(u32 clrFlag, const Color4f* color, f32 depth, u32 stencil)
@@ -415,7 +421,7 @@ WGPURenderPipeline DrawContext::commitRenderPipeline_()
         .alphaToCoverageEnabled = false
     };
 
-    return sPipelineCache.getOrCreate(mDevice, pipelineDesc);
+    return GraphicsWGPU::instance()->createRenderPipeline(mDevice, pipelineDesc);
 }
 
 void DrawContext::setVertexBuffer(const WGPUBuffer* vertexBuffers, u64* offsets, u64* sizes, u32 bufferNum, WGPUVertexBufferLayout* layout)
@@ -496,46 +502,6 @@ void DrawContext::applyPassState_()
     }
     if (mBindingState.indexBuffer)
         wgpuRenderPassEncoderSetIndexBuffer(mRenderPassEncoder, mBindingState.indexBuffer, mBindingState.indexFormat, mBindingState.indexBufferOffset, mBindingState.indexBufferSize);
-}
-
-void DrawContext::PipelineCache::initialize(Heap* heap, s32 entries)
-{
-    mList.allocBuffer(entries, heap);
-    mMap.allocBuffer(entries, heap);
-}
-
-WGPURenderPipeline DrawContext::PipelineCache::getOrCreate(WGPUDevice device, const WGPURenderPipelineDescriptor& desc)
-{
-    // TODO: mutex here?
-
-    u64 key;
-    bool hashed = PipelineHashWGPU::calcHash(&key, desc);
-    SEAD_ASSERT(hashed);
-
-    if (Entry** entry = mMap.find(key))
-    {
-        mList.moveBefore(mList.front(), *entry); // promote to newest used
-        return (*entry)->pipeline;
-    }
-
-    WGPURenderPipeline pipeline = wgpuDeviceCreateRenderPipeline(device, &desc);
-    SEAD_ASSERT(pipeline != nullptr);
-
-    // TODO: register an extra ref to the internal objects to prevent pointer reuse?
-
-    if (mList.isFull()) // kick last entry
-    {
-        Entry* entry = mList.back();
-        wgpuRenderPipelineRelease(entry->pipeline);
-        mMap.erase(entry->key);
-        mList.erase(entry);
-    }
-
-    Entry* entry = mList.birthFront();
-    *entry = { pipeline, key };
-    mMap.insert(key, entry);
-
-    return pipeline;
 }
 
 } // namespace sead

@@ -1,6 +1,7 @@
 #include <gfx/wgpu/seadGraphicsWGPU.h>
 
 #include <basis/seadRawPrint.h>
+#include <gfx/wgpu/seadPipelineHashWGPU.h>
 #include <heap/seadHeapMgr.h>
 
 #include <GLFW/glfw3.h>
@@ -27,16 +28,54 @@ GraphicsWGPU::GraphicsWGPU(const CreateArg& arg)
     , mSurfaceConfig({})
     , mMailboxSupported(false)
     , mDefaultCommandBuffer(nullptr)
+    , mPipelineCacheSize(arg.pipeline_cache_size)
 { }
 
 GraphicsWGPU::~GraphicsWGPU()
 {
-    // TODO: idk what is necessary here
+    for (auto pipeline : mPipelineCache.list)
+    {
+        wgpuRenderPipelineRelease(pipeline.pipeline);
+    }
+
+    if (mSurface != nullptr)
+    {
+        wgpuSurfaceUnconfigure(mSurface);
+        wgpuSurfaceRelease(mSurface);
+        mSurface = nullptr;
+    }
+
+    if (mQueue != nullptr)
+    {
+        wgpuQueueRelease(mQueue);
+        mQueue = nullptr;
+    }
+
+    if (mDevice != nullptr)
+    {
+        wgpuDeviceRelease(mDevice);
+        mDevice = nullptr;
+    }
+
+    if (mAdapter != nullptr)
+    {
+        wgpuAdapterRelease(mAdapter);
+        mAdapter = nullptr;
+    }
+
+    if (mInstance != nullptr)
+    {
+        wgpuInstanceRelease(mInstance);
+        mInstance = nullptr;
+    }
 }
 
 void GraphicsWGPU::initializeImpl(Heap* heap)
 {
     CurrentHeapSetter chs(heap);
+
+    mPipelineCache.list.allocBuffer(mPipelineCacheSize, heap);
+    mPipelineCache.map.allocBuffer(mPipelineCacheSize, heap);
 
     //* WebGPU depth range is [0, 1] while sead uses the OpenGL convention ([-1, 1]) so remap Z in the device
     sDefaultDeviceZScale = 0.5f;
@@ -176,6 +215,8 @@ void GraphicsWGPU::resizeSurface(f32 x, f32 y)
 
 WGPUShaderModule GraphicsWGPU::createShaderModule(const sead::SafeString& source) const
 {
+    // TODO: shader cache?
+
     WGPUShaderSourceWGSL sourceWGSL = {};
     sourceWGSL.chain.sType = WGPUSType_ShaderSourceWGSL;
     sourceWGSL.code = {
@@ -197,6 +238,46 @@ bool GraphicsWGPU::setVBlankWaitIntervalImpl(u32 interval)
     mSurfaceConfig.presentMode = mMailboxSupported ? WGPUPresentMode_Mailbox : WGPUPresentMode_Fifo;
     wgpuSurfaceConfigure(mSurface, &mSurfaceConfig);
     return true;
+}
+
+WGPURenderPipeline GraphicsWGPU::createRenderPipeline(WGPUDevice device, const WGPURenderPipelineDescriptor& desc)
+{
+    u64 key;
+    bool hashed = PipelineHashWGPU::calcHash(&key, desc);
+    SEAD_ASSERT(hashed);
+
+    Graphics::instance()->lockDrawContext();
+
+    ObjList<PipelineCache::Entry>& list = mPipelineCache.list;
+    TreeMap<u64, PipelineCache::Entry*>& map = mPipelineCache.map;
+
+    if (PipelineCache::Entry** entry = map.find(key))
+    {
+        list.moveBefore(list.front(), *entry); // promote to newest used
+        Graphics::instance()->unlockDrawContext();
+        return (*entry)->pipeline;
+    }
+
+    WGPURenderPipeline pipeline = wgpuDeviceCreateRenderPipeline(device, &desc);
+    SEAD_ASSERT(pipeline != nullptr);
+
+    // TODO: register an extra ref to the internal objects to prevent pointer reuse?
+
+    if (list.isFull()) // kick last entry
+    {
+        PipelineCache::Entry* entry = list.back();
+        wgpuRenderPipelineRelease(entry->pipeline);
+        map.erase(entry->key);
+        list.erase(entry);
+    }
+
+    PipelineCache::Entry* entry = list.birthFront();
+    *entry = { pipeline, key };
+    map.insert(key, entry);
+
+    Graphics::instance()->unlockDrawContext();
+
+    return pipeline;
 }
 
 void GraphicsWGPU::setViewportImpl(f32 x, f32 y, f32 w, f32 h)

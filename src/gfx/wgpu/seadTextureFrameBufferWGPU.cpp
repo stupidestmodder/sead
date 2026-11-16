@@ -104,7 +104,55 @@ DisplayBufferWGPU::DisplayBufferWGPU()
 
 DisplayBufferWGPU::~DisplayBufferWGPU()
 {
-    // TODO
+    releaseSurface();
+
+    if (mBindGroup != nullptr)
+    {
+        wgpuBindGroupRelease(mBindGroup);
+        mBindGroup = nullptr;
+    }
+
+    if (mPipelineLayout != nullptr)
+    {
+        wgpuPipelineLayoutRelease(mPipelineLayout);
+        mPipelineLayout = nullptr;
+    }
+
+    if (mGroupLayout != nullptr)
+    {
+        wgpuBindGroupLayoutRelease(mGroupLayout);
+        mGroupLayout = nullptr;
+    }
+
+    if (mSampler != nullptr)
+    {
+        wgpuSamplerRelease(mSampler);
+        mSampler = nullptr;
+    }
+
+    if (mGammaBuffer != nullptr)
+    {
+        wgpuBufferRelease(mGammaBuffer);
+        mGammaBuffer = nullptr;
+    }
+
+    if (mVertShader != nullptr)
+    {
+        wgpuShaderModuleRelease(mVertShader);
+        mVertShader = nullptr;
+    }
+
+    if (mFragShader != nullptr)
+    {
+        wgpuShaderModuleRelease(mFragShader);
+        mFragShader = nullptr;
+    }
+
+    if (mTextureWGPU != nullptr)
+    {
+        delete mTextureWGPU;
+        mTextureWGPU = nullptr;
+    }
 }
 
 void DisplayBufferWGPU::reconfigure(f32 width, f32 height)

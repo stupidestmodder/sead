@@ -41,7 +41,113 @@ PrimitiveDrawMgrWGPU::PrimitiveDrawMgrWGPU()
 
 PrimitiveDrawMgrWGPU::~PrimitiveDrawMgrWGPU()
 {
-    // TODO
+    if (mBindGroup != nullptr)
+    {
+        wgpuBindGroupRelease(mBindGroup);
+        mBindGroup = nullptr;
+    }
+
+    if (mPipelineLayout != nullptr)
+    {
+        wgpuPipelineLayoutRelease(mPipelineLayout);
+        mPipelineLayout = nullptr;
+    }
+
+    if (mPrevView != nullptr)
+    {
+        wgpuTextureViewRelease(mPrevView);
+        mPrevView = nullptr;
+    }
+
+    if (mGroupLayout != nullptr)
+    {
+        wgpuBindGroupLayoutRelease(mGroupLayout);
+        mGroupLayout = nullptr;
+    }
+
+    if (mUniforms != nullptr)
+    {
+        wgpuBufferRelease(mUniforms);
+        mUniforms = nullptr;
+    }
+
+    if (mSampler != nullptr)
+    {
+        wgpuSamplerRelease(mSampler);
+        mSampler = nullptr;
+    }
+
+    if (mVS != nullptr)
+    {
+        wgpuShaderModuleRelease(mVS);
+        mVS = nullptr;
+    }
+
+    if (mFS != nullptr)
+    {
+        wgpuShaderModuleRelease(mFS);
+        mFS = nullptr;
+    }
+
+    if (mQuadVtx != nullptr)
+    {
+        wgpuBufferRelease(mQuadVtx);
+        mQuadVtx = nullptr;
+    }
+
+    if (mQuadIdx != nullptr)
+    {
+        wgpuBufferRelease(mQuadIdx);
+        mQuadIdx = nullptr;
+    }
+
+    if (mBoxVtx != nullptr)
+    {
+        wgpuBufferRelease(mBoxVtx);
+        mBoxVtx = nullptr;
+    }
+
+    if (mBoxIdx != nullptr)
+    {
+        wgpuBufferRelease(mBoxIdx);
+        mBoxIdx = nullptr;
+    }
+
+    if (mLineVtx != nullptr)
+    {
+        wgpuBufferRelease(mLineVtx);
+        mLineVtx = nullptr;
+    }
+
+    if (mLineIdx != nullptr)
+    {
+        wgpuBufferRelease(mLineIdx);
+        mLineIdx = nullptr;
+    }
+
+    if (mSphereSVtx != nullptr)
+    {
+        wgpuBufferRelease(mSphereSVtx);
+        mSphereSVtx = nullptr;
+    }
+
+    if (mSphereSIdx != nullptr)
+    {
+        wgpuBufferRelease(mSphereSIdx);
+        mSphereSIdx = nullptr;
+    }
+
+    if (mSphereLVtx != nullptr)
+    {
+        wgpuBufferRelease(mSphereLVtx);
+        mSphereLVtx = nullptr;
+    }
+
+    if (mSphereLIdx != nullptr)
+    {
+        wgpuBufferRelease(mSphereLIdx);
+        mSphereLIdx = nullptr;
+    }
 }
 
 void PrimitiveDrawMgrWGPU::prepareFromBinaryImpl(Heap*, const void*, u32)

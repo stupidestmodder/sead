@@ -1,7 +1,5 @@
 #pragma once
 
-#include <container/seadObjList.h>
-#include <container/seadTreeMap.h>
 #include <gfx/seadColor.h>
 #include <gfx/wgpu/seadGraphicsWGPU.h>
 #include <prim/seadRuntimeTypeInfo.h>
@@ -16,7 +14,7 @@ class DrawContext
 
 public:
     DrawContext();
-    virtual ~DrawContext() = default;
+    virtual ~DrawContext();
 
     void setCommandBuffer();
     void flushCommandBuffer();
@@ -66,8 +64,6 @@ public:
     WGPUCommandEncoder getEncoder() const { return mEncoder; }
     WGPURenderPassEncoder getRenderPass();
 
-    static void initializeCache(Heap* heap, s32 entries);
-
 protected:
     void commitRenderPass_();
     void applyPassState_();
@@ -75,25 +71,6 @@ protected:
     void resetPipelineState_();
     void resetBindingState_();
     WGPURenderPipeline commitRenderPipeline_();
-
-protected:
-    static class PipelineCache
-    {
-    public:
-        void initialize(Heap* heap, s32 entries);
-
-        WGPURenderPipeline getOrCreate(WGPUDevice device, const WGPURenderPipelineDescriptor& desc);
-
-    protected:
-        struct Entry
-        {
-            WGPURenderPipeline pipeline;
-            u64 key;
-        };
-
-        ObjList<Entry> mList;
-        TreeMap<u64, Entry*> mMap;
-    } sPipelineCache;
 
 protected:
     WGPUCommandEncoder mEncoder;

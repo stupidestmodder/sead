@@ -1,5 +1,7 @@
 #pragma once
 
+#include <container/seadObjList.h>
+#include <container/seadTreeMap.h>
 #include <gfx/seadGraphics.h>
 #include <math/seadVector.h>
 #include <prim/seadSafeString.h>
@@ -13,6 +15,7 @@ class GraphicsWGPU : public Graphics
 public:
     struct CreateArg
     {
+        u32 pipeline_cache_size = 2048;
 #if defined(SEAD_PLATFORM_GLFW)
         void* window;
 #else
@@ -62,6 +65,7 @@ public:
     Vector2f getSurfaceSize() const { return Vector2f(mSurfaceConfig.width, mSurfaceConfig.height); }
 
     WGPUShaderModule createShaderModule(const sead::SafeString& source) const;
+    WGPURenderPipeline createRenderPipeline(WGPUDevice device, const WGPURenderPipelineDescriptor& desc);
 
 protected:
     void initializeImpl(Heap* heap) override;
@@ -91,6 +95,19 @@ protected:
     void setPolygonOffsetEnableImpl(bool fillFrontEnable, bool fillBackEnable, bool pointLineEnable) override;
 
 protected:
+    struct PipelineCache
+    {
+        struct Entry
+        {
+            WGPURenderPipeline pipeline;
+            u64 key;
+        };
+
+        ObjList<Entry> list;
+        TreeMap<u64, Entry*> map;
+    };
+
+protected:
 #if defined(SEAD_PLATFORM_GLFW)
     void* mWindow;
 #endif
@@ -102,6 +119,8 @@ protected:
     WGPUSurfaceConfiguration mSurfaceConfig;
     bool mMailboxSupported;
     DrawContext* mDefaultCommandBuffer;
+    s32 mPipelineCacheSize;
+    PipelineCache mPipelineCache;
 };
 
 } // namespace sead
