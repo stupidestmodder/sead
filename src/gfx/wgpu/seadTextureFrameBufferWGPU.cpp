@@ -95,6 +95,7 @@ DisplayBufferWGPU::DisplayBufferWGPU()
     , mBindGroup(nullptr)
     , mPipelineLayout(nullptr)
     , mSampler(nullptr)
+    , mSurface({})
     , mGamma(1.0f)
 {
 }
@@ -251,27 +252,27 @@ void DisplayBufferWGPU::initializeImpl_(Heap* heap)
 
 void DisplayBufferWGPU::copyToDisplay(sead::DrawContext* drawContext) const
 {
-    WGPUSurfaceTexture surfaceTexture;
-    wgpuSurfaceGetCurrentTexture(GraphicsWGPU::instance()->getSurface(), &surfaceTexture);
+    if (mSurface.texture)
+        wgpuTextureRelease(mSurface.texture);
+
+    wgpuSurfaceGetCurrentTexture(GraphicsWGPU::instance()->getSurface(), &mSurface);
 
     // TODO: idk about this
-    if ((surfaceTexture.status != WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal && surfaceTexture.status != WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal)
-        || !surfaceTexture.texture
+    if ((mSurface.status != WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal && mSurface.status != WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal)
+        || !mSurface.texture
     )
     {
-        if (surfaceTexture.texture != nullptr)
-            wgpuTextureRelease(surfaceTexture.texture);
         SEAD_ASSERT(false);
     }
 
-    WGPUTextureView surfaceView = wgpuTextureCreateView(surfaceTexture.texture, nullptr);
+    WGPUTextureView surfaceView = wgpuTextureCreateView(mSurface.texture, nullptr);
     SEAD_ASSERT(surfaceView != nullptr);
 
     WGPURenderPassColorAttachment color = {};
     color.view = surfaceView;
     color.storeOp = WGPUStoreOp_Store;
     color.loadOp = WGPULoadOp_Clear;
-    drawContext->beginPass(&color, &surfaceTexture.texture, 1);
+    drawContext->beginPass(&color, &mSurface.texture, 1);
 
     GraphicsContext context;
     context.setDepthEnable(false, false);
@@ -290,6 +291,8 @@ void DisplayBufferWGPU::copyToDisplay(sead::DrawContext* drawContext) const
     drawContext->setBindGroup(&mBindGroup, 1, nullptr, nullptr, mPipelineLayout);
 
     drawContext->draw(WGPUPrimitiveTopology_TriangleList, 0, 3);
+
+    wgpuTextureViewRelease(surfaceView);
 }
 
 } // namespace sead

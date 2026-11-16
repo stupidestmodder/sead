@@ -78,6 +78,7 @@ protected:
     WGPUBindGroup mBindGroup;
     WGPUPipelineLayout mPipelineLayout;
     WGPUSampler mSampler;
+    mutable WGPUSurfaceTexture mSurface;
     f32 mGamma;
 };
 
