@@ -1,11 +1,17 @@
 #include <gfx/wgpu/seadPrimitiveDrawMgrWGPU.h>
 
 #include <gfx/seadPrimitiveDrawUtil.h>
+#include <gfx/seadTextureUtil.h>
 #include <gfx/wgpu/seadTextureWGPU.h>
 #include <gfx/seadDrawContext.h>
 #include <gfx/wgpu/seadGraphicsWGPU.h>
 
 namespace sead {
+
+const s32 cMaxSphereX = 16;
+const s32 cMaxSphereY = 8;
+const s32 cMaxSphereVtxNum = cMaxSphereX * cMaxSphereY + 2;
+const s32 cMaxSphereIdxNum = 3 * (cMaxSphereX + cMaxSphereX * 2 * (cMaxSphereY - 1) + cMaxSphereX);
 
 SEAD_SINGLETON_DISPOSER_IMPL(PrimitiveDrawMgrWGPU);
 
@@ -22,6 +28,14 @@ PrimitiveDrawMgrWGPU::PrimitiveDrawMgrWGPU()
     , mGroupLayout(nullptr)
     , mQuadVtx(nullptr)
     , mQuadIdx(nullptr)
+    , mBoxVtx(nullptr)
+    , mBoxIdx(nullptr)
+    , mLineVtx(nullptr)
+    , mLineIdx(nullptr)
+    , mSphereSVtx(nullptr)
+    , mSphereSIdx(nullptr)
+    , mSphereLVtx(nullptr)
+    , mSphereLIdx(nullptr)
 {
 }
 
@@ -182,10 +196,67 @@ void PrimitiveDrawMgrWGPU::prepareFromBinaryImpl(Heap*, const void*, u32)
         .attributes = mAttributes
     };
 
-    PrimitiveDrawUtil::Vertex vtx[4];
-    u16 idx[3 * 2];
-    PrimitiveDrawUtil::setQuadVertex(vtx, idx);
-    createBuffer_(&mQuadVtx, &mQuadIdx, vtx, sizeof(vtx), idx, sizeof(idx));
+    {
+        PrimitiveDrawUtil::Vertex vtx[4];
+        u16 idx[3 * 2];
+        PrimitiveDrawUtil::setQuadVertex(vtx, idx);
+        createBuffer_(&mQuadVtx, &mQuadIdx, vtx, sizeof(vtx), idx, sizeof(idx));
+    }
+
+    {
+        PrimitiveDrawUtil::Vertex boxVtx[4];
+
+        //* WGPU has no line-loop topology, so emit the four closing line segments explicitly.
+        static const u16 boxIdx[8] = { 0, 1, 1, 3, 3, 2, 2, 0 };
+
+        PrimitiveDrawUtil::setQuadVertex(boxVtx, nullptr);
+        createBuffer_(&mBoxVtx, &mBoxIdx, boxVtx, sizeof(boxVtx), boxIdx, sizeof(boxIdx));
+    }
+
+    {
+        PrimitiveDrawUtil::Vertex lineVtx[2];
+        u16 lineIdx[2];
+
+        PrimitiveDrawUtil::setLineVertex(lineVtx, lineIdx);
+        createBuffer_(&mLineVtx, &mLineIdx, lineVtx, sizeof(lineVtx), lineIdx, sizeof(lineIdx));
+    }
+
+    {
+        PrimitiveDrawUtil::Vertex sphereVtx[cMaxSphereVtxNum];
+        u16 sphereIdx[cMaxSphereIdxNum];
+
+        PrimitiveDrawUtil::setSphereVertex(sphereVtx, sphereIdx, cMaxSphereX / 2, cMaxSphereY / 2);
+        createBuffer_(
+            &mSphereSVtx, &mSphereSIdx,
+            sphereVtx,
+            sizeof(PrimitiveDrawUtil::Vertex) * PrimitiveDrawUtil::calcSphereVertexNum(cMaxSphereX / 2, cMaxSphereY / 2),
+            sphereIdx,
+            sizeof(u16) * PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX / 2, cMaxSphereY / 2)
+        );
+    }
+
+    {
+        PrimitiveDrawUtil::Vertex sphereVtx[cMaxSphereVtxNum];
+        u16 sphereIdx[cMaxSphereIdxNum];
+
+        PrimitiveDrawUtil::setSphereVertex(sphereVtx, sphereIdx, cMaxSphereX, cMaxSphereY);
+        createBuffer_(
+            &mSphereLVtx, &mSphereLIdx,
+            sphereVtx,
+            sizeof(PrimitiveDrawUtil::Vertex) * PrimitiveDrawUtil::calcSphereVertexNum(cMaxSphereX, cMaxSphereY),
+            sphereIdx,
+            sizeof(u16) * PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX, cMaxSphereY)
+        );
+    }
+
+    TextureUtil::createTextureImage2DWGPU(
+        &mDefaultTexture,
+        1,
+        WGPUTextureFormat_RGBA8Unorm,
+        1,
+        1,
+        WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst
+    );
 }
 
 void PrimitiveDrawMgrWGPU::prepareImpl(Heap* heap, const SafeString&)
@@ -212,6 +283,12 @@ void PrimitiveDrawMgrWGPU::endImpl(DrawContext* drawContext)
 
 void PrimitiveDrawMgrWGPU::drawQuadImpl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& colorL, const Color4f& colorR)
 {
+    drawPolygon_(drawContext, modelMtx,
+                 mQuadVtx, mQuadIdx,
+                 sizeof(PrimitiveDrawUtil::Vertex) * 4,
+                 sizeof(u16) * 3 * 2,
+                 6,
+                 colorL, colorR);
 }
 
 void PrimitiveDrawMgrWGPU::drawQuadImpl(
@@ -254,18 +331,44 @@ void PrimitiveDrawMgrWGPU::drawQuadImpl(
 
 void PrimitiveDrawMgrWGPU::drawBoxImpl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& colorL, const Color4f& colorR)
 {
+    drawLines_(drawContext, modelMtx,
+               WGPUPrimitiveTopology_LineList,
+               mBoxVtx, mBoxIdx,
+               sizeof(PrimitiveDrawUtil::Vertex) * 4,
+               sizeof(u16) * 8,
+               8,
+               colorL, colorR);
 }
 
 void PrimitiveDrawMgrWGPU::drawLineImpl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& c0, const Color4f& c1)
 {
+    drawLines_(drawContext, modelMtx,
+               WGPUPrimitiveTopology_LineList,
+               mLineVtx, mLineIdx,
+               sizeof(PrimitiveDrawUtil::Vertex) * 2,
+               sizeof(u16) * 2,
+               2,
+               c0, c1);
 }
 
 void PrimitiveDrawMgrWGPU::drawSphere4x8Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south)
 {
+    drawPolygon_(drawContext, modelMtx,
+                 mSphereSVtx, mSphereSIdx,
+                 sizeof(PrimitiveDrawUtil::Vertex) * PrimitiveDrawUtil::calcSphereVertexNum(cMaxSphereX / 2, cMaxSphereY / 2),
+                 sizeof(u16) * PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX / 2, cMaxSphereY / 2),
+                 PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX / 2, cMaxSphereY / 2),
+                 north, south);
 }
 
 void PrimitiveDrawMgrWGPU::drawSphere8x16Impl(DrawContext* drawContext, const Matrix34f& modelMtx, const Color4f& north, const Color4f& south)
 {
+    drawPolygon_(drawContext, modelMtx,
+                 mSphereLVtx, mSphereLIdx,
+                 sizeof(PrimitiveDrawUtil::Vertex) * PrimitiveDrawUtil::calcSphereVertexNum(cMaxSphereX, cMaxSphereY),
+                 sizeof(u16) * PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX, cMaxSphereY),
+                 PrimitiveDrawUtil::calcSphereIndexNum(cMaxSphereX, cMaxSphereY),
+                 north, south);
 }
 
 void PrimitiveDrawMgrWGPU::updateBindings_(const Texture* texture)
@@ -318,7 +421,7 @@ void PrimitiveDrawMgrWGPU::updateBindings_(const Texture* texture)
     }
 }
 
-void PrimitiveDrawMgrWGPU::createBuffer_(WGPUBuffer* vertex, WGPUBuffer* index, PrimitiveDrawUtil::Vertex* vertices, size_t verticesSize, u16* indices, size_t indicesSize)
+void PrimitiveDrawMgrWGPU::createBuffer_(WGPUBuffer* vertex, WGPUBuffer* index, const PrimitiveDrawUtil::Vertex* vertices, size_t verticesSize, const u16* indices, size_t indicesSize)
 {
     WGPUBufferDescriptor vbDesc = {
         .usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst,
@@ -335,6 +438,71 @@ void PrimitiveDrawMgrWGPU::createBuffer_(WGPUBuffer* vertex, WGPUBuffer* index, 
 
     *index = wgpuDeviceCreateBuffer(GraphicsWGPU::instance()->getDevice(), &ibDesc);
     wgpuQueueWriteBuffer(GraphicsWGPU::instance()->getQueue(), *index, 0, indices, indicesSize);
+}
+
+void PrimitiveDrawMgrWGPU::drawVertexBuffer_(
+    DrawContext* drawContext, const Matrix34f& modelMtx,
+    WGPUBuffer vertex, u64 vertexSize,
+    const Color4f& color0, const Color4f& color1)
+{
+    mUniformData.color0 = color0;
+    mUniformData.color1 = color1;
+    mUniformData.user = Matrix44f(modelMtx);
+    mUniformData.rate = 0.0f;
+    mUniformData.uvSrc = Vector2f::zero;
+    mUniformData.uvSize = Vector2f::ones;
+
+    wgpuQueueWriteBuffer(GraphicsWGPU::instance()->getQueue(), mUniforms,
+                         mDrawCalls * sizeof(Uniforms), &mUniformData, sizeof(Uniforms));
+
+    updateBindings_(&mDefaultTexture);
+
+    u32 bindOffs[1] = { static_cast<u32>(mDrawCalls * sizeof(Uniforms)) };
+    u32* bindOffsAll[] = { bindOffs };
+    u32 bindOffsNum = 1;
+    drawContext->setBindGroup(&mBindGroup, 1, bindOffsAll, &bindOffsNum, mPipelineLayout);
+
+    u64 bufferOfs = 0;
+    drawContext->setVertexBuffer(&vertex, &bufferOfs, &vertexSize, 1, &mVertexLayout);
+}
+
+void PrimitiveDrawMgrWGPU::drawPolygon_(
+    DrawContext* drawContext, const Matrix34f& modelMtx,
+    WGPUBuffer vertex, WGPUBuffer index,
+    u64 vertexSize, u64 indexSize, u32 indexCount,
+    const Color4f& color0, const Color4f& color1)
+{
+    drawVertexBuffer_(drawContext, modelMtx, vertex, vertexSize, color0, color1);
+
+    drawContext->setIndexBuffer(index, WGPUIndexFormat_Uint16, 0, indexSize);
+    drawContext->drawIndexed(WGPUPrimitiveTopology_TriangleList, 0, indexCount);
+
+    mDrawCalls++;
+    if (mDrawCalls >= cFrameDrawLimit)
+    {
+        // ring buffer
+        mDrawCalls = 0;
+    }
+}
+
+void PrimitiveDrawMgrWGPU::drawLines_(
+    DrawContext* drawContext, const Matrix34f& modelMtx,
+    WGPUPrimitiveTopology topology,
+    WGPUBuffer vertex, WGPUBuffer index,
+    u64 vertexSize, u64 indexSize, u32 indexCount,
+    const Color4f& color0, const Color4f& color1)
+{
+    drawVertexBuffer_(drawContext, modelMtx, vertex, vertexSize, color0, color1);
+
+    drawContext->setIndexBuffer(index, WGPUIndexFormat_Uint16, 0, indexSize);
+    drawContext->drawIndexed(topology, 0, indexCount);
+
+    mDrawCalls++;
+    if (mDrawCalls >= cFrameDrawLimit)
+    {
+        // ring buffer
+        mDrawCalls = 0;
+    }
 }
 
 } // namespace sead

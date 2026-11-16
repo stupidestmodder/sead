@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gfx/wgpu/seadWGPU.h>
+#include <gfx/wgpu/seadTextureWGPU.h>
 #include <gfx/seadPrimitiveDrawMgrBase.h>
 #include <gfx/seadPrimitiveDrawUtil.h>
 #include <heap/seadDisposer.h>
@@ -46,7 +47,19 @@ public:
 
 protected:
     void updateBindings_(const Texture* texture);
-    void createBuffer_(WGPUBuffer* vertex, WGPUBuffer* index, PrimitiveDrawUtil::Vertex* vertices, size_t verticesSize, u16* indices, size_t indicesSize);
+    void createBuffer_(WGPUBuffer* vertex, WGPUBuffer* index, const PrimitiveDrawUtil::Vertex* vertices, size_t verticesSize, const u16* indices, size_t indicesSize);
+    void drawVertexBuffer_(DrawContext* drawContext, const Matrix34f& modelMtx,
+                           WGPUBuffer vertex, u64 vertexSize,
+                           const Color4f& color0, const Color4f& color1);
+    void drawPolygon_(DrawContext* drawContext, const Matrix34f& modelMtx,
+                      WGPUBuffer vertex, WGPUBuffer index,
+                      u64 vertexSize, u64 indexSize, u32 indexCount,
+                      const Color4f& color0, const Color4f& color1);
+    void drawLines_(DrawContext* drawContext, const Matrix34f& modelMtx,
+                    WGPUPrimitiveTopology topology,
+                    WGPUBuffer vertex, WGPUBuffer index,
+                    u64 vertexSize, u64 indexSize, u32 indexCount,
+                    const Color4f& color0, const Color4f& color1);
 
 protected:
     WGPUShaderModule mVS;
@@ -64,6 +77,15 @@ protected:
     WGPUVertexBufferLayout mVertexLayout;
     WGPUBuffer mQuadVtx;
     WGPUBuffer mQuadIdx;
+    WGPUBuffer mBoxVtx;
+    WGPUBuffer mBoxIdx;
+    WGPUBuffer mLineVtx;
+    WGPUBuffer mLineIdx;
+    WGPUBuffer mSphereSVtx;
+    WGPUBuffer mSphereSIdx;
+    WGPUBuffer mSphereLVtx;
+    WGPUBuffer mSphereLIdx;
+    TextureWGPU mDefaultTexture;
 };
 
 } // namespace sead

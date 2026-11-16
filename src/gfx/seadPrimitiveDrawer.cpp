@@ -144,6 +144,11 @@ void PrimitiveDrawer::drawLine(const Vector3f& from, const Vector3f& to, const C
     drawLine(from, to, color, color);
 }
 
+void PrimitiveDrawer::drawSphere4x8(const Color4f& north, const Color4f& south)
+{
+    getDrawMgr_()->drawSphere4x8Impl(mDrawContext, *mModelMtx, north, south);
+}
+
 void PrimitiveDrawer::drawSphere8x16(const Color4f& north, const Color4f& south)
 {
     getDrawMgr_()->drawSphere8x16Impl(mDrawContext, *mModelMtx, north, south);
