@@ -231,11 +231,41 @@ project "glfw"
             "libs/glfw/src/glx_context.c",
             "libs/glfw/src/egl_context.c",
             "libs/glfw/src/osmesa_context.c",
-            "libs/glfw/src/linux_joystick.c"
+            "libs/glfw/src/linux_joystick.c",
+            "libs/glfw/src/wl_init.c",
+            "libs/glfw/src/wl_monitor.c",
+            "libs/glfw/src/wl_window.c"
         }
     
         defines {
-            "_GLFW_X11"
+            "_GLFW_X11",
+            "_GLFW_WAYLAND"
+        }
+
+        includedirs {
+            "%{cfg.objdir}",
+        }
+
+        prebuildcommands {
+            "mkdir -p %{cfg.objdir}",
+            "wayland-scanner client-header libs/glfw/deps/wayland/wayland.xml %{cfg.objdir}/wayland-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/wayland.xml %{cfg.objdir}/wayland-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/viewporter.xml %{cfg.objdir}/viewporter-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/viewporter.xml %{cfg.objdir}/viewporter-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/xdg-shell.xml %{cfg.objdir}/xdg-shell-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/xdg-shell.xml %{cfg.objdir}/xdg-shell-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/idle-inhibit-unstable-v1.xml %{cfg.objdir}/idle-inhibit-unstable-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/idle-inhibit-unstable-v1.xml %{cfg.objdir}/idle-inhibit-unstable-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/pointer-constraints-unstable-v1.xml %{cfg.objdir}/pointer-constraints-unstable-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/pointer-constraints-unstable-v1.xml %{cfg.objdir}/pointer-constraints-unstable-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/relative-pointer-unstable-v1.xml %{cfg.objdir}/relative-pointer-unstable-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/relative-pointer-unstable-v1.xml %{cfg.objdir}/relative-pointer-unstable-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/fractional-scale-v1.xml %{cfg.objdir}/fractional-scale-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/fractional-scale-v1.xml %{cfg.objdir}/fractional-scale-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/xdg-activation-v1.xml %{cfg.objdir}/xdg-activation-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/xdg-activation-v1.xml %{cfg.objdir}/xdg-activation-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/xdg-decoration-unstable-v1.xml %{cfg.objdir}/xdg-decoration-unstable-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/xdg-decoration-unstable-v1.xml %{cfg.objdir}/xdg-decoration-unstable-v1-client-protocol-code.h",
         }
     
     filter "system:macosx"

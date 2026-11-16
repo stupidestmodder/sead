@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #if defined(SEAD_PLATFORM_LINUX)
     #define GLFW_EXPOSE_NATIVE_X11
+    #define GLFW_EXPOSE_NATIVE_WAYLAND
 #elif defined(SEAD_PLATFORM_MACOSX)
     #define GLFW_EXPOSE_NATIVE_COCOA
 #endif // TODO: windows?
@@ -101,16 +102,47 @@ void GraphicsWGPU::initializeImpl(Heap* heap)
     WGPUSurfaceDescriptor surfaceDescriptor = {};
 
 #if defined(SEAD_PLATFORM_LINUX)
-    // TODO: support Wayland...
-    Window rawWindow = glfwGetX11Window(static_cast<GLFWwindow*>(mWindow));
-    Display* rawDisplay = glfwGetX11Display();
-    SEAD_ASSERT(rawWindow && rawDisplay);
+    GLFWwindow* window = static_cast<GLFWwindow*>(mWindow);
+    
+    WGPUSurfaceSourceXlibWindow xlibSource = {};
+    WGPUSurfaceSourceWaylandSurface waylandSource = {};
 
-    WGPUSurfaceSourceXlibWindow surfaceSource = {};
-    surfaceSource.chain.sType = WGPUSType_SurfaceSourceXlibWindow;
-    surfaceSource.display = rawDisplay;
-    surfaceSource.window = rawWindow;
-    surfaceDescriptor.nextInChain = &surfaceSource.chain;
+    switch (glfwGetPlatform())
+    {
+    case GLFW_PLATFORM_X11:
+    {
+        Display* display = glfwGetX11Display();
+        Window x11Window = glfwGetX11Window(window);
+
+        SEAD_ASSERT(display && x11Window);
+
+        xlibSource.chain.sType = WGPUSType_SurfaceSourceXlibWindow;
+        xlibSource.display = display;
+        xlibSource.window = x11Window;
+
+        surfaceDescriptor.nextInChain = &xlibSource.chain;
+        break;
+    }
+
+    case GLFW_PLATFORM_WAYLAND:
+    {
+        wl_display* display = glfwGetWaylandDisplay();
+        wl_surface* wlSurface = glfwGetWaylandWindow(window);
+
+        SEAD_ASSERT(display && wlSurface);
+
+        waylandSource.chain.sType = WGPUSType_SurfaceSourceWaylandSurface;
+        waylandSource.display = display;
+        waylandSource.surface = wlSurface;
+
+        surfaceDescriptor.nextInChain = &waylandSource.chain;
+        break;
+    }
+
+    default:
+        SEAD_ASSERT_MSG(false, "unknown windowing system.");
+    }
+
 #endif // TODO: support mac and windows
 
     mSurface = wgpuInstanceCreateSurface(mInstance, &surfaceDescriptor);

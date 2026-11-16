@@ -49,6 +49,13 @@ void GameFrameworkGlfwWGPU::initializeGraphicsSystem(Heap* heap, const Vector2f&
 
 void GameFrameworkGlfwWGPU::procFrame_()
 {
+    if (getDisplayState() == DisplayState::eReady)
+    {
+        glfwShowWindow(mWindow);
+
+        mDisplayState = DisplayState::eShow;
+    }
+
     ProcessMeter* proc = ProcessMeter::instance();
     if (proc)
         proc->measureBeginFrame();
@@ -69,13 +76,6 @@ void GameFrameworkGlfwWGPU::procFrame_()
 
     if (proc)
         proc->measureEndFrame();
-
-    if (getDisplayState() == DisplayState::eReady)
-    {
-        glfwShowWindow(mWindow);
-
-        mDisplayState = DisplayState::eShow;
-    }
 }
 
 void GameFrameworkGlfwWGPU::procDraw_()
