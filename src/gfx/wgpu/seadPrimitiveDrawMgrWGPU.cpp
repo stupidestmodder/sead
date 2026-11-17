@@ -496,8 +496,6 @@ void PrimitiveDrawMgrWGPU::updateBindings_(const Texture* texture)
 
         if (mBindGroup)
             wgpuBindGroupRelease(mBindGroup);
-        if (mPipelineLayout)
-            wgpuPipelineLayoutRelease(mPipelineLayout);
     
         WGPUBindGroupEntry entries[3] = {};
         // uniforms
@@ -518,12 +516,15 @@ void PrimitiveDrawMgrWGPU::updateBindings_(const Texture* texture)
             .entries = entries
         };
         mBindGroup = wgpuDeviceCreateBindGroup(GraphicsWGPU::instance()->getDevice(), &bindDesc);
-    
-        WGPUPipelineLayoutDescriptor pipelineLayoutDesc = {
-            .bindGroupLayoutCount = 1,
-            .bindGroupLayouts = &mGroupLayout
-        };
-        mPipelineLayout = wgpuDeviceCreatePipelineLayout(GraphicsWGPU::instance()->getDevice(), &pipelineLayoutDesc);
+
+        if (mPipelineLayout == nullptr)
+        {
+            WGPUPipelineLayoutDescriptor pipelineLayoutDesc = {
+                .bindGroupLayoutCount = 1,
+                .bindGroupLayouts = &mGroupLayout
+            };
+            mPipelineLayout = wgpuDeviceCreatePipelineLayout(GraphicsWGPU::instance()->getDevice(), &pipelineLayoutDesc);
+        }
     }
 }
 
