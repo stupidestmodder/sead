@@ -33,6 +33,8 @@ DrawContext::~DrawContext()
 
 void DrawContext::setCommandBuffer()
 {
+    SEAD_ASSERT_MSG(mEncoder == nullptr, "must flush old command buffer.");
+
     mEncoder = wgpuDeviceCreateCommandEncoder(mDevice, nullptr);
 }
 
