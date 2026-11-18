@@ -6,6 +6,8 @@
 
 #if defined(SEAD_USE_GL)
 #include <gfx/gl/seadGL.h>
+#elif defined(SEAD_USE_WGPU)
+#include <gfx/wgpu/seadWGPU.h>
 #endif
 
 namespace sead {
@@ -38,6 +40,15 @@ public:
         eNever = GL_NEVER,
         eEqual = GL_EQUAL,
         eNotEqual = GL_NOTEQUAL,
+#elif defined(SEAD_USE_WGPU)
+        eLessEqual = WGPUCompareFunction_LessEqual,
+        eLess = WGPUCompareFunction_Less,
+        eGreaterEqual = WGPUCompareFunction_GreaterEqual,
+        eGreater = WGPUCompareFunction_Greater,
+        eAlways = WGPUCompareFunction_Always,
+        eNever = WGPUCompareFunction_Never,
+        eEqual = WGPUCompareFunction_Equal,
+        eNotEqual = WGPUCompareFunction_NotEqual,
 #endif
         eInvalid = 0xFFFFFFFF
     };
@@ -49,6 +60,11 @@ public:
         eBack = GL_BACK,
         eNone = 0xFFFFFFF0,
         eAll = 0xFFFFFFF1,
+#elif defined(SEAD_USE_WGPU)
+        eFront = WGPUCullMode_Front,
+        eBack = WGPUCullMode_Back,
+        eNone = WGPUCullMode_None,
+        //eAll = 0xFFFFFFF1, (WebGPU has no FRONT_AND_BACK so this must be handled specially)
 #endif
         eInvalid = 0xFFFFFFFF
     };
@@ -71,6 +87,22 @@ public:
         eConstantAlpha = GL_CONSTANT_ALPHA,
         eInvConstantAlpha = GL_ONE_MINUS_CONSTANT_ALPHA,
         eSrcAlphaSaturate = GL_SRC_ALPHA_SATURATE,
+#elif defined(SEAD_USE_WGPU)
+        eZero = WGPUBlendFactor_Zero,
+        eOne = WGPUBlendFactor_One,
+        eSrcColor = WGPUBlendFactor_Src,
+        eInvSrcColor = WGPUBlendFactor_OneMinusSrc,
+        eSrcAlpha = WGPUBlendFactor_SrcAlpha,
+        eInvSrcAlpha = WGPUBlendFactor_OneMinusSrcAlpha,
+        eDstColor = WGPUBlendFactor_Dst,
+        eInvDstColor = WGPUBlendFactor_OneMinusDst,
+        eDstAlpha = WGPUBlendFactor_DstAlpha,
+        eInvDstAlpha = WGPUBlendFactor_OneMinusDstAlpha,
+        eConstantColor = WGPUBlendFactor_Constant,
+        eInvConstantColor = WGPUBlendFactor_OneMinusConstant,
+        //eConstantAlpha = 0xFFFFFFF0,
+        //eInvConstantAlpha = 0xFFFFFFF1,
+        eSrcAlphaSaturate = WGPUBlendFactor_SrcAlphaSaturated,
 #endif
         eInvalid = 0xFFFFFFFF
     };
@@ -83,6 +115,12 @@ public:
         eReverseSub = GL_FUNC_REVERSE_SUBTRACT,
         eMin = GL_MIN,
         eMax = GL_MAX,
+#elif defined(SEAD_USE_WGPU)
+        eAdd = WGPUBlendOperation_Add,
+        eSub = WGPUBlendOperation_Subtract,
+        eReverseSub = WGPUBlendOperation_ReverseSubtract,
+        eMin = WGPUBlendOperation_Min,
+        eMax = WGPUBlendOperation_Max,
 #endif
         eInvalid = 0xFFFFFFFF
     };
@@ -98,6 +136,15 @@ public:
         eNever = GL_NEVER,
         eEqual = GL_EQUAL,
         eNotEqual = GL_NOTEQUAL,
+#elif defined(SEAD_USE_WGPU)
+        eLessEqual = WGPUCompareFunction_LessEqual,
+        eLess = WGPUCompareFunction_Less,
+        eGreaterEqual = WGPUCompareFunction_GreaterEqual,
+        eGreater = WGPUCompareFunction_Greater,
+        eAlways = WGPUCompareFunction_Always,
+        eNever = WGPUCompareFunction_Never,
+        eEqual = WGPUCompareFunction_Equal,
+        eNotEqual = WGPUCompareFunction_NotEqual,
 #endif
         eInvalid = 0xFFFFFFFF
     };
@@ -113,6 +160,15 @@ public:
         eNever = GL_NEVER,
         eEqual = GL_EQUAL,
         eNotEqual = GL_NOTEQUAL,
+#elif defined(SEAD_USE_WGPU)
+        eLessEqual = WGPUCompareFunction_LessEqual,
+        eLess = WGPUCompareFunction_Less,
+        eGreaterEqual = WGPUCompareFunction_GreaterEqual,
+        eGreater = WGPUCompareFunction_Greater,
+        eAlways = WGPUCompareFunction_Always,
+        eNever = WGPUCompareFunction_Never,
+        eEqual = WGPUCompareFunction_Equal,
+        eNotEqual = WGPUCompareFunction_NotEqual,
 #endif
         eInvalid = 0xFFFFFFFF
     };
@@ -128,6 +184,15 @@ public:
         eInvert = GL_INVERT,
         eIncrementWrap = GL_INCR_WRAP,
         eDecrementWrap = GL_DECR_WRAP,
+#elif defined(SEAD_USE_WGPU)
+        eKeep = WGPUStencilOperation_Keep,
+        eZero = WGPUStencilOperation_Zero,
+        eReplace = WGPUStencilOperation_Replace,
+        eIncrement = WGPUStencilOperation_IncrementClamp,
+        eDecrement = WGPUStencilOperation_DecrementClamp,
+        eInvert = WGPUStencilOperation_Invert,
+        eIncrementWrap = WGPUStencilOperation_IncrementWrap,
+        eDecrementWrap = WGPUStencilOperation_DecrementWrap,
 #endif
         eInvalid = 0xFFFFFFFF
     };
@@ -138,6 +203,10 @@ public:
         ePoint = GL_POINT,
         eLine = GL_LINE,
         eFill = GL_FILL,
+#elif defined(SEAD_USE_WGPU)
+        //ePoint = WGPUPolygonMode_Point, // Requires WGPUNativeFeatures (no browser support)
+        //eLine = WGPUPolygonMode_Line,   // Requires WGPUNativeFeatures (no browser support)
+        eFill = WGPUPolygonMode_Fill,
 #endif
         eInvalid = 0xFFFFFFFF
     };

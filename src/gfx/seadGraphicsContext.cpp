@@ -1,4 +1,5 @@
 #include <gfx/seadGraphicsContext.h>
+#include <gfx/seadDrawContext.h>
 
 namespace sead {
 
@@ -80,6 +81,32 @@ void GraphicsContext::apply(DrawContext* drawContext) const
 
     // PolygonOffset
     gfx->setPolygonOffsetEnable(mPolygonOffsetFrontEnable, mPolygonOffsetBackEnable, mPolygonOffsetPointLineEnable);
+#elif defined(SEAD_USE_WGPU)
+    SEAD_ASSERT(mPolygonModeBack == mPolygonModeFront); // API restriction
+
+    drawContext->setGraphicsContext(
+        mCullingMode,
+        mPolygonModeBack,
+        mDepthTestEnable,
+        mDepthWriteEnable,
+        mDepthFunc,
+        mStencilTestEnable,
+        mStencilTestFunc,
+        mStencilTestMask,
+        mStencilTestRef,
+        mStencilOpFail,
+        mStencilOpZFail,
+        mStencilOpZPass,
+        mBlendEnable,
+        mBlendFactorSrcRGB,
+        mBlendFactorDstRGB,
+        mBlendEquationRGB,
+        mBlendFactorSrcA,
+        mBlendFactorDstA,
+        mBlendEquationA,
+        mColorMaskR, mColorMaskG, mColorMaskB, mColorMaskA,
+        mBlendConstantColor
+    );
 #else
 #error "Unsupported GFX backend"
 #endif

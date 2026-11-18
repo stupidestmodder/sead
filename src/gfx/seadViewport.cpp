@@ -1,5 +1,6 @@
 #include <gfx/seadViewport.h>
 
+#include <gfx/seadDrawContext.h>
 #include <gfx/seadFrameBuffer.h>
 #include <gfx/seadProjection.h>
 
@@ -54,9 +55,6 @@ void Viewport::setByFrameBuffer(const LogicalFrameBuffer& frameBuffer)
 
 void Viewport::apply(DrawContext* drawContext, const LogicalFrameBuffer& frameBuffer) const
 {
-#if defined(SEAD_USE_GL)
-    SEAD_UNUSED(drawContext);
-
     Vector2f realPos;
     getOnFrameBufferPos(&realPos, frameBuffer);
 
@@ -65,10 +63,16 @@ void Viewport::apply(DrawContext* drawContext, const LogicalFrameBuffer& frameBu
 
     assertAreaIsInFrameBufferPhysicalArea_(realPos, realSize, frameBuffer);
 
+#if defined(SEAD_USE_GL)
+    SEAD_UNUSED(drawContext);
+
     //realPos.y = (frameBuffer.getPhysicalArea().getSizeY() - realSize.y) - realPos.y;
 
     Graphics::instance()->setViewportRealPosition(realPos.x, realPos.y, realSize.x, realSize.y);
     Graphics::instance()->setScissorRealPosition(realPos.x, realPos.y, realSize.x, realSize.y);
+#elif defined(SEAD_USE_WGPU)
+    drawContext->setViewport(realPos.x, realPos.y, realSize.x, realSize.y);
+    drawContext->setScissor(realPos.x, realPos.y, realSize.x, realSize.y);
 #else
 #error "Unsupported GFX backend"
 #endif
@@ -76,9 +80,6 @@ void Viewport::apply(DrawContext* drawContext, const LogicalFrameBuffer& frameBu
 
 void Viewport::applyViewport(DrawContext* drawContext, const LogicalFrameBuffer& frameBuffer) const
 {
-#if defined(SEAD_USE_GL)
-    SEAD_UNUSED(drawContext);
-
     Vector2f realPos;
     getOnFrameBufferPos(&realPos, frameBuffer);
 
@@ -87,9 +88,14 @@ void Viewport::applyViewport(DrawContext* drawContext, const LogicalFrameBuffer&
 
     assertAreaIsInFrameBufferPhysicalArea_(realPos, realSize, frameBuffer);
 
+#if defined(SEAD_USE_GL)
+    SEAD_UNUSED(drawContext);
+
     //realPos.y = (frameBuffer.getPhysicalArea().getSizeY() - realSize.y) - realPos.y;
 
     Graphics::instance()->setViewportRealPosition(realPos.x, realPos.y, realSize.x, realSize.y);
+#elif defined(SEAD_USE_WGPU)
+    drawContext->setViewport(realPos.x, realPos.y, realSize.x, realSize.y);
 #else
 #error "Unsupported GFX backend"
 #endif
@@ -97,9 +103,6 @@ void Viewport::applyViewport(DrawContext* drawContext, const LogicalFrameBuffer&
 
 void Viewport::applyScissor(DrawContext* drawContext, const LogicalFrameBuffer& frameBuffer) const
 {
-#if defined(SEAD_USE_GL)
-    SEAD_UNUSED(drawContext);
-
     Vector2f realPos;
     getOnFrameBufferPos(&realPos, frameBuffer);
 
@@ -108,9 +111,14 @@ void Viewport::applyScissor(DrawContext* drawContext, const LogicalFrameBuffer& 
 
     assertAreaIsInFrameBufferPhysicalArea_(realPos, realSize, frameBuffer);
 
+#if defined(SEAD_USE_GL)
+    SEAD_UNUSED(drawContext);
+
     //realPos.y = (frameBuffer.getPhysicalArea().getSizeY() - realSize.y) - realPos.y;
 
     Graphics::instance()->setScissorRealPosition(realPos.x, realPos.y, realSize.x, realSize.y);
+#elif defined(SEAD_USE_WGPU)
+    drawContext->setScissor(realPos.x, realPos.y, realSize.x, realSize.y);
 #else
 #error "Unsupported GFX backend"
 #endif

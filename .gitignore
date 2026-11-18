@@ -24,6 +24,7 @@ compile_commands.json
 *.lai
 *.la
 *.a
+!/libs/**/*.a
 
 # Executables
 *.out

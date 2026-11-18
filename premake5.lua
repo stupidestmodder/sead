@@ -26,6 +26,7 @@ project "sead"
         "src/**win/**",
         
         "src/**gl/**",
+        "src/**wgpu/**",
 
         "src/**sdl/**",
         "src/**glfw/**",
@@ -44,8 +45,6 @@ project "sead"
         links {
             "Winmm.lib",
             "Ws2_32.lib",
-            "opengl32.lib",
-            -- "glad",
         }
 
     filter "system:linux"
@@ -69,7 +68,6 @@ project "sead"
             "Cocoa.framework",
             "IOKit.framework",
             "CoreVideo.framework",
-            "OpenGL.framework",
             "QuartzCore.framework",
             "UniformTypeIdentifiers.framework"
         }
@@ -77,18 +75,14 @@ project "sead"
     filter "platforms:GLFW_*"
         defines {
             "SEAD_PLATFORM_GLFW",
-            "SEAD_USE_GL",
         }
 
         includedirs {
-            "libs/glad/include",
             "libs/glfw/include",
         }
 
         files {
             "src/**glfw/**",
-
-            "src/**gl/**",
         }
 
         removefiles {
@@ -96,13 +90,16 @@ project "sead"
         }
 
         links {
-            -- "glad",
             "glfw",
         }
 
     filter "platforms:Win_*"
         defines {
             "SEAD_PLATFORM_WINDOWS",
+        }
+
+    filter "platforms:*_GL"
+        defines {
             "SEAD_USE_GL",
         }
 
@@ -111,17 +108,48 @@ project "sead"
         }
 
         files {
-            "src/**win/**",
-
             "src/**gl/**",
         }
 
-        links {
-            "Winmm.lib",
-            "Ws2_32.lib",
-            "opengl32.lib",
-            -- "glad",
+        removefiles {
+            "src/framework/**WGPU.cpp",
         }
+
+    filter { "platforms:*_GL", "system:windows" }
+        links { "opengl32.lib" }
+
+    filter { "platforms:*_GL", "system:macosx" }
+        links { "OpenGL.framework" }
+
+    filter "platforms:*_WGPU"
+        defines {
+            "SEAD_USE_WGPU",
+        }
+
+        includedirs {
+            "libs/wgpu/include",
+        }
+
+        files {
+            "src/**wgpu/**",
+        }
+
+        removefiles {
+            "src/framework/**GL.cpp",
+        }
+
+        libdirs {
+            "libs/wgpu/lib",
+        }
+
+    filter { "platforms:*_WGPU", "system:linux" }
+        links { "wgpu-linux-x86_64" }
+
+    filter { "platforms:*_WGPU", "system:windows" }
+        -- TODO: Link prebuilt webgpu library
+
+    filter { "platforms:*_WGPU", "system:macosx" }
+        -- TODO: Link prebuilt webgpu library
 
     filter "configurations:Debug"
         defines { "SEAD_TARGET_DEBUG" }
@@ -203,11 +231,41 @@ project "glfw"
             "libs/glfw/src/glx_context.c",
             "libs/glfw/src/egl_context.c",
             "libs/glfw/src/osmesa_context.c",
-            "libs/glfw/src/linux_joystick.c"
+            "libs/glfw/src/linux_joystick.c",
+            "libs/glfw/src/wl_init.c",
+            "libs/glfw/src/wl_monitor.c",
+            "libs/glfw/src/wl_window.c"
         }
     
         defines {
-            "_GLFW_X11"
+            "_GLFW_X11",
+            "_GLFW_WAYLAND"
+        }
+
+        includedirs {
+            "%{cfg.objdir}",
+        }
+
+        prebuildcommands {
+            "mkdir -p %{cfg.objdir}",
+            "wayland-scanner client-header libs/glfw/deps/wayland/wayland.xml %{cfg.objdir}/wayland-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/wayland.xml %{cfg.objdir}/wayland-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/viewporter.xml %{cfg.objdir}/viewporter-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/viewporter.xml %{cfg.objdir}/viewporter-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/xdg-shell.xml %{cfg.objdir}/xdg-shell-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/xdg-shell.xml %{cfg.objdir}/xdg-shell-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/idle-inhibit-unstable-v1.xml %{cfg.objdir}/idle-inhibit-unstable-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/idle-inhibit-unstable-v1.xml %{cfg.objdir}/idle-inhibit-unstable-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/pointer-constraints-unstable-v1.xml %{cfg.objdir}/pointer-constraints-unstable-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/pointer-constraints-unstable-v1.xml %{cfg.objdir}/pointer-constraints-unstable-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/relative-pointer-unstable-v1.xml %{cfg.objdir}/relative-pointer-unstable-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/relative-pointer-unstable-v1.xml %{cfg.objdir}/relative-pointer-unstable-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/fractional-scale-v1.xml %{cfg.objdir}/fractional-scale-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/fractional-scale-v1.xml %{cfg.objdir}/fractional-scale-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/xdg-activation-v1.xml %{cfg.objdir}/xdg-activation-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/xdg-activation-v1.xml %{cfg.objdir}/xdg-activation-v1-client-protocol-code.h",
+            "wayland-scanner client-header libs/glfw/deps/wayland/xdg-decoration-unstable-v1.xml %{cfg.objdir}/xdg-decoration-unstable-v1-client-protocol.h",
+            "wayland-scanner private-code libs/glfw/deps/wayland/xdg-decoration-unstable-v1.xml %{cfg.objdir}/xdg-decoration-unstable-v1-client-protocol-code.h",
         }
     
     filter "system:macosx"

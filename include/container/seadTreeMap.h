@@ -178,7 +178,7 @@ public:
         {
             clear();
 
-            delete[] mFreeList.work();
+            delete[] static_cast<u8*>(mFreeList.work());
 
             mNodeMax = 0;
             mFreeList.cleanup();

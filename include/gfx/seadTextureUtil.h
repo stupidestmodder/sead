@@ -1,7 +1,11 @@
 #pragma once
 
+#include <basis/seadTypes.h>
+
 #if defined(SEAD_USE_GL)
 #include <gfx/gl/seadGL.h>
+#elif defined(SEAD_USE_WGPU)
+#include <gfx/wgpu/seadWGPU.h>
 #endif
 
 namespace sead {
@@ -11,6 +15,8 @@ class ReadStream;
 
 #if defined(SEAD_USE_GL)
 class TextureGL;
+#elif defined(SEAD_USE_WGPU)
+class TextureWGPU;
 #endif
 
 class TextureUtil
@@ -24,6 +30,8 @@ public:
                                        GLint border, GLint format, GLenum type, const GLvoid* pixels);
 
     static bool createTextureFromBitmapGL(TextureGL* dst, ReadStream* src, Heap* heap);
+#elif defined(SEAD_USE_WGPU)
+    static bool createTextureImage2DWGPU(TextureWGPU* dst, u32 level, WGPUTextureFormat format, u32 width, u32 height, WGPUTextureUsage usage, u32 samples = 1);
 #endif
 };
 

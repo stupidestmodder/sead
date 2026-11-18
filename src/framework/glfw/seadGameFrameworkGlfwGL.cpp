@@ -34,6 +34,8 @@ void GameFrameworkGlfwGL::initializeGraphicsSystem(Heap* heap, const Vector2f& v
 {
     mGLHeap = ExpHeap::create(5 * 1024 * 1024, "GLHeap", heap, Heap::HeapDirection::eForward, true);
 
+    createWindow_();
+
     glfwMakeContextCurrent(mWindow);
     {
         s32 result = gladLoaderLoadGL();
@@ -66,9 +68,11 @@ void GameFrameworkGlfwGL::createWindow_()
         return;
     }
 
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
 #if defined(SEAD_PLATFORM_MACOSX)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);

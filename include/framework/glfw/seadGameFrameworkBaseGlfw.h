@@ -12,26 +12,15 @@ class GameFrameworkBaseGlfw : public GameFramework
 public:
     struct CreateArg
     {
-        CreateArg()
-            : width(1280)
-            , height(720)
-            , wait_vblank(1)
-            , fps(60.0f)
-            , window_name("GameFrameworkGlfw")
-            // , window_ex_style(0)
-            , clear_color(Color4f::cGray)
-            , create_default_framebuffer(true)
-        {
-        }
-
-        s32 width;
-        s32 height;
-        u32 wait_vblank;
-        f32 fps;
-        SafeString window_name;
-        // DWORD window_ex_style;
-        Color4f clear_color;
-        bool create_default_framebuffer;
+        s32 width = 1280;
+        s32 height = 720;
+        u32 wait_vblank = 1;
+        f32 fps = 60.0f;
+        SafeString window_name = "GameFrameworkGlfwWGPU";
+        // DWORD window_ex_style = 0;
+        Color4f clear_color = Color4f::cGray;
+        bool create_default_framebuffer = true;
+        u32 pipeline_cache_size = 2048;
     };
 
 public:

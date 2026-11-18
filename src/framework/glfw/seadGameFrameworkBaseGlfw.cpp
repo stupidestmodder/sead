@@ -27,7 +27,22 @@ GameFrameworkBaseGlfw::GameFrameworkBaseGlfw(const CreateArg& arg)
     SEAD_ASSERT(!sInstance);
     sInstance = this;
 
-    createWindow_();
+    mGlfwHeap = ExpHeap::create(5 * 1024 * 1024, "GlfwHeap", HeapMgr::instance()->findContainHeap(this), Heap::HeapDirection::eForward, true);
+    {
+        CurrentHeapSetter chs(mGlfwHeap);
+
+        glfwSetErrorCallback([](s32 error, const char* description) {
+            SEAD_ASSERT_MSG(false, "GLFW Error(%d): %s\n", error, description);
+        });
+
+        if (!glfwInit())
+        {
+            SEAD_ASSERT_MSG(false, "glfwInit failed");
+            return;
+        }
+
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    }
 }
 
 GameFrameworkBaseGlfw::~GameFrameworkBaseGlfw()
@@ -137,30 +152,9 @@ MethodTreeMgr* GameFrameworkBaseGlfw::createMethodTreeMgr_(Heap* heap)
 
 void GameFrameworkBaseGlfw::createWindow_()
 {
-    mGlfwHeap = ExpHeap::create(5 * 1024 * 1024, "GlfwHeap", HeapMgr::instance()->findContainHeap(this), Heap::HeapDirection::eForward, true);
-
     //* Window creation
     {
         CurrentHeapSetter chs(mGlfwHeap);
-
-        glfwSetErrorCallback([](s32 error, const char* description) {
-            SEAD_ASSERT_MSG(false, "GLFW Error(%d): %s\n", error, description);
-        });
-
-        if (!glfwInit())
-        {
-            SEAD_ASSERT_MSG(false, "glfwInit failed");
-            return;
-        }
-
-        // TODO: Should come from GameFrameworkGlfwGL
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#if defined(SEAD_PLATFORM_MACOSX)
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
 
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         mWindow = glfwCreateWindow(mArg.width, mArg.height, mArg.window_name.cstr(), nullptr, nullptr);

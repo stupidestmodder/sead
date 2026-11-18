@@ -6,6 +6,8 @@
 
 #if defined(SEAD_USE_GL)
 #include <gfx/gl/seadPrimitiveDrawMgrGL.h>
+#elif defined(SEAD_USE_WGPU)
+#include <gfx/wgpu/seadPrimitiveDrawMgrWGPU.h>
 #endif
 
 namespace sead {
@@ -142,6 +144,11 @@ void PrimitiveDrawer::drawLine(const Vector3f& from, const Vector3f& to, const C
     drawLine(from, to, color, color);
 }
 
+void PrimitiveDrawer::drawSphere4x8(const Color4f& north, const Color4f& south)
+{
+    getDrawMgr_()->drawSphere4x8Impl(mDrawContext, *mModelMtx, north, south);
+}
+
 void PrimitiveDrawer::drawSphere8x16(const Color4f& north, const Color4f& south)
 {
     getDrawMgr_()->drawSphere8x16Impl(mDrawContext, *mModelMtx, north, south);
@@ -151,6 +158,8 @@ PrimitiveDrawMgrBase* PrimitiveDrawer::createDrawMgrInstance_(Heap* heap)
 {
 #if defined(SEAD_USE_GL)
     return PrimitiveDrawMgrGL::createInstance(heap);
+#elif defined (SEAD_USE_WGPU)
+    return PrimitiveDrawMgrWGPU::createInstance(heap);
 #endif
 }
 
@@ -158,6 +167,8 @@ PrimitiveDrawMgrBase* PrimitiveDrawer::getDrawMgr_()
 {
 #if defined(SEAD_USE_GL)
     return PrimitiveDrawMgrGL::instance();
+#elif defined(SEAD_USE_WGPU)
+    return PrimitiveDrawMgrWGPU::instance();
 #endif
 }
 
