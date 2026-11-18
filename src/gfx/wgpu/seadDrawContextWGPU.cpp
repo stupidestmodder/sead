@@ -45,7 +45,8 @@ void DrawContext::flushCommandBuffer()
 
     // force commit pending operations
     if (mRenderPassEncoder == nullptr && (mRenderPassState.colorAttachmentCount > 0 || mRenderPassState.hasDepthStencil))
-        getRenderPass();
+        commitRenderPass_();
+
     endPass();
 
     WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(mEncoder, nullptr);
